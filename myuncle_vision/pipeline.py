@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""End-to-end pipeline: a directory of whole-slide images in, a directory of results out (one command, no manual step).
+"""End-to-end pipeline: a directory of images (whole-slide images first) in, a directory of results out (one command, no manual step).
 
     slides -> tissue mask -> patch grid -> QC -> embeddings -> cohort space -> lattice maps (order, entropy, transitions) -> novelty -> regions -> findings
            -> per-slide annotations / masks / heat maps / patch scores, findings with explanations, progression scenarios, images_used.csv, run_manifest.json
@@ -37,7 +37,7 @@ class RunConfig:
     progression: bool = False        # EXPLORATORY MyUncle scenario analysis (opt-in, --scenarios): a modelling analogy, not evidence about disease progression
     figures: bool = True
     hash_files: bool = False         # SHA-256 of every input file (slow for TB-scale input)
-    data_source: str = "KPMP open data supplied by the user (the user confirms that no controlled-access data are used)"
+    data_source: str = "images supplied by the user (the user confirms the right to use them)"    # written into images_used.csv; set it to document the provenance of the data (e.g. a public data release)
     batch: int = 128
 
 
@@ -87,7 +87,7 @@ def load_slide(path, cfg, encoder, outdir):
     return sd
 
 
-def run(input_dir, output_dir, cfg=None, log=print):
+def run(input_dir, output_dir, cfg=None, log=print, encoder=None):
     cfg = cfg or RunConfig()
     t0 = time.time()
     os.makedirs(output_dir, exist_ok=True)
@@ -95,7 +95,7 @@ def run(input_dir, output_dir, cfg=None, log=print):
     if not paths:
         raise SystemExit("no slide files (%s) found in %s" % ("/".join(wsi.SLIDE_EXT), input_dir))
     from .encoder import get_encoder
-    encoder = get_encoder(cfg.encoder, cfg.device)
+    encoder = encoder if encoder is not None else get_encoder(cfg.encoder, cfg.device)       # any object with name, dim, model_files and encode(uint8 patches) -> embeddings
     log("[run] %d slides, encoder %s" % (len(paths), encoder.name))
     slides, used, errors = [], [], []
     for p in paths:

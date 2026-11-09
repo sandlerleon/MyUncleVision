@@ -288,6 +288,41 @@ def test_cli_run_single_command_writes_all_outputs():
         assert len(used) == 4 and all("used" in u for u in used[1:])
 
 
+def test_python_api_with_custom_encoder_on_arrays():
+    """discover_arrays + CallableEncoder: a user-supplied embedding function on in-memory images, no files prepared by the user"""
+    import myuncle_vision as muv
+    rng = np.random.default_rng(0)
+    imgs = []
+    for seed in (21, 22, 23):
+        img, _ = S.make_slide(seed=seed, size=1792, anomalies=(), anomaly_radius=150)
+        imgs.append(np.asarray(img))
+    calls = []
+
+    def fn(p):
+        calls.append(len(p))
+        return np.stack([p.reshape(len(p), -1, 3).mean(1)[:, 0], p.reshape(len(p), -1, 3).std(1)[:, 1], p.reshape(len(p), -1, 3).mean(1)[:, 2]], 1) + 0.0 * rng.random((len(p), 3))
+    enc = muv.CallableEncoder(fn, dim=3, name="toy")
+    with tempfile.TemporaryDirectory() as tmp:
+        res = muv.discover_arrays(imgs, os.path.join(tmp, "o"), encoder=enc, log=lambda *a: None, figures=False, progression=False)
+        assert sum(calls) > 0
+        used = open(os.path.join(tmp, "o", "images_used.csv")).read().splitlines()
+        assert len(used) == 4
+        man = json.load(open(os.path.join(tmp, "o", "run_manifest.json")))
+        assert "toy" in json.dumps(man)
+
+
+def test_encoder_module_loader_and_demo_command():
+    import subprocess
+    from myuncle_vision.encoder import load_encoder_module
+    enc = load_encoder_module(os.path.join(HERE, "..", "examples", "custom_encoder.py") + ":encode", 48)
+    z = enc.encode(np.random.default_rng(0).integers(0, 255, (5, 32, 32, 3), dtype=np.uint8))
+    assert z.shape == (5, 48) and np.all(np.isfinite(z))
+    with tempfile.TemporaryDirectory() as tmp:
+        r = subprocess.run([sys.executable, "-m", "myuncle_vision", "demo", "--output", os.path.join(tmp, "d")], cwd=os.path.join(HERE, ".."), capture_output=True, text=True, timeout=900)
+        assert r.returncode == 0, r.stderr[-800:]
+        assert os.path.exists(os.path.join(tmp, "d", "findings.csv")) and os.path.exists(os.path.join(tmp, "d", "run_manifest.json"))
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

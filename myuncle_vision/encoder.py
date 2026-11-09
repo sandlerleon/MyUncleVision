@@ -5,6 +5,8 @@
     handcrafted  deterministic colour / stain / gradient-orientation / texture features (no model file, 64-d).  Used by the tests and as the offline fallback; it is reported in the run manifest.
 
 Every encoder maps uint8 patches (N, H, W, 3) to float32 embeddings (N, D).  Neither encoder is trained on kidney tissue; the platform is unsupervised and the choice is a documented limitation."""
+import os
+
 import numpy as np
 
 from .wsi import hed_od, hsv_arrays
@@ -80,6 +82,28 @@ class DinoV2Encoder:
                 z = self.model((x - self.mean) / self.std)
                 out.append(z.float().cpu().numpy())
         return np.concatenate(out).astype(np.float32) if out else np.zeros((0, self.dim), np.float32)
+
+
+class CallableEncoder:
+    """wrap any function patches (N, H, W, 3 uint8) -> embeddings (N, D) as an encoder, e.g. a pathology-pretrained model of your own:  CallableEncoder(my_fn, dim=768, name="uni")"""
+
+    def __init__(self, fn, dim, name="custom", model_files=()):
+        self.fn, self.dim, self.name, self.model_files = fn, int(dim), name, list(model_files)
+
+    def encode(self, patches):
+        z = np.asarray(self.fn(patches), np.float32)
+        assert z.ndim == 2 and z.shape[0] == len(patches), "the encoder function must return an array of shape (n_patches, dim)"
+        return z
+
+
+def load_encoder_module(spec, dim, name=None):
+    """'path/to/file.py:function' -> CallableEncoder (the function maps a uint8 array (N, H, W, 3) to (N, dim) embeddings)"""
+    import importlib.util
+    path, fn = spec.rsplit(":", 1)
+    m = importlib.util.spec_from_file_location("user_encoder", path)
+    mod = importlib.util.module_from_spec(m)
+    m.loader.exec_module(mod)
+    return CallableEncoder(getattr(mod, fn), dim, name or os.path.splitext(os.path.basename(path))[0], [path])
 
 
 def get_encoder(name="auto", device="auto"):

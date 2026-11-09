@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """HeroX submission pack (executed by build_documents.py, which supplies the benchmark results, n, pc, met, FROZEN, MAHA_S, KP, LIB ...).
 
-Writes docs/MyUncleVision_HeroX_Submission.docx and docs/HeroX_fields.md.  The portal limits narrative fields to about 3,000 characters per page, roughly 8.5 pages in all; the character count of every field is printed in the pack.
+Writes docs/herox/MyUncleVision_HeroX_Submission.docx and docs/herox/HeroX_fields.md.  The portal limits narrative fields to about 3,000 characters per page, roughly 8.5 pages in all; the character count of every field is printed in the pack.
 Without a real KPMP run (--kpmp-run) the pack says so on its first page and in every narrative that depends on kidney results.
 """
 import docx as _docx
@@ -76,7 +76,7 @@ cited = ["Oquab2023", "Goode2013", "Lake2023", "Banerjee2005", "Mardia2000", "Pe
 citations_text = "\n".join("[%d] %s" % (i + 1, LIB[k]) for i, k in enumerate(cited))
 checklist = [
     "Register on HeroX (https://www.herox.com/KidneyAI) and obtain the personal download commands for the open KPMP images (Release 1: 6,256 SVS files, about 2.4 TB; start with a subset that fits your disk).",
-    "Run the container on the downloaded slides (docs/KPMP_RUN_GUIDE.md), then rebuild this pack with the run: python docs/build/build_documents.py --kpmp-run <output directory>.",
+    "Run the container on the downloaded slides (docs/herox/KPMP_RUN_GUIDE.md), then rebuild this pack with the run: python docs/build/build_documents.py --kpmp-run <output directory>.",
     "Confirm eligibility (age 18 or older; U.S. citizen or permanent resident to receive a cash prize if you enter as an individual or team captain; not a federal employee acting in scope; no federal grant or contract funds used).",
     "Copy the exact rules statement from the portal onto the cover page (the portal requires it; submissions without it are not evaluated). This pack does not make that agreement for you.",
     "Push the repository, record the commit ID dated on or before the deadline (29 April 2027), and test the Docker image from a clean clone.",
@@ -145,6 +145,7 @@ else:
            "Total characters in the narrative fields: %d (about %.1f pages at 3,000 characters per page)." % (total, total / 3000.0)]
     d.core_properties.title = "MyUncleVision HeroX submission pack"
     d.core_properties.author = "Leon Sandler"
-    d.save(_os.path.join(OUT, "MyUncleVision_HeroX_Submission.docx"))
-    open(_os.path.join(OUT, "HeroX_fields.md"), "w", encoding="utf-8").write("\n".join(md))
+    _os.makedirs(_os.path.join(OUT, "herox"), exist_ok=True)
+    d.save(_os.path.join(OUT, "herox", "MyUncleVision_HeroX_Submission.docx"))
+    open(_os.path.join(OUT, "herox", "HeroX_fields.md"), "w", encoding="utf-8").write("\n".join(md))
     print("HeroX pack built: %d narrative characters (%.1f pages)" % (total, total / 3000.0))

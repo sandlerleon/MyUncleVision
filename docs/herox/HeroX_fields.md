@@ -7,7 +7,7 @@ Character counts are shown for every field (the portal allows about 3,000 charac
 ## Before submitting
 
 1. Register on HeroX (https://www.herox.com/KidneyAI) and obtain the personal download commands for the open KPMP images (Release 1: 6,256 SVS files, about 2.4 TB; start with a subset that fits your disk).
-2. Run the container on the downloaded slides (docs/KPMP_RUN_GUIDE.md), then rebuild this pack with the run: python docs/build/build_documents.py --kpmp-run <output directory>.
+2. Run the container on the downloaded slides (docs/herox/KPMP_RUN_GUIDE.md), then rebuild this pack with the run: python docs/build/build_documents.py --kpmp-run <output directory>.
 3. Confirm eligibility (age 18 or older; U.S. citizen or permanent resident to receive a cash prize if you enter as an individual or team captain; not a federal employee acting in scope; no federal grant or contract funds used).
 4. Copy the exact rules statement from the portal onto the cover page (the portal requires it; submissions without it are not evaluated). This pack does not make that agreement for you.
 5. Push the repository, record the commit ID dated on or before the deadline (29 April 2027), and test the Docker image from a clean clone.
