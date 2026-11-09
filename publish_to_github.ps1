@@ -1,4 +1,4 @@
-# Publishes MyUncleVision to GitHub (public) and attaches the PDFs to release v0.1.1 (v0.1.0 is already released).
+# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.2.0 (v0.1.0 is already released).
 # Run from PowerShell:   powershell -ExecutionPolicy Bypass -File "C:\Users\Leon\Downloads\MyUncleVision_work\repo\MyUncleVision\publish_to_github.ps1"
 # Needs: git and the GitHub CLI (gh), logged in as sandlerleon (gh auth status).
 # NOTE: a public repository discloses the method before the HeroX deadline. HeroX allows the repository to stay private (it needs read access only for shortlisted teams).
@@ -27,9 +27,11 @@ git push origin v0.1.0 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.1.0) failed" }
 git push origin v0.1.1 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.1.1) failed" }
-if (-not (Test-Gh @("release", "view", "v0.1.1", "--repo", $Repo))) {
-    gh release create v0.1.1 "docs\MyUncleVision_Manuscript_CMPB.pdf" "docs\MyUncleVision_HeroX_Submission.pdf" --repo $Repo --title "v0.1.1" `
-        --notes "First release. Validated on synthetic slides only; not yet run on KPMP images. MyUncle core vendored unmodified."
+git push origin v0.2.0 --force
+if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.2.0) failed" }
+if (-not (Test-Gh @("release", "view", "v0.2.0", "--repo", $Repo))) {
+    gh release create v0.2.0 "docs\MyUncleVision_Manuscript_CMPB.pdf" --repo $Repo --title "v0.2.0" `
+        --notes "v0.2.0: frozen settings, held-out synthetic cohort, ablations and baselines (Isolation Forest, LOF, kNN, Mahalanobis), robustness suite, multi-scale appearance with lattice smoothing as the default score, scenario analysis opt-in and exploratory, Docker end-to-end tested. Evaluated on synthetic slides only; not yet run on KPMP images. Zenodo: software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256 (all versions). MyUncle core vendored unmodified."
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 }
 git rev-parse HEAD
