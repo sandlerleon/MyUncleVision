@@ -26,7 +26,7 @@ if ($LASTEXITCODE -ne 0) { throw "git push (main) failed" }
 git push origin v0.1.0 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag) failed" }
 if (-not (Test-Gh @("release", "view", "v0.1.0", "--repo", $Repo))) {
-    gh release create v0.1.0 "docs\MyUncleVision_Manuscript.pdf" "docs\MyUncleVision_HeroX_Submission.pdf" --repo $Repo --title "v0.1.0" `
+    gh release create v0.1.0 "docs\MyUncleVision_Manuscript_CMPB.pdf" "docs\MyUncleVision_HeroX_Submission.pdf" --repo $Repo --title "v0.1.0" `
         --notes "First release. Validated on synthetic slides only; not yet run on KPMP images. MyUncle core vendored unmodified."
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 }
