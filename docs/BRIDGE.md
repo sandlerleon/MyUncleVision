@@ -26,6 +26,11 @@ print(B.verify_bridge(mc))                       # {'max_abs_diff_D': 3e-16, ...
 res = B.analyse_myuncle_states(snaps)            # res[i]["novelty"], res[i]["order"]["D"], ...
 ```
 
+## Second testbed (used in the paper, Section 4.5)
+
+`python -m myuncle_vision.bridge_bench --out results` simulates MyUncle lattices (development preset `chiral_scaffold_biology`; held-out presets `polymer_photodegradation`, `liquid_crystal`, `magnetic_storage_decay`; four runs each; snapshots at steps 20, 40, 60) and scores the damaged sites (ground truth; the intact flag is never in the embedding) with the frozen MyUncleVision score and the baselines of the image benchmark, unchanged settings.
+Results are in `results/bridge_bench_{dev,held}_{rotor,rotor_D}.json` (95% intervals resample whole runs). They are mixed, as on the images: lattice smoothing lowered the AP of every baseline here because damaged sites are not compact regions, and adding the local disorder as a feature helped the frozen score.
+
 ## What the bridge is and is not
 
 * **Equality, not analogy, where it is exact:** for d = 2 and MyUncle's neighbourhood, MyUncleVision's D, kappa, S_vmf and H_chi are MyUncle's (tests and `verify_bridge`); in d > 2 they are the von Mises-Fisher generalization.

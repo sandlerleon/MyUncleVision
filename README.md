@@ -84,7 +84,7 @@ decide the top fraction that counts as a candidate (`--q`); and run the baseline
 
 `myuncle_vision/bench.py` builds two synthetic cohorts (development: 8 slides; held-out: 16 slides with three anomaly types never used in development, about 1% prevalence, stain and scanner shifts), computes every ablation and baseline for DINOv2 and the handcrafted encoder, and a robustness suite;
 settings were frozen in `results/frozen_settings.json` before the held-out cohort existed. `python docs/build/build_documents.py` turns the results into the manuscript (its asserts stop the build if a sentence stops being true). `python tests/test_all.py` runs the automated checks.
-The original v0.1 checks (`validate-synthetic`, `rarity-sweep`) are kept as development history.
+The original v0.1 checks (`validate-synthetic`, `rarity-sweep`) are kept as development history. A second testbed on lattices simulated with MyUncle (`python -m myuncle_vision.bridge_bench`, results in `results/bridge_bench_*.json`) uses the same frozen settings and baselines; see [docs/BRIDGE.md](docs/BRIDGE.md).
 
 ## Compute
 

@@ -39,7 +39,7 @@ SLUG = SLUGS.get(JOURNAL, "".join(w[0] for w in JOURNAL.split() if w[0].isupper(
 HIGHLIGHTS = ["Lattice smoothing makes any anomaly score spatially coherent",
               "Settings frozen on a development set, tested once on a held-out cohort",
               "Frozen score best with DINOv2, poor with handcrafted features; both reported",
-              "MyUncle order and entropy extend to d dimensions and equal it at d = 2",
+              "MyUncle order and entropy extend to d dimensions; MyUncle simulations as 2nd testbed",
               "One-command Docker pipeline; real-histology validation planned as future work"]
 assert all(len(h) <= 85 for h in HIGHLIGHTS) and 3 <= len(HIGHLIGHTS) <= 5
 
@@ -48,6 +48,8 @@ DH, DD = J("bench_dev_handcrafted.json"), J("bench_dev_dinov2_vits14.json")
 BH, BD = J("bench_held_handcrafted.json"), J("bench_held_dinov2_vits14.json")
 RH, RD = J("robustness_held_handcrafted.json"), J("robustness_held_dinov2_vits14.json")
 FZ = J("frozen_settings.json")
+BRD = {(k, e): J("bridge_bench_%s_%s.json" % (k, e)) for k in ("dev", "held") for e in ("rotor", "rotor_D")}
+assert all(v is not None for v in BRD.values()), "bridge benchmark results are missing"
 assert all(x is not None for x in (DH, DD, BH, BD, FZ)), "benchmark results are missing"
 KP = None
 if ARGS.kpmp_run:
@@ -70,6 +72,18 @@ assert all(met(R, FROZEN, "spatial_coherence") > met(R, "appearance, multi-scale
 assert met(DH, MAHA_S, "average_precision") > met(DH, FROZEN, "average_precision") and met(DD, MAHA_S, "average_precision") > met(DD, FROZEN, "average_precision"), "text says smoothed Mahalanobis beats the frozen score on the development cohort"
 assert met(DD, ORIG, "auroc") < 0.5, "text says the original default failed with DINOv2"
 assert all(met(R, ORIG, "spatial_coherence") < met(R, FROZEN, "spatial_coherence") for R in (DH, DD))
+
+_bm = lambda k, e, m, key="average_precision": BRD[(k, e)]["methods"][m][key]
+_BASE = ("Isolation Forest", "Mahalanobis distance", "kNN distance, k = 10")
+_OTHERS = [m for m in BRD[("held", "rotor_D")]["methods"] if m not in (FROZEN, "local disorder D alone")]
+for _k in ("dev", "held"):
+    for _b in _BASE:
+        assert _bm(_k, "rotor", _b + ", lattice-smoothed (rank)") < _bm(_k, "rotor", _b), "text says smoothing lowered the AP of every baseline on the simulated lattices (rotor embedding)"
+    assert _bm(_k, "rotor", FROZEN) < max(_bm(_k, "rotor", _b) for _b in _BASE), "text says the frozen score was below the unsmoothed baselines on the rotor embedding"
+    assert _bm(_k, "rotor_D", FROZEN) > _bm(_k, "rotor", FROZEN), "text says the local disorder as a feature raised the AP of the frozen score"
+assert _bm("held", "rotor_D", FROZEN) >= max(_bm("held", "rotor_D", m) for m in _OTHERS) - 0.02, "text says the frozen score was within 0.02 of the best AP on the held-out simulated lattices with the rotor + D embedding"
+assert max(_bm("dev", "rotor_D", m) for m in _OTHERS) > _bm("dev", "rotor_D", FROZEN) + 0.05, "text says the frozen score was clearly not the best on the development simulations with the rotor + D embedding"
+assert BRD[("held", "rotor")]["prevalence_all"] > 0.15 and BRD[("dev", "rotor")]["prevalence_all"] > 0.05, "text says the damaged share is not small"
 
 T3 = "three-axis OR, multi-scale, lattice-smoothed"
 assert met(DH, T3, "average_precision") > met(DH, FROZEN, "average_precision") and met(BH, T3, "average_precision") > met(BH, FROZEN, "average_precision"), "text says the lattice axes helped with handcrafted features"
@@ -106,11 +120,11 @@ add(("blank",))
 add(("h1", "Abstract"))
 abs_ = ("Unsupervised discovery in whole-slide images must separate unusual tissue organization from artifacts and routine histology and give experts places to look. "
         "We present MyUncleVision, an open pipeline that places patch embeddings on a tissue lattice, judges appearance rarity at several prevalence scales, smooths the score over the lattice to favor spatially coherent regions, and ranks and explains regions across slides. "
-        "Its order and entropy definitions generalize those of the MyUncle maintenance-lattice framework to d dimensions and equal them at d = 2 (tests against the unmodified core). "
+        "Its order and entropy definitions generalize those of the MyUncle maintenance-lattice framework to d dimensions and equal them at d = 2 (tested against the unmodified core). "
         "We compare ablations and baselines (Isolation Forest, Local Outlier Factor, nearest-neighbor, Mahalanobis) on synthetic slides with planted anomalies: a development cohort used to choose settings and a held-out cohort of 16 slides with three unseen anomaly types, about %s prevalence and stain shifts, evaluated once with frozen settings. "
         "Lattice smoothing raised the spatial coherence of every scorer. On the held-out cohort the frozen score reached an average precision of %s with DINOv2 (AUROC %s, the best of all methods) but %s with handcrafted features, where smoothing diluted small anomalies; "
-        "on the development cohort a Mahalanobis baseline with the same smoothing scored higher (%s against %s with DINOv2). The disorder and contact axes of the lattice helped with handcrafted features and hurt with DINOv2, so they are optional diagnostics and not part of the default score. "
-        "Validation on real histopathology, with expert review, is the planned next step (protocol in Section 5); the present evidence is synthetic. Code and results are open."
+        "on the development cohort a Mahalanobis baseline with the same smoothing scored higher (%s against %s with DINOv2). The disorder and contact axes of the lattice helped with handcrafted features and hurt with DINOv2, so they are optional diagnostics. "
+        "Simulated MyUncle lattices gave similarly mixed results. Validation on real histopathology, with expert review, is planned (Section 5); the evidence is synthetic. Code and results are open."
         % (pc(BD["anomalous_patch_share"], 1), n(met(BD, FROZEN, "average_precision")), n(met(BD, FROZEN, "auroc")), n(met(BH, FROZEN, "average_precision")), n(met(DD, MAHA_S, "average_precision")), n(met(DD, FROZEN, "average_precision"))))
 add(("p0", abs_))
 add(("p0", "Keywords: whole-slide imaging; unsupervised anomaly detection; histopathology; spatial smoothing; von Mises-Fisher entropy; open-source software"))
@@ -122,7 +136,7 @@ add(("p", "Digital pathology produces gigapixel images, most of which are examin
 add(("p", "A discovery method has to keep artifacts out to avoid reporting routine histology as unusual, and to give an expert a place, a measure and an explanation. This paper describes MyUncleVision and, above all, tests what its lattice contributes. "
           "Contributions: (1) a generalization of the order and entropy quantities of the maintenance-lattice framework MyUncle [@MyUncle2026] from two to d dimensions, verified against the unmodified core; "
           "(2) a score that judges appearance rarity at several prevalence scales and smooths it over the tissue lattice; (3) an open, containerized pipeline from SVS files to ranked, mapped, explained candidates with an audit trail of every image used; "
-          "(4) an evaluation with ablations, baselines, a held-out cohort with frozen settings and a robustness suite, whose results are mixed and are reported as such; (5) a prespecified plan for validation on real histopathology, presented as future work (Section 5); this paper reports synthetic evidence only."))
+          "(4) an evaluation with ablations, baselines, a held-out cohort with frozen settings, a robustness suite and a second testbed of lattices simulated with MyUncle, whose results are mixed and are reported as such; (5) a prespecified plan for validation on real histopathology, presented as future work (Section 5); this paper reports synthetic evidence only."))
 add(("h1", "2. Method"))
 add(("h2", "2.1 Slides, patches and quality control"))
 add(("p", "Slides are read with OpenSlide for SVS and other vendor formats [@Goode2013] and as plain images otherwise. A tissue mask is made on a thumbnail (glass is bright and nearly colorless). The slide is cut into nonoverlapping square patches of 224 px at 0.5 µm/px; "
@@ -158,7 +172,7 @@ add(("p", "Patches in the top fraction $q$ of the novelty scores (default 2%) ar
 add(("fig", "fig_pipeline.png", "Fig. @F:pipe@. MyUncleVision: from whole-slide images to ranked, mapped and explained candidate states, with the unmodified MyUncle core supplying the reference definitions.", 6.4))
 add(("h2", "2.6 Software"))
 add(("p", "Python (numpy, scipy, scikit-learn, OpenCV, timm and PyTorch for the encoder). One command, `python -m myuncle_vision run --input DIR --output DIR`, also the default command of the Docker image, writes findings, per-slide annotations in level-0 pixel coordinates, masks, heat maps, patch scores, "
-          "a CSV listing every image used and how, and a manifest with versions, configuration, model files and the hash of the MyUncle core. The code is archived and open (Data availability). An exploratory analysis that maps a slide onto MyUncle's simulation is opt-in and described in Appendix A."))
+          "a CSV listing every image used and how, and a manifest with versions, configuration, model files and the hash of the MyUncle core. The code is archived and open (Data availability). A bridge module connects the two code bases in both directions (simulate any MyUncle preset and analyse its lattice states with the same order maps and novelty score, with a numerical equivalence check; Section 4.5), and an exploratory analysis that maps a slide onto MyUncle's simulation is opt-in and described in Appendix A."))
 add(("h1", "3. Evaluation design"))
 add(("p", "No real kidney image was available for this work. The evaluation uses synthetic slides (4,480 × 4,480 px at 0.5 µm/px) that imitate what the method measures, not kidney tissue: interstitium, tubule-like rings with nuclei, glomerulus-like discs, vessels, stain variation, planted anomalies and three artifact types (an out-of-focus disc, a pen stroke, a dark fold). "
           "They were written by the author of the method, which limits what they can show."))
@@ -217,6 +231,30 @@ add(("h2", "4.4 What the lattice adds and what it does not"))
 add(("p", "Added: the lattice makes the score spatially coherent. For every scorer, smoothing over the lattice raised the share of top-ranked patches that form connected regions, and with DINOv2 it turned a noisy patch-level score into compact regions (Fig. @F:ex@). That is the property that matters for an expert who has to look at places. "
           "Encoder-dependent: the two lattice-based axes, disorder and contact rarity, added detection power with handcrafted features and removed it with DINOv2 on both cohorts; because the sign depends on the embedding, they are diagnostics and options, not part of the default score. "
           "Not shown: that the specific appearance score is better than a Mahalanobis distance (it is not, on the development cohort), and any benefit on real tissue."))
+add(("h2", "4.5 A second testbed: lattices simulated with MyUncle"))
+_dv, _hl = BRD[("dev", "rotor")], BRD[("held", "rotor")]
+_pf = _hl["damaged_fraction_by_preset"]
+add(("p", "The synthetic slides were written by the author of the method. A second testbed uses lattices that are not images and come from the simulation MyUncle was built for, through the bridge module: MyUncle's kinetic Monte Carlo (unmodified core) was run from a damaged start, "
+          "and snapshots at steps 20, 40 and 60 (48 × 48 sites) were analysed as slides whose sites are patches. The sites that have lost their coupling in the simulation (the damaged sites) are the ground truth; the intact flag is never part of the embedding. "
+          "Two embeddings were used: the rotor (cos θ, sin θ) and the rotor with the local disorder D of the site. The development set was one preset (chiral scaffold, four runs, damaged share %s); the held-out set was three other presets (polymer photodegradation, liquid crystal, magnetic storage decay; four runs each; damaged share %s, %s and %s). "
+          "The settings of the image benchmark were used unchanged, with six states because the embedding has two or three dimensions, and the baselines were those of Section 3. The damaged share is not small, so this set also tests the assumption that interesting states are rare. "
+          "Intervals in the json result files are 95%% intervals over whole simulation runs, not over snapshots of one run, and overlap for the methods whose held-out averages are close (for example the frozen score and smoothed Isolation Forest with the rotor + D embedding)."
+     % (pc(_dv["prevalence_all"]), pc(_pf["polymer_photodegradation"]), pc(_pf["liquid_crystal"]), pc(_pf["magnetic_storage_decay"]))))
+_T4 = [(FROZEN, "MyUncleVision frozen (smoothed)"), ("Isolation Forest", "Isolation Forest"), ("Isolation Forest, lattice-smoothed (rank)", "  + smoothing"), ("Mahalanobis distance", "Mahalanobis distance"), (MAHA_S, "  + smoothing"),
+       ("kNN distance, k = 10", "kNN distance, k = 10"), ("kNN distance, k = 10, lattice-smoothed (rank)", "  + smoothing"), ("local disorder D alone", "local disorder D alone")]
+_rows4 = [[lab] + [n(_bm("held", e, m, k)) for e in ("rotor", "rotor_D") for k in ("auroc", "average_precision")] + [n(_bm("dev", e, m)) for e in ("rotor", "rotor_D")] for m, lab in _T4]
+add(("table", "Table 4. Lattices simulated with MyUncle, damaged sites as ground truth. Held-out presets: AUROC and AP with the rotor embedding (columns 2, 3) and the rotor + D embedding (columns 4, 5); AP on the development preset (columns 6, 7).",
+     ["Method", "AUROC", "AP", "AUROC", "AP", "AP dev", "AP dev"], _rows4, [2.6, 0.8, 0.6, 0.8, 0.6, 0.7, 0.7], True, 15))
+add(("p", "With the rotor alone, the frozen score was no better than smoothed Isolation Forest or nearest-neighbor distance (held-out AP %s, AUROC %s) and clearly below the unsmoothed baselines (Mahalanobis AP %s, Isolation Forest %s) and the smoothed Mahalanobis score (AUROC %s). "
+          "Smoothing lowered the AP of every baseline on both sets (for example Isolation Forest %s to %s on the held-out set): the damaged sites are not compact regions that a 3 × 3 window preserves, which is the dilution already seen with handcrafted features on the images, although here that explanation is a plausible reading and was not tested separately. "
+          "Adding the local disorder as a feature raised the AP of the frozen score on both sets (development %s to %s, held-out %s to %s); on the held-out presets it was then within 0.02 of the best AP (%s, tied with smoothed Isolation Forest), "
+          "while on the development preset an unsmoothed Isolation Forest was clearly better (AP %s against %s). The disorder map alone ranked the damaged sites poorly (held-out AP %s with the rotor + D embedding), so the gain comes from combining it with the appearance of the site. "
+          "The results are mixed in the same way as on the images: the lattice smoothing is helpful when the anomaly forms regions and harmful when it does not, and a plain Gaussian or tree-based baseline is a strong competitor. "
+          "The simulation is the author's own, the damaged sites are an easy kind of anomaly (a site that lost its coupling), and four runs per preset are few; this testbed shows that the pipeline and its baselines run on a lattice that is not an image and that its limits are the same ones, not that the method detects damage in a real system."
+     % (n(_bm("held", "rotor", FROZEN)), n(_bm("held", "rotor", FROZEN, "auroc")), n(_bm("held", "rotor", "Mahalanobis distance")), n(_bm("held", "rotor", "Isolation Forest")), n(_bm("held", "rotor", MAHA_S, "auroc")),
+        n(_bm("held", "rotor", "Isolation Forest")), n(_bm("held", "rotor", "Isolation Forest, lattice-smoothed (rank)")),
+        n(_bm("dev", "rotor", FROZEN)), n(_bm("dev", "rotor_D", FROZEN)), n(_bm("held", "rotor", FROZEN)), n(_bm("held", "rotor_D", FROZEN)), n(_bm("held", "rotor_D", FROZEN)),
+        n(_bm("dev", "rotor_D", "Isolation Forest")), n(_bm("dev", "rotor_D", FROZEN)), n(_bm("held", "rotor_D", "local disorder D alone")))))
 add(("h1", "5. Future work: validation on real histopathology"))
 add(("p", "The evidence in this paper is synthetic: the slides were generated by the author of the method, with simple textures and sharply bounded anomalies, and they cannot show that the method finds anything biologically meaningful in tissue. "
           "Validation on real histopathology is therefore the principal next step, and the study is specified here in advance so that its design cannot be shaped by its results. It has not been started."))
@@ -236,7 +274,7 @@ add(("p", "A second synthetic generator with different textures, anomaly boundar
 add(("h1", "6. Discussion"))
 add(("p", "What the evaluation supports. The lattice smoothing gives spatially coherent candidate regions for any scorer, the multi-scale rarity removes the dependence on a prevalence chosen in advance, and with DINOv2 the frozen score was the best method on an unseen cohort. "
           "The order and entropy definitions are MyUncle's, verified at d = 2, and extend to the embedding space; the explanation of a finding is a list of measured numbers that a reviewer can check against the image."))
-add(("p", "What it does not support. The slides are synthetic, written by the author of the method, with simple textures and sharply bounded anomalies; nothing here shows that the method finds anything in a kidney or that what it finds is biologically meaningful. "
+add(("p", "What it does not support. The slides and the simulated lattices are synthetic, written by the author of the method (the simulation is MyUncle's, with an easy kind of anomaly), with simple textures and sharply bounded anomalies; nothing here shows that the method finds anything in a kidney or that what it finds is biologically meaningful. "
           "The held-out cohort was used once but is of the same family as the development cohort. The two encoders disagree on whether smoothing helps and on whether the lattice axes help; a single Gaussian model scored higher than the frozen score on the development cohort; and the frozen choice (the nonparametric score) is justified for real tissue only by an untested argument that tissue is multimodal. "
           "Novelty is not pathology: a rare state may be a rare preparation, a scanner, a stain batch or a known entity that is merely uncommon in the cohort. The embedding is trained on natural images and may group patches by stain or sharpness. "
           "Quality control flagged only part of the planted artifact patches in the development runs (42%), and partly blurred patches escape it."))

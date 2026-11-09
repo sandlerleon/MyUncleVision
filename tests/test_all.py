@@ -343,6 +343,21 @@ def test_bridge_myuncle_to_vision_and_back():
         assert rep["check"]["equal"] and os.path.exists(os.path.join(tmp, "br", "bridge_maps.png")) and rep["core_unmodified"]
 
 
+def test_bridge_bench_states_truth_and_run_level_bootstrap():
+    from myuncle_vision import bridge_bench as BB
+    from sklearn.metrics import roc_auc_score
+    states, truth, meta = BB.make_states(dict(presets=("chiral_scaffold_biology",), seeds=(0, 1)), L=16)
+    assert len(states) == 2 * len(BB.SNAP_STEPS) and all(t.shape == (16, 16) and t.dtype == bool for t in truth)
+    assert all(abs(m["damaged_fraction"] - t.mean()) < 1e-12 for m, t in zip(meta, truth))
+    sl = BB._slides(states, "rotor")
+    assert sl[0].emb.shape[1] == 2 and BB._slides(states, "rotor_D")[0].emb.shape[1] == 3         # the intact flag is not part of the embedding
+    rng = np.random.default_rng(0)
+    ys = [(rng.random(200) < 0.2).astype(int) for _ in range(6)]
+    ss = [y + rng.normal(0, 1, 200) for y in ys]
+    lo, hi = BB._boot_ci(roc_auc_score, ys, ss, n=50)
+    assert 0.5 < lo < hi <= 1.0
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

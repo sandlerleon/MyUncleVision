@@ -1,5 +1,5 @@
 """MyUncleVision: a reusable lattice-based framework for unsupervised anomaly discovery in images (computer-vision sister of the MyUncle maintenance-lattice core)."""
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 
 def discover_images(*args, **kwargs):

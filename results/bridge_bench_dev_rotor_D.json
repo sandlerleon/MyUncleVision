@@ -1,0 +1,149 @@
+{
+ "embedding": "rotor_D",
+ "n_states": 12,
+ "L": 48,
+ "damaged_fraction_mean": 0.09837962962962961,
+ "damaged_fraction_by_preset": {
+  "chiral_scaffold_biology": 0.09837962962962961
+ },
+ "methods": {
+  "MyUncleVision frozen: appearance, multi-scale, lattice-smoothed": {
+   "auroc": 0.7106629593228498,
+   "average_precision": 0.2817175961380833,
+   "auroc_ci": [
+    0.7037019257409366,
+    0.7174572186682071
+   ],
+   "average_precision_ci": [
+    0.2682400378537977,
+    0.2956568395610485
+   ]
+  },
+  "Isolation Forest, lattice-smoothed (rank)": {
+   "auroc": 0.704010395527354,
+   "average_precision": 0.27437188566115667,
+   "auroc_ci": [
+    0.696150633394664,
+    0.7118644397231193
+   ],
+   "average_precision_ci": [
+    0.2599011350790086,
+    0.2894830844299834
+   ]
+  },
+  "Local Outlier Factor, lattice-smoothed (rank)": {
+   "auroc": 0.5648359407446386,
+   "average_precision": 0.13886559027896836,
+   "auroc_ci": [
+    0.5588843924499572,
+    0.5699451124949205
+   ],
+   "average_precision_ci": [
+    0.1270957610461916,
+    0.1553569892061153
+   ]
+  },
+  "Mahalanobis distance, lattice-smoothed (rank)": {
+   "auroc": 0.7054321519505589,
+   "average_precision": 0.2637385163711559,
+   "auroc_ci": [
+    0.7027329086977314,
+    0.7085887995881817
+   ],
+   "average_precision_ci": [
+    0.2500558738115454,
+    0.2787507669549849
+   ]
+  },
+  "kNN distance, k = 10, lattice-smoothed (rank)": {
+   "auroc": 0.6915346344531073,
+   "average_precision": 0.2542338212356099,
+   "auroc_ci": [
+    0.6872240544069681,
+    0.6971249779187283
+   ],
+   "average_precision_ci": [
+    0.2414192696389465,
+    0.2713852236040261
+   ]
+  },
+  "Isolation Forest": {
+   "auroc": 0.6866617475977874,
+   "average_precision": 0.3644989001727883,
+   "auroc_ci": [
+    0.67832292289012,
+    0.6931965866987
+   ],
+   "average_precision_ci": [
+    0.35212019225886965,
+    0.3775017136725674
+   ]
+  },
+  "Local Outlier Factor": {
+   "auroc": 0.5460822684035906,
+   "average_precision": 0.12649238412065703,
+   "auroc_ci": [
+    0.536649146519961,
+    0.5558357515569983
+   ],
+   "average_precision_ci": [
+    0.11465829287590504,
+    0.1406487303529824
+   ]
+  },
+  "Mahalanobis distance": {
+   "auroc": 0.7102329857047119,
+   "average_precision": 0.22586912780027274,
+   "auroc_ci": [
+    0.7064422857646651,
+    0.7156324658211902
+   ],
+   "average_precision_ci": [
+    0.22043431338250324,
+    0.23360111620650229
+   ]
+  },
+  "kNN distance, k = 10": {
+   "auroc": 0.6613712197009741,
+   "average_precision": 0.2027774186564254,
+   "auroc_ci": [
+    0.6511698009508708,
+    0.6712515224177351
+   ],
+   "average_precision_ci": [
+    0.18501398004773145,
+    0.22048346073229316
+   ]
+  },
+  "local disorder D alone": {
+   "auroc": 0.4932149590821566,
+   "average_precision": 0.09753193739916888,
+   "auroc_ci": [
+    0.4862381082737759,
+    0.5008791439769397
+   ],
+   "average_precision_ci": [
+    0.093607821910146,
+    0.1047884885885838
+   ]
+  }
+ },
+ "prevalence_all": 0.09837962962962964,
+ "kind": "dev",
+ "presets": [
+  "chiral_scaffold_biology"
+ ],
+ "seeds": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "snapshots": [
+  20,
+  40,
+  60
+ ],
+ "frozen_settings_sha256": "d8e4a0d582954efaf0e0266703422869353b0f7668ac74bade52d90a98e772c4",
+ "note": "settings of the image benchmark were used unchanged (appearance only, weights 1,0,0; multi-scale rarity; 3x3 smoothing); n_states = 6 because the embedding has 2 or 3 dimensions; the intact flag is not part of the embedding"
+}

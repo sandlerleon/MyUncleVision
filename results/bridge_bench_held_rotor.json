@@ -1,0 +1,153 @@
+{
+ "embedding": "rotor",
+ "n_states": 36,
+ "L": 48,
+ "damaged_fraction_mean": 0.21565152391975306,
+ "damaged_fraction_by_preset": {
+  "polymer_photodegradation": 0.29940682870370366,
+  "liquid_crystal": 0.2649016203703704,
+  "magnetic_storage_decay": 0.08264612268518519
+ },
+ "methods": {
+  "MyUncleVision frozen: appearance, multi-scale, lattice-smoothed": {
+   "auroc": 0.6469301414021891,
+   "average_precision": 0.3563809621924542,
+   "auroc_ci": [
+    0.6345093633053236,
+    0.6529995683882198
+   ],
+   "average_precision_ci": [
+    0.27967301766568275,
+    0.4038988773209043
+   ]
+  },
+  "Isolation Forest, lattice-smoothed (rank)": {
+   "auroc": 0.6514635111138491,
+   "average_precision": 0.36250963354088084,
+   "auroc_ci": [
+    0.6384987442113933,
+    0.6576056494121552
+   ],
+   "average_precision_ci": [
+    0.28542055195110816,
+    0.40869263790844695
+   ]
+  },
+  "Local Outlier Factor, lattice-smoothed (rank)": {
+   "auroc": 0.49827250885184987,
+   "average_precision": 0.21492174723067556,
+   "auroc_ci": [
+    0.4913993510484293,
+    0.5057919016198197
+   ],
+   "average_precision_ci": [
+    0.15774038874736793,
+    0.26940158949494747
+   ]
+  },
+  "Mahalanobis distance, lattice-smoothed (rank)": {
+   "auroc": 0.7088435749672517,
+   "average_precision": 0.39849673451283585,
+   "auroc_ci": [
+    0.6760892063213236,
+    0.7215035543378605
+   ],
+   "average_precision_ci": [
+    0.33765254988268933,
+    0.4316014295112153
+   ]
+  },
+  "kNN distance, k = 10, lattice-smoothed (rank)": {
+   "auroc": 0.653538205435666,
+   "average_precision": 0.3640288619465236,
+   "auroc_ci": [
+    0.6418339095574768,
+    0.6597198509918303
+   ],
+   "average_precision_ci": [
+    0.28733739332953695,
+    0.41181004456105896
+   ]
+  },
+  "Isolation Forest": {
+   "auroc": 0.720338642378105,
+   "average_precision": 0.5947324437129832,
+   "auroc_ci": [
+    0.7037762987782691,
+    0.7301246783843585
+   ],
+   "average_precision_ci": [
+    0.5318954454353289,
+    0.6366540738583805
+   ]
+  },
+  "Local Outlier Factor": {
+   "auroc": 0.5073202627264793,
+   "average_precision": 0.21930264133924438,
+   "auroc_ci": [
+    0.5016825782371095,
+    0.5127080631819421
+   ],
+   "average_precision_ci": [
+    0.16271178774619363,
+    0.27135189886749805
+   ]
+  },
+  "Mahalanobis distance": {
+   "auroc": 0.7627325716931824,
+   "average_precision": 0.6336709832114767,
+   "auroc_ci": [
+    0.7553561953305675,
+    0.7666506375565925
+   ],
+   "average_precision_ci": [
+    0.5767134812712489,
+    0.66711334176396
+   ]
+  },
+  "kNN distance, k = 10": {
+   "auroc": 0.7222904870604806,
+   "average_precision": 0.5632666674538926,
+   "auroc_ci": [
+    0.7067975653857677,
+    0.7310427877290004
+   ],
+   "average_precision_ci": [
+    0.49529623789579524,
+    0.6107809280818208
+   ]
+  },
+  "local disorder D alone": {
+   "auroc": 0.634779495510136,
+   "average_precision": 0.3184310237657909,
+   "auroc_ci": [
+    0.6143198423793816,
+    0.6440690477011366
+   ],
+   "average_precision_ci": [
+    0.2555170382447623,
+    0.35812845383084385
+   ]
+  }
+ },
+ "prevalence_all": 0.2156515239197531,
+ "kind": "held",
+ "presets": [
+  "polymer_photodegradation",
+  "liquid_crystal",
+  "magnetic_storage_decay"
+ ],
+ "seeds": [
+  10,
+  11,
+  12,
+  13
+ ],
+ "snapshots": [
+  20,
+  40,
+  60
+ ],
+ "frozen_settings_sha256": "d8e4a0d582954efaf0e0266703422869353b0f7668ac74bade52d90a98e772c4",
+ "note": "settings of the image benchmark were used unchanged (appearance only, weights 1,0,0; multi-scale rarity; 3x3 smoothing); n_states = 6 because the embedding has 2 or 3 dimensions; the intact flag is not part of the embedding"
+}
