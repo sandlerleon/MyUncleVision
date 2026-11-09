@@ -1,4 +1,4 @@
-# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.2.1 (v0.1.0 and v0.2.0 may already be released).
+# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.2.2 (earlier releases are created if missing).
 # Run from PowerShell:   powershell -ExecutionPolicy Bypass -File "C:\Users\Leon\Downloads\MyUncleVision_work\repo\MyUncleVision\publish_to_github.ps1"
 # Needs: git and the GitHub CLI (gh), logged in as sandlerleon (gh auth status).
 # NOTE: the repository is public. The HeroX pack (docs/herox) is a DRAFT that stays in the repo only as an example application.
@@ -36,9 +36,14 @@ if (-not (Test-Gh @("release", "view", "v0.2.0", "--repo", $Repo))) {
     gh release create v0.2.0 --repo $Repo --title "v0.2.0" `
         --notes "v0.2.0: frozen settings, held-out synthetic cohort, ablations and baselines, robustness suite, lattice smoothing as default score, Docker end-to-end tested. Synthetic evaluation only."
 }
+git push origin v0.2.2 --force
+if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.2.2) failed" }
 if (-not (Test-Gh @("release", "view", "v0.2.1", "--repo", $Repo))) {
-    gh release create v0.2.1 "docs\MyUncleVision_Manuscript_CMPB.pdf" --repo $Repo --title "v0.2.1" `
-        --notes "v0.2.1: MyUncleVision as a reusable framework for any image collection (not tied to one challenge): Python API (discover_images, discover_arrays), your own encoder (CallableEncoder / --encoder-module), demo command, docs/USAGE.md; HeroX material moved to docs/herox. Evaluated on synthetic slides only; real-histopathology validation is planned future work. Zenodo (all versions): software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256. MyUncle core vendored unmodified."
+    gh release create v0.2.1 --repo $Repo --title "v0.2.1" --notes "v0.2.1: reusable framework for any image collection: Python API, own encoders, demo command, docs/USAGE.md; HeroX material in docs/herox. Synthetic evaluation only."
+}
+if (-not (Test-Gh @("release", "view", "v0.2.2", "--repo", $Repo))) {
+    gh release create v0.2.2 "docs\MyUncleVision_Manuscript_PRL.pdf" --repo $Repo --title "v0.2.2" `
+        --notes "v0.2.2: manuscript retargeted to Pattern Recognition Letters (Elsevier), US-English edit merged, real-histopathology validation stated as future work. Code unchanged from v0.2.1 apart from the version number. Evaluated on synthetic slides only. Zenodo (all versions): software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256. MyUncle core vendored unmodified."
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 }
 git rev-parse HEAD
