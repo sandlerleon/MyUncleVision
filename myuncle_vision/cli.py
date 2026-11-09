@@ -33,6 +33,13 @@ def main(argv=None):
     r.add_argument("--no-figures", action="store_true")
     r.add_argument("--scenarios", action="store_true", help="EXPLORATORY: add the MyUncle scenario analysis per slide (a modelling analogy, not validated)")
     r.add_argument("--hash-files", action="store_true")
+    br = sub.add_parser("bridge", help="MyUncle <-> MyUncleVision: simulate a MyUncle preset, analyse its states with MyUncleVision (order maps + label-free novelty), check the two implementations agree")
+    br.add_argument("--preset", default="chiral_scaffold_biology")
+    br.add_argument("--L", type=int, default=32)
+    br.add_argument("--steps", type=int, default=60)
+    br.add_argument("--every", type=int, default=15)
+    br.add_argument("--seed", type=int, default=0)
+    br.add_argument("--output", default="muv_bridge")
     dm = sub.add_parser("demo", help="end-to-end demonstration on four small synthetic slides (about two minutes, no downloads)")
     dm.add_argument("--output", default="muv_demo")
     v = sub.add_parser("validate-synthetic", help="run the validation benchmark on synthetic slides (writes results/validation.json)")
@@ -54,6 +61,12 @@ def main(argv=None):
     elif a.cmd == "rarity-sweep":
         from .validate import rarity_sweep
         rarity_sweep(a.output, a.encoder)
+    elif a.cmd == "bridge":
+        from . import bridge as BR
+        from .bridge import json_report
+        rep = json_report(a.preset, a.L, a.steps, a.every, a.seed, a.output)
+        print(json.dumps(rep["check"], indent=1))
+        print("report and figure in", os.path.abspath(a.output))
     elif a.cmd == "demo":
         import tempfile
         from . import synthetic as S

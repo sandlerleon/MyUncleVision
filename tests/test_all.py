@@ -323,6 +323,26 @@ def test_encoder_module_loader_and_demo_command():
         assert os.path.exists(os.path.join(tmp, "d", "findings.csv")) and os.path.exists(os.path.join(tmp, "d", "run_manifest.json"))
 
 
+def test_bridge_myuncle_to_vision_and_back():
+    """MyUncle state -> MyUncleVision order maps equal MyUncle's own; novelty map is defined; slide -> MyUncle gives a runnable MC state; CLI report is written"""
+    from myuncle_vision import bridge as B
+    snaps, mc = B.simulate("chiral_scaffold_biology", L=20, seed=1, steps=20, every=10)
+    chk = B.verify_bridge(mc)
+    assert chk["equal"] and chk["max_abs_diff_D"] < 1e-12, chk
+    res = B.analyse_myuncle_states(snaps)
+    assert len(res) == len(snaps) and all(np.isfinite(r["novelty"]).mean() > 0.95 for r in res)
+    with tempfile.TemporaryDirectory() as tmp:
+        ind, slides, truths, cfg = _mini_cohort(tmp)
+        cohort.analyse(slides, cohort.Config(seed=0))
+        mc2, I_obs = B.slide_to_myuncle(slides[0], Ls=16)
+        o0 = mc2.order()
+        for _ in range(3):
+            mc2.step()
+        assert mc2.th.shape == (16, 16) and 0 < I_obs < 1 and np.isfinite(o0) and np.isfinite(mc2.order())
+        rep = B.json_report("chiral_scaffold_biology", 16, 10, 5, 0, os.path.join(tmp, "br"))
+        assert rep["check"]["equal"] and os.path.exists(os.path.join(tmp, "br", "bridge_maps.png")) and rep["core_unmodified"]
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "MyUncleVision: an interpretable lattice-based framework for unsupervised anomaly discovery in whole-slide histopathology images"
-version: "0.2.2"
+version: "0.2.3"
 date-released: "2026-11-08"
 license: MIT
 repository-code: "https://github.com/sandlerleon/MyUncleVision"

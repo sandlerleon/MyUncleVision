@@ -49,6 +49,10 @@ print(res["findings"][0]["explanation"])
 1. Patch size and resolution such that a patch holds one unit of structure. 2. QC heuristics (blur, pen ink, dark debris, glass) fit your artifacts? They are heuristics for stained tissue slides. 3. Embedding model: compare at least two (the paper's DINOv2 and handcrafted encoders disagreed). 4. Rarity scale: the multi-scale default covers 0.5 to 10% of the cohort; a state more common than that will not be flagged.
 5. Compare against the baselines on your data (`myuncle_vision/bench.py`) and look at the unsmoothed score too: on small anomalies the smoothing can dilute the signal (it did with handcrafted features on the held-out synthetic cohort). 6. Review the top regions with someone who knows the domain, blinded to the score if you want to measure yield.
 
-## 6. Reproduce the paper's evaluation
+## 6. MyUncle bridge
+
+`python -m myuncle_vision bridge` simulates a MyUncle preset and analyses its states with MyUncleVision (see [BRIDGE.md](BRIDGE.md)); `myuncle_vision.bridge` has the functions.
+
+## 7. Reproduce the paper's evaluation
 
 `python -m myuncle_vision` is the tool; the evaluation harness is `myuncle_vision/bench.py` (development and held-out synthetic cohorts, ablations, baselines, robustness) and `docs/build/build_documents.py` (manuscript from the result files). `python tests/test_all.py` runs the checks.

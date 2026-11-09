@@ -53,6 +53,10 @@ Your own encoder on the command line: `--encoder-module path/to/file.py:function
 Choose the patch size and resolution (`--patch-px`, `--mpp`); decide whether the default QC heuristics (blur, pen, dark, glass) make sense for your images; pick an embedding model (`--encoder`, `--encoder-module`); set the rarity scales deliberately (`--rarity`, the multi-scale default covers 0.5 to 10%);
 decide the top fraction that counts as a candidate (`--q`); and run the baselines of the paper on your data before trusting the ranking (`myuncle_vision/bench.py`: Isolation Forest, LOF, kNN and Mahalanobis, raw and lattice-smoothed). Validate on your own labelled or expert-reviewed examples; the synthetic results here do not transfer automatically.
 
+## Bridge to MyUncle
+
+`myuncle_vision/bridge.py` connects the two repositories in both directions ([docs/BRIDGE.md](docs/BRIDGE.md)): simulate any MyUncle preset and analyse its lattice states with MyUncleVision's order maps and label-free novelty (`python -m myuncle_vision bridge`), check numerically that the two implementations agree (`verify_bridge`), or turn an analysed lattice of embeddings into the initial state of a MyUncle Monte Carlo (`slide_to_myuncle`, exploratory). MyUncle stays unmodified.
+
 ## Models and files
 
 | File | Function | Trained? |
