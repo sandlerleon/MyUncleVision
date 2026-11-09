@@ -32,6 +32,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--kpmp-run", default=None)
 ap.add_argument("--journal", default="Pattern Recognition Letters")
 ap.add_argument("--skip-herox", action="store_true")
+ap.add_argument("--variant", default="journal", choices=["journal", "chemrxiv"])
 ARGS = ap.parse_args()
 SLUGS = {"Journal of Pathology Informatics": "JPI", "Computers in Biology and Medicine": "CBM", "Computerized Medical Imaging and Graphics": "CMIG", "Computer Methods and Programs in Biomedicine": "CMPB", "Pattern Recognition Letters": "PRL"}
 JOURNAL = ARGS.journal
@@ -309,8 +310,8 @@ def resolve(s):
     return cit.resolve(s)
 
 
-def build(path, blocks, journal):
-    doc = E.Doc(cit, journal, True)
+def build(path, blocks, journal, line_numbers=True):
+    doc = E.Doc(cit, journal, line_numbers)
     for b in blocks:
         k = b[0]
         if k == "title":
@@ -350,6 +351,21 @@ def build(path, blocks, journal):
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
+    if ARGS.variant == "chemrxiv":
+        exec(open(os.path.join(HERE, "chemrxiv_variant.py"), encoding="utf-8").read())
+        B = chemrxiv_blocks(B)
+        TITLE = CHEM_TITLE
+        cit = E.Citations(LIB)
+        for b in B:
+            for x in b[1:]:
+                if isinstance(x, str):
+                    cit.scan(x)
+        cit.lib = {k: v for k, v in LIB.items() if k in cit.order}        # the pathology references are not cited in this version
+        build(os.path.join(OUT, "MyUncleVision_Manuscript_ChemRxiv.docx"), B, False, line_numbers=False)
+        words = sum(len(b[1].split()) for b in B if b[0] in ("p", "p0", "bullet"))
+        print("ChemRxiv manuscript built; %d references; abstract %d words; ~%d words" % (len(cit.order), len(CHEM_ABSTRACT.split()), words))
+        assert len(CHEM_ABSTRACT.split()) <= 250
+        raise SystemExit(0)
     build(os.path.join(OUT, "MyUncleVision_Manuscript_%s.docx" % SLUG), B, True)
     words = sum(len(b[1].split()) for b in B if b[0] in ("p", "p0", "bullet"))
     print("manuscript built; %d references; abstract %d words; ~%d words" % (len(cit.order), len(abs_.split()), words))
