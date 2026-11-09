@@ -1,0 +1,568 @@
+{
+ "kind": "dev",
+ "encoder": "handcrafted",
+ "n_slides": 8,
+ "n_patches": 1843,
+ "anomalous_patch_share": 0.030927835051546393,
+ "q": 0.03,
+ "weights": [
+  0.4,
+  0.4,
+  0.2
+ ],
+ "seconds": 26.0,
+ "methods": {
+  "MyUncleVision frozen: appearance, multi-scale, lattice-smoothed": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9214571747524093,
+   "average_precision": 0.47444625975746,
+   "auroc_by_type": {
+    "disorganized": 0.8805483422912012,
+    "novel_state": 0.9638270369443749
+   },
+   "auroc_ci95": [
+    0.8581851117771125,
+    0.9887047030643294
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.5636363636363636,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.9090909090909091,
+   "region_recall": 1.0,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.0
+  },
+  "appearance, 1% scale": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9673600229411825,
+   "average_precision": 0.3413417784010784,
+   "auroc_by_type": {
+    "disorganized": 0.9813394528655112,
+    "novel_state": 0.9528813276624135
+   },
+   "auroc_ci95": [
+    0.9556655689087286,
+    0.9777408073228344
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.45454545454545453,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.16363636363636364,
+   "region_recall": 0.375,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 2,
+   "false_regions_per_slide": 0.0
+  },
+  "appearance, multi-scale": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9823383619586035,
+   "average_precision": 0.4537039760666016,
+   "auroc_by_type": {
+    "disorganized": 0.9797693097409264,
+    "novel_state": 0.9849991660411975
+   },
+   "auroc_ci95": [
+    0.9747384051708293,
+    0.9888321469277709
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.509090909090909,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.41818181818181815,
+   "region_recall": 0.75,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 5,
+   "false_regions_per_slide": 0.0
+  },
+  "state-wise disorder": {
+   "n_normal": 1631,
+   "n_anomalous": 57,
+   "auroc": 0.6721901319823164,
+   "average_precision": 0.06224742804732692,
+   "auroc_by_type": {
+    "disorganized": 0.7552273832427747,
+    "novel_state": 0.586187264605413
+   },
+   "auroc_ci95": [
+    0.550975828616259,
+    0.7816314844440756
+   ],
+   "top_q": 0.03,
+   "top_k": 52,
+   "precision_within_one_patch": 0.7307692307692307,
+   "base_rate_within_one_patch": 0.0913268236645606,
+   "spatial_coherence": 0.5769230769230769,
+   "region_recall": 0.25,
+   "n_instances": 8,
+   "false_regions": 1,
+   "regions_total": 7,
+   "false_regions_per_slide": 0.125
+  },
+  "contact rarity": {
+   "n_normal": 1693,
+   "n_anomalous": 57,
+   "auroc": 0.6496461176568119,
+   "average_precision": 0.056740625186738954,
+   "auroc_by_type": {
+    "disorganized": 0.6204656088966738,
+    "novel_state": 0.6798687874440975
+   },
+   "auroc_ci95": [
+    0.5346047422565904,
+    0.7891077402766871
+   ],
+   "top_q": 0.03,
+   "top_k": 54,
+   "precision_within_one_patch": 0.2222222222222222,
+   "base_rate_within_one_patch": 0.08874098724348309,
+   "spatial_coherence": 0.2962962962962963,
+   "region_recall": 0.25,
+   "n_instances": 8,
+   "false_regions": 1,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.125
+  },
+  "three-axis OR, 1% scale (original default)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9033858727378866,
+   "average_precision": 0.17729562664090798,
+   "auroc_by_type": {
+    "disorganized": 0.948416772349377,
+    "novel_state": 0.8567467267117004
+   },
+   "auroc_ci95": [
+    0.8685183929966559,
+    0.9394325649335104
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.6363636363636364,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.41818181818181815,
+   "region_recall": 0.625,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.0
+  },
+  "appearance + disorder": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9462776907241834,
+   "average_precision": 0.25575475456114527,
+   "auroc_by_type": {
+    "disorganized": 0.9590756285605009,
+    "novel_state": 0.9330226836794262
+   },
+   "auroc_ci95": [
+    0.9198976397880385,
+    0.9626015577225361
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.6727272727272727,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.4909090909090909,
+   "region_recall": 0.75,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.0
+  },
+  "appearance + contact": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.969828248379267,
+   "average_precision": 0.3313756284154788,
+   "auroc_by_type": {
+    "disorganized": 0.9670873845038952,
+    "novel_state": 0.9726670002501877
+   },
+   "auroc_ci95": [
+    0.961219911178414,
+    0.9784825556284737
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.34545454545454546,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.0,
+   "region_recall": 0.625,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 0,
+   "false_regions_per_slide": 0.0
+  },
+  "disorder + contact": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.6915742362327302,
+   "average_precision": 0.06590058859715464,
+   "auroc_by_type": {
+    "disorganized": 0.7768786359884856,
+    "novel_state": 0.6032232507714119
+   },
+   "auroc_ci95": [
+    0.6172377005481477,
+    0.7553643133558955
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.6181818181818182,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.6181818181818182,
+   "region_recall": 0.125,
+   "n_instances": 8,
+   "false_regions": 1,
+   "regions_total": 9,
+   "false_regions_per_slide": 0.125
+  },
+  "three-axis OR, multi-scale": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9300089101914155,
+   "average_precision": 0.20369909842044986,
+   "auroc_by_type": {
+    "disorganized": 0.9429715965134771,
+    "novel_state": 0.9165832707864232
+   },
+   "auroc_ci95": [
+    0.904925024368612,
+    0.947925506004409
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.6,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.43636363636363634,
+   "region_recall": 0.625,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.0
+  },
+  "three-axis OR, multi-scale, lattice-smoothed": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9880890199813603,
+   "average_precision": 0.7909521928217352,
+   "auroc_by_type": {
+    "disorganized": 0.9806952915836302,
+    "novel_state": 0.9957468101075807
+   },
+   "auroc_ci95": [
+    0.978144686476603,
+    0.9976884703346587
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.9090909090909091,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.8727272727272727,
+   "region_recall": 1.0,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 6,
+   "false_regions_per_slide": 0.0
+  },
+  "local disorder D alone": {
+   "n_normal": 1631,
+   "n_anomalous": 57,
+   "auroc": 0.8398356406036551,
+   "average_precision": 0.252981110954449,
+   "auroc_by_type": {
+    "disorganized": 0.8277342015687436,
+    "novel_state": 0.8523692738898134
+   },
+   "auroc_ci95": [
+    0.775589885842313,
+    0.8913006256339476
+   ],
+   "top_q": 0.03,
+   "top_k": 52,
+   "precision_within_one_patch": 0.8653846153846154,
+   "base_rate_within_one_patch": 0.0913268236645606,
+   "spatial_coherence": 0.9615384615384616,
+   "region_recall": 0.375,
+   "n_instances": 8,
+   "false_regions": 1,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.125
+  },
+  "Isolation Forest": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9178623733882283,
+   "average_precision": 0.23564942542553896,
+   "auroc_by_type": {
+    "disorganized": 0.9726634056001772,
+    "novel_state": 0.8611041614544241
+   },
+   "auroc_ci95": [
+    0.850663715226511,
+    0.9654081427689801
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.38181818181818183,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.2545454545454545,
+   "region_recall": 0.375,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 3,
+   "false_regions_per_slide": 0.0
+  },
+  "Isolation Forest, lattice-smoothed (rank)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9184000573529563,
+   "average_precision": 0.35913168646443444,
+   "auroc_by_type": {
+    "disorganized": 0.9034060027779455,
+    "novel_state": 0.9339296138770745
+   },
+   "auroc_ci95": [
+    0.8436236400453876,
+    0.9823281072739262
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.4909090909090909,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.5454545454545454,
+   "region_recall": 1.0,
+   "n_instances": 8,
+   "false_regions": 3,
+   "regions_total": 7,
+   "false_regions_per_slide": 0.375
+  },
+  "Isolation Forest, lattice-smoothed (raw score)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9721633330260854,
+   "average_precision": 0.5506932099915157,
+   "auroc_by_type": {
+    "disorganized": 0.9878213257644383,
+    "novel_state": 0.9559461262613627
+   },
+   "auroc_ci95": [
+    0.9424229360106945,
+    0.9935072314685285
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.6363636363636364,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.7090909090909091,
+   "region_recall": 0.75,
+   "n_instances": 8,
+   "false_regions": 2,
+   "regions_total": 7,
+   "false_regions_per_slide": 0.25
+  },
+  "Local Outlier Factor": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.6532399299474606,
+   "average_precision": 0.21587608713299597,
+   "auroc_by_type": {
+    "disorganized": 0.9776757855748133,
+    "novel_state": 0.31721707947627387
+   },
+   "auroc_ci95": [
+    0.48985460398216363,
+    0.8322443070386901
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.5636363636363636,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.43636363636363634,
+   "region_recall": 0.5,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.0
+  },
+  "Local Outlier Factor, lattice-smoothed (rank)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.7302874816931411,
+   "average_precision": 0.3554772986114103,
+   "auroc_by_type": {
+    "disorganized": 0.9872174245626749,
+    "novel_state": 0.4641814694354099
+   },
+   "auroc_ci95": [
+    0.571946678491131,
+    0.8872892190448378
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.509090909090909,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.6727272727272727,
+   "region_recall": 0.5,
+   "n_instances": 8,
+   "false_regions": 1,
+   "regions_total": 6,
+   "false_regions_per_slide": 0.125
+  },
+  "Mahalanobis distance": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9836851322702553,
+   "average_precision": 0.6013772769089772,
+   "auroc_by_type": {
+    "disorganized": 0.975884212009582,
+    "novel_state": 0.9917646568259528
+   },
+   "auroc_ci95": [
+    0.96960265725742,
+    0.9946545445286726
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.6363636363636364,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.5454545454545454,
+   "region_recall": 0.75,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.0
+  },
+  "Mahalanobis distance, lattice-smoothed (rank)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9544965741850246,
+   "average_precision": 0.6212912620674973,
+   "auroc_by_type": {
+    "disorganized": 0.9199629607262918,
+    "novel_state": 0.9902635309815696
+   },
+   "auroc_ci95": [
+    0.9176559279320569,
+    0.9894864202237157
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.6909090909090909,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.6909090909090909,
+   "region_recall": 1.0,
+   "n_instances": 8,
+   "false_regions": 1,
+   "regions_total": 7,
+   "false_regions_per_slide": 0.125
+  },
+  "Mahalanobis distance, lattice-smoothed (raw score)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9859792505197611,
+   "average_precision": 0.8209412972577681,
+   "auroc_by_type": {
+    "disorganized": 0.9731867866417054,
+    "novel_state": 0.9992285881077474
+   },
+   "auroc_ci95": [
+    0.972095627479809,
+    0.9982263830296065
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.9818181818181818,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.9454545454545454,
+   "region_recall": 0.875,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 6,
+   "false_regions_per_slide": 0.0
+  },
+  "kNN distance, k = 10": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.8108786268063621,
+   "average_precision": 0.2833793944366256,
+   "auroc_by_type": {
+    "disorganized": 0.9809569821043943,
+    "novel_state": 0.6347260445334001
+   },
+   "auroc_ci95": [
+    0.7124170404300808,
+    0.9535487274125861
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.4727272727272727,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.21818181818181817,
+   "region_recall": 0.375,
+   "n_instances": 8,
+   "false_regions": 0,
+   "regions_total": 3,
+   "false_regions_per_slide": 0.0
+  },
+  "kNN distance, k = 10, lattice-smoothed (rank)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.8878544873567457,
+   "average_precision": 0.42024178128185397,
+   "auroc_by_type": {
+    "disorganized": 0.9727036656802946,
+    "novel_state": 0.7999749812359269
+   },
+   "auroc_ci95": [
+    0.791776311579453,
+    0.9819035138504609
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.5272727272727272,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.7090909090909091,
+   "region_recall": 0.625,
+   "n_instances": 8,
+   "false_regions": 3,
+   "regions_total": 8,
+   "false_regions_per_slide": 0.375
+  },
+  "kNN distance, k = 10, lattice-smoothed (raw score)": {
+   "n_normal": 1713,
+   "n_anomalous": 57,
+   "auroc": 0.9833778842904108,
+   "average_precision": 0.6383513562205692,
+   "auroc_by_type": {
+    "disorganized": 0.9889284779676711,
+    "novel_state": 0.9776290551246769
+   },
+   "auroc_ci95": [
+    0.9701724442806867,
+    0.9962302912670026
+   ],
+   "top_q": 0.03,
+   "top_k": 55,
+   "precision_within_one_patch": 0.7818181818181819,
+   "base_rate_within_one_patch": 0.08771929824561403,
+   "spatial_coherence": 0.9090909090909091,
+   "region_recall": 0.875,
+   "n_instances": 8,
+   "false_regions": 2,
+   "regions_total": 8,
+   "false_regions_per_slide": 0.25
+  }
+ }
+}

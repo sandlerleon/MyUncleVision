@@ -2,7 +2,7 @@
 """Synthetic histology-like slides with KNOWN planted anomalies and artifacts, for validation and tests of the pipeline.
 
 THESE ARE NOT KIDNEY TISSUE.  They imitate only what the platform measures: compartments with different local texture (tubule-like rings with nuclei, glomerulus-like discs, interstitium,
-vessels), slide-to-slide stain variation, two planted anomaly types and four artifact types.  Results on them show that the machinery detects and separates what it was built to detect;
+vessels), slide-to-slide stain variation, two planted anomaly types (three more for the held-out benchmark) and four artifact types.  Results on them show that the machinery detects and separates what it was built to detect;
 they say nothing about the kidney.
 
 anomalies:  disorganized  (the architecture is replaced by a patchwork of small tiles of different structure: neighbouring patches disagree, high local disorder)
@@ -38,7 +38,7 @@ def _pick_centres(rng, tissue, radii, margin, size):
     return out
 
 
-def make_slide(seed=0, size=4480, mpp=0.5, anomalies=(), artifacts=(), stain_jitter=0.05, anomaly_radius=360):
+def make_slide(seed=0, size=4480, mpp=0.5, anomalies=(), artifacts=(), stain_jitter=0.05, anomaly_radius=360, palette_shift=0.0, soft_blur=0.8):
     """returns (uint8 RGB image, truth dict of boolean masks: tissue, <anomaly>, <artifact>, anomaly_any, artifact_any)"""
     rng = np.random.default_rng(seed)
     H = W = size
@@ -138,10 +138,29 @@ def make_slide(seed=0, size=4480, mpp=0.5, anomalies=(), artifacts=(), stain_jit
             col = (172 + (118 - 172) * stripe[..., None] * np.array([1, 1, 1], np.float32), )[0]
             col = np.stack([172 - 52 * stripe, 190 - 45 * stripe, 214 - 30 * stripe], -1)
             img[mb] = col[mb] + _noise(rng, (H, W), 1.5, 3)[..., None][mb]
+        elif name == "dense_tubules":                                                  # held-out type: tightly packed small tubules (an architecture change that stays tissue-like)
+            patch = pink[None, None, :] + _noise(rng, (H, W), 40, 7)[..., None]
+            img[mb] = patch[mb]
+            for _ in range(int(1.0 * mb.sum() / (np.pi * 24 ** 2))):
+                a_, rr = rng.uniform(0, 2 * np.pi), max(r - 30, 1) * np.sqrt(rng.uniform())
+                draw_tubule(int(c[0] + rr * np.cos(a_)), int(c[1] + rr * np.sin(a_)), int(rng.integers(13, 19)))
+        elif name == "nuclear_crowding":                                               # held-out type: interstitium crowded with nuclei, no other change
+            patch = pink[None, None, :] + _noise(rng, (H, W), 40, 7)[..., None]
+            img[mb] = patch[mb]
+            for _ in range(int(0.012 * mb.sum() / 4)):
+                a_, rr = rng.uniform(0, 2 * np.pi), r * np.sqrt(rng.uniform())
+                cv2.circle(img, (int(c[0] + rr * np.cos(a_)), int(c[1] + rr * np.sin(a_))), 3, nuc, -1)
+        elif name == "glomerular_cluster":                                             # held-out type: a cluster of glomerulus-like discs where there is normally one at a time
+            patch = pink[None, None, :] + _noise(rng, (H, W), 40, 7)[..., None]
+            img[mb] = patch[mb]
+            for k in range(6):
+                a_, rr = 2 * np.pi * k / 6 + rng.uniform(-0.2, 0.2), 0.55 * r
+                draw_glom(int(c[0] + rr * np.cos(a_)), int(c[1] + rr * np.sin(a_)), int(rng.integers(52, 66)))
         truth[name] = mb
     # --- slide appearance first (noise, mild blur), then the artifacts that sit on top of it
     img += _noise(rng, (H, W), 1.0, 2.5)[..., None]
-    img = cv2.GaussianBlur(img, (0, 0), 0.8)
+    img = cv2.GaussianBlur(img, (0, 0), soft_blur)
+    img = img * (1.0 + palette_shift * np.array([0.07, -0.05, 0.06], np.float32))[None, None, :]      # stain / scanner shift of the whole slide
     for name, (c, r) in zip(artifacts, centres[len(anomalies):]):
         m = np.zeros((H, W), np.uint8)
         if name == "blur":

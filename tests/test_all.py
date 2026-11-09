@@ -160,6 +160,42 @@ def test_dinov2_encoder_if_available():
     assert np.linalg.norm(z.mean(0) - enc.encode(y).mean(0)) > 1.0                      # different colour/texture, different embedding
 
 
+def test_frozen_defaults_and_scorer_option():
+    """frozen settings: appearance only, multi-scale, 3 x 3 smoothing; the scorer option and the smoothing change the score as documented"""
+    import json as _j
+    fz = _j.load(open(os.path.join(os.path.dirname(HERE), "results", "frozen_settings.json")))
+    cfg = cohort.Config()
+    assert tuple(cfg.weights) == (1.0, 0.0, 0.0) and cfg.multiscale and cfg.smooth and cfg.scorer == "knn"
+    assert list(cfg.rarity_scales) == fz["shared"]["rarity_scales"] and cfg.n_components == fz["shared"]["pca_components"] and cfg.n_states == fz["shared"]["n_states"]
+    with tempfile.TemporaryDirectory() as tmp:
+        ind, slides, truths, rc = _mini_cohort(tmp)
+        out = {}
+        for name, kw in (("default", {}), ("raw", dict(smooth=False)), ("maha", dict(scorer="mahalanobis")), ("three", dict(weights=(0.4, 0.4, 0.2)))):
+            for s in slides:
+                s.extra = {k: v for k, v in s.extra.items() if k in ("path", "backend", "dimensions", "mpp_assumed", "mpp_eff")}
+            cohort.analyse(slides, cohort.Config(**kw))
+            out[name] = [s.extra["novelty"].copy() for s in slides]
+        s0 = slides[0]
+        for name in ("default", "raw", "maha", "three"):
+            assert not np.any(np.isfinite(out[name][0][~s0.ok]))                       # artifact patches never get a score
+        a, b = np.concatenate(out["default"]), np.concatenate(out["raw"])
+        ok = np.isfinite(a) & np.isfinite(b)
+        assert np.abs(a[ok] - b[ok]).max() > 0.05 and np.nanmax(a) <= 1.0              # smoothing changes the score and keeps it a rank in [0, 1]
+        assert not np.allclose(np.nan_to_num(np.concatenate(out["maha"])), np.nan_to_num(a))
+        assert not np.allclose(np.nan_to_num(np.concatenate(out["three"])), np.nan_to_num(a))
+
+
+def test_smooth_lattice_is_a_local_mean():
+    class Sl:
+        shape = (4, 4)
+        rows = np.arange(4).repeat(4)
+        cols = np.tile(np.arange(4), 4)
+    sc = np.zeros(16)
+    sc[5] = 9.0                                                                          # one site at (1, 1)
+    out = cohort.smooth_lattice(Sl, sc)
+    assert abs(out[5] - 1.0) < 1e-9 and abs(out[0] - 9.0 / 4) < 1e-9 and abs(out[15]) < 1e-12   # centre: 9/9, neighbour corner (0, 0): 9/4 (window cut by the border), far corner 0
+
+
 def _mini_cohort(tmp):
     from myuncle_vision.pipeline import RunConfig, load_slide
     from myuncle_vision.encoder import HandcraftedEncoder
@@ -238,12 +274,13 @@ def test_cli_run_single_command_writes_all_outputs():
             img, _ = S.make_slide(seed=seed, size=2240, anomalies=an, anomaly_radius=170)
             S.write_tiff(os.path.join(ind, "c%d.tif" % seed), img, 0.5)
         out = os.path.join(tmp, "out")
-        r = subprocess.run([sys.executable, "-m", "myuncle_vision", "run", "--input", ind, "--output", out, "--encoder", "handcrafted", "--q", "0.05"], cwd=os.path.dirname(HERE), capture_output=True, text=True)
+        r = subprocess.run([sys.executable, "-m", "myuncle_vision", "run", "--input", ind, "--output", out, "--encoder", "handcrafted", "--q", "0.05", "--scenarios"], cwd=os.path.dirname(HERE), capture_output=True, text=True)
         assert r.returncode == 0, r.stderr[-2000:]
         for f in ("findings.json", "findings.csv", "images_used.csv", "summary_statistics.csv", "run_manifest.json"):
             assert os.path.exists(os.path.join(out, f)), f
         man = json.load(open(os.path.join(out, "run_manifest.json")))
         assert man["myuncle_core_unmodified"] is True and man["n_slides_analysed"] == 3
+        assert json.load(open(os.path.join(out, "slides", "c21", "progression_scenarios.json")))["exploratory"] is True       # the scenario analysis is labelled exploratory
         for n in ("c21", "c22", "c23"):
             for f in ("annotations.json", "patch_scores.csv", "novelty_mask.png", "heatmaps.png", "progression_scenarios.json"):
                 assert os.path.exists(os.path.join(out, "slides", n, f)), (n, f)

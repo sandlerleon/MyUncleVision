@@ -1,0 +1,9 @@
+.git
+docs
+results
+results_tmp
+__pycache__
+*.pyc
+tests/data
+*.docx
+*.pdf

@@ -58,7 +58,7 @@ def validate(outdir="results", encoder="handcrafted", size=4480, specs=SPECS, wo
         S.write_tiff(os.path.join(ind, name + ".tif"), img, 0.5)
         truths[name] = tr
         log("[synthetic] %s anomalies=%s artifacts=%s" % (name, an, ar))
-    cfg = RunConfig(encoder=encoder, q=q, figures=False, progression=True)
+    cfg = RunConfig(encoder=encoder, q=q, figures=False, progression=False)
     res = run(ind, os.path.join(work, "out"), cfg, log=lambda *a: None)
     slides = res["slides"]
     # ---- patch-level arrays

@@ -1,0 +1,71 @@
+{
+ "written": "2026-11-08T19:21:09",
+ "purpose": "Settings frozen on the DEVELOPMENT cohort (validate.SPECS, 8 slides) BEFORE the held-out cohort (bench.HELD_SPECS, 16 slides, three anomaly types never used in development) was generated or evaluated. The held-out cohort is evaluated once with these settings.",
+ "selection_rule": "Among the MyUncleVision variants (appearance 1% / multi-scale, single axes, axis combinations, with or without 3x3 lattice smoothing) choose the one with the highest mean average precision over the two encoders on the development cohort.",
+ "candidate_A_default": {
+  "name": "appearance rarity, multi-scale (0.5, 1, 2, 5, 10% of the reference set, highest rank), 3x3 lattice-smoothed",
+  "cli": "--scorer knn --weights 1,0,0",
+  "dev_metrics": {
+   "handcrafted": {
+    "auroc": 0.921,
+    "average_precision": 0.474,
+    "spatial_coherence": 0.91,
+    "region_recall": 1.0
+   },
+   "dinov2_vits14": {
+    "auroc": 0.98,
+    "average_precision": 0.737,
+    "spatial_coherence": 0.87,
+    "region_recall": 1.0
+   }
+  },
+  "dev_mean_average_precision": 0.605,
+  "why": "highest mean AP among the MyUncleVision variants (three-axis OR with smoothing: 0.497)"
+ },
+ "candidate_B_alternative": {
+  "name": "Mahalanobis distance of the cohort-PCA unit embeddings, percentile rank, 3x3 lattice-smoothed",
+  "cli": "--scorer mahalanobis --weights 1,0,0",
+  "dev_metrics": {
+   "handcrafted": {
+    "auroc": 0.954,
+    "average_precision": 0.621,
+    "spatial_coherence": 0.69,
+    "region_recall": 1.0
+   },
+   "dinov2_vits14": {
+    "auroc": 0.993,
+    "average_precision": 0.898,
+    "spatial_coherence": 0.95,
+    "region_recall": 1.0
+   }
+  },
+  "dev_mean_average_precision": 0.76,
+  "why": "added after the development results showed that a smoothed Mahalanobis baseline scored higher than A; NOT selected as the default by the rule above (a single Gaussian is a poor model of multimodal real tissue, a hypothesis), but pre-registered here and evaluated on the held-out cohort next to A"
+ },
+ "shared": {
+  "patch_px": 224,
+  "mpp": 0.5,
+  "pca_components": 16,
+  "n_states": 12,
+  "rarity_scales": [
+   0.005,
+   0.01,
+   0.02,
+   0.05,
+   0.1
+  ],
+  "smoothing": "3x3 mean of the valid scores on the lattice",
+  "top_fraction_q": 0.03,
+  "min_region": 3,
+  "seed": 0,
+  "qc": "blur relative to slide median (0.15) / absolute 3; pen 0.05; dark 0.20; glass 0.60"
+ },
+ "code_sha256": {
+  "cohort.py": "a3c9a1507e5b4261fddf2f94dcd409d3e8c769997e9d79e92e38565e0de41aab",
+  "wsi.py": "04b0aabdf8b7d604532169c5a7303a5367d6a78f277ea312d825ba52da618277",
+  "lattice.py": "27797b6a4b7c7b73505ada614815cf96158d8b2268daa763b8fb107c34a30c34",
+  "pipeline.py": "47188b872e8d8328b0782427b4bfeb98e8c28079cc23ccec3bf04eb48d915af6",
+  "bench.py": "1876f60fbbc2ab5e427ebf02fa329381a698289a6a1e295a39797b7d30839452",
+  "synthetic.py": "1e4c7728f2644438f4b7f82de1d45c84e0ba6f2f6e57a14c209035ba4ffa8470"
+ }
+}

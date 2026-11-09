@@ -1,0 +1,591 @@
+{
+ "kind": "held",
+ "encoder": "handcrafted",
+ "n_slides": 16,
+ "n_patches": 3786,
+ "anomalous_patch_share": 0.008452192287374538,
+ "q": 0.03,
+ "weights": [
+  0.4,
+  0.4,
+  0.2
+ ],
+ "seconds": 312.9,
+ "methods": {
+  "MyUncleVision frozen: appearance, multi-scale, lattice-smoothed": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.8035799482006544,
+   "average_precision": 0.040968011998265295,
+   "auroc_by_type": {
+    "dense_tubules": 0.8269720101781171,
+    "nuclear_crowding": 0.7101054162122864,
+    "glomerular_cluster": 0.8864132051154953
+   },
+   "auroc_ci95": [
+    0.6796822986945006,
+    0.9070361870788588
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.11504424778761062,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.8938053097345132,
+   "region_recall": 0.2857142857142857,
+   "n_instances": 7,
+   "false_regions": 1,
+   "regions_total": 4,
+   "false_regions_per_slide": 0.0625
+  },
+  "appearance, 1% scale": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9563454198473282,
+   "average_precision": 0.17392284249887394,
+   "auroc_by_type": {
+    "dense_tubules": 0.9908215194474737,
+    "nuclear_crowding": 0.9802798982188294,
+    "glomerular_cluster": 0.9020273619510262
+   },
+   "auroc_ci95": [
+    0.9065188960230045,
+    0.9872698552053654
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.20353982300884957,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.2920353982300885,
+   "region_recall": 1.0,
+   "n_instances": 7,
+   "false_regions": 1,
+   "regions_total": 7,
+   "false_regions_per_slide": 0.0625
+  },
+  "appearance, multi-scale": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9779086014176662,
+   "average_precision": 0.168888333585943,
+   "auroc_by_type": {
+    "dense_tubules": 0.9897764449291166,
+    "nuclear_crowding": 0.9769061250454381,
+    "glomerular_cluster": 0.9692921582234559
+   },
+   "auroc_ci95": [
+    0.9651230443072857,
+    0.9862593081977411
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.19469026548672566,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.30973451327433627,
+   "region_recall": 0.8571428571428571,
+   "n_instances": 7,
+   "false_regions": 2,
+   "regions_total": 8,
+   "false_regions_per_slide": 0.125
+  },
+  "state-wise disorder": {
+   "n_normal": 3565,
+   "n_anomalous": 32,
+   "auroc": 0.8172817321178121,
+   "average_precision": 0.0639963939319982,
+   "auroc_by_type": {
+    "dense_tubules": 0.916004363409693,
+    "nuclear_crowding": 0.6157082748948106,
+    "glomerular_cluster": 0.9564069871222747
+   },
+   "auroc_ci95": [
+    0.6760925250904409,
+    0.922959373945731
+   ],
+   "top_q": 0.03,
+   "top_k": 110,
+   "precision_within_one_patch": 0.17272727272727273,
+   "base_rate_within_one_patch": 0.03278688524590164,
+   "spatial_coherence": 0.6727272727272727,
+   "region_recall": 0.5714285714285714,
+   "n_instances": 7,
+   "false_regions": 8,
+   "regions_total": 14,
+   "false_regions_per_slide": 0.5
+  },
+  "contact rarity": {
+   "n_normal": 3631,
+   "n_anomalous": 32,
+   "auroc": 0.5977735128063894,
+   "average_precision": 0.015648372817139995,
+   "auroc_by_type": {
+    "dense_tubules": 0.6905505064414456,
+    "nuclear_crowding": 0.7147250527861929,
+    "glomerular_cluster": 0.3942815653088305
+   },
+   "auroc_ci95": [
+    0.3874825046815708,
+    0.885511251750598
+   ],
+   "top_q": 0.03,
+   "top_k": 112,
+   "precision_within_one_patch": 0.035398230088495575,
+   "base_rate_within_one_patch": 0.0322061191626409,
+   "spatial_coherence": 0.504424778761062,
+   "region_recall": 0.0,
+   "n_instances": 7,
+   "false_regions": 5,
+   "regions_total": 10,
+   "false_regions_per_slide": 0.3125
+  },
+  "three-axis OR, 1% scale (original default)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9548459651035986,
+   "average_precision": 0.12813462809603574,
+   "auroc_by_type": {
+    "dense_tubules": 0.987549981824791,
+    "nuclear_crowding": 0.9344102144674663,
+    "glomerular_cluster": 0.950381679389313
+   },
+   "auroc_ci95": [
+    0.9342991581468261,
+    0.9765631769963479
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.21238938053097345,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.6283185840707964,
+   "region_recall": 0.7142857142857143,
+   "n_instances": 7,
+   "false_regions": 6,
+   "regions_total": 13,
+   "false_regions_per_slide": 0.375
+  },
+  "appearance + disorder": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9675231733914941,
+   "average_precision": 0.18762014189768772,
+   "auroc_by_type": {
+    "dense_tubules": 0.9923209741912031,
+    "nuclear_crowding": 0.932842602689931,
+    "glomerular_cluster": 0.985067413502528
+   },
+   "auroc_ci95": [
+    0.9523180129272616,
+    0.9880066667217674
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.24778761061946902,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.6194690265486725,
+   "region_recall": 0.8571428571428571,
+   "n_instances": 7,
+   "false_regions": 4,
+   "regions_total": 13,
+   "false_regions_per_slide": 0.25
+  },
+  "appearance + contact": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9650780398037078,
+   "average_precision": 0.11951973096332237,
+   "auroc_by_type": {
+    "dense_tubules": 0.9813401187446988,
+    "nuclear_crowding": 0.9677844420210832,
+    "glomerular_cluster": 0.9488202637057599
+   },
+   "auroc_ci95": [
+    0.9430465832365125,
+    0.9827530060520253
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.1504424778761062,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.3274336283185841,
+   "region_recall": 0.7142857142857143,
+   "n_instances": 7,
+   "false_regions": 3,
+   "regions_total": 8,
+   "false_regions_per_slide": 0.1875
+  },
+  "disorder + contact": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.8384507906215921,
+   "average_precision": 0.048530147992659686,
+   "auroc_by_type": {
+    "dense_tubules": 0.9271931418877984,
+    "nuclear_crowding": 0.6865685205379862,
+    "glomerular_cluster": 0.9315331614949935
+   },
+   "auroc_ci95": [
+    0.756378233732965,
+    0.9263286728464802
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.1504424778761062,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.6194690265486725,
+   "region_recall": 0.42857142857142855,
+   "n_instances": 7,
+   "false_regions": 10,
+   "regions_total": 16,
+   "false_regions_per_slide": 0.625
+  },
+  "three-axis OR, multi-scale": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9600599781897493,
+   "average_precision": 0.1321956232254302,
+   "auroc_by_type": {
+    "dense_tubules": 0.9872167696595178,
+    "nuclear_crowding": 0.9255952380952381,
+    "glomerular_cluster": 0.9754386834539507
+   },
+   "auroc_ci95": [
+    0.936703687310305,
+    0.9826130924932389
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.20353982300884957,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.6017699115044248,
+   "region_recall": 0.7142857142857143,
+   "n_instances": 7,
+   "false_regions": 5,
+   "regions_total": 13,
+   "false_regions_per_slide": 0.3125
+  },
+  "three-axis OR, multi-scale, lattice-smoothed": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9662537486368593,
+   "average_precision": 0.26337384385220186,
+   "auroc_by_type": {
+    "dense_tubules": 0.991124439597722,
+    "nuclear_crowding": 0.9287758996728462,
+    "glomerular_cluster": 0.9867899276296223
+   },
+   "auroc_ci95": [
+    0.9309610796428781,
+    0.9914806275004391
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.3008849557522124,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.8407079646017699,
+   "region_recall": 0.8571428571428571,
+   "n_instances": 7,
+   "false_regions": 6,
+   "regions_total": 12,
+   "false_regions_per_slide": 0.375
+  },
+  "local disorder D alone": {
+   "n_normal": 3565,
+   "n_anomalous": 32,
+   "auroc": 0.9167075736325385,
+   "average_precision": 0.07032431503161529,
+   "auroc_by_type": {
+    "dense_tubules": 0.9753155680224403,
+    "nuclear_crowding": 0.8577606358111266,
+    "glomerular_cluster": 0.9330613285732501
+   },
+   "auroc_ci95": [
+    0.8830663211041039,
+    0.9567615311437457
+   ],
+   "top_q": 0.03,
+   "top_k": 110,
+   "precision_within_one_patch": 0.17272727272727273,
+   "base_rate_within_one_patch": 0.03278688524590164,
+   "spatial_coherence": 0.8727272727272727,
+   "region_recall": 0.5714285714285714,
+   "n_instances": 7,
+   "false_regions": 11,
+   "regions_total": 16,
+   "false_regions_per_slide": 0.6875
+  },
+  "Isolation Forest": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9583390130861504,
+   "average_precision": 0.12355704619325515,
+   "auroc_by_type": {
+    "dense_tubules": 0.9826123833757422,
+    "nuclear_crowding": 0.9783942202835333,
+    "glomerular_cluster": 0.9166005749975215
+   },
+   "auroc_ci95": [
+    0.9175943756848973,
+    0.9851308021089422
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.1592920353982301,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.17699115044247787,
+   "region_recall": 0.8571428571428571,
+   "n_instances": 7,
+   "false_regions": 0,
+   "regions_total": 5,
+   "false_regions_per_slide": 0.0
+  },
+  "Isolation Forest, lattice-smoothed (rank)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.931787588604144,
+   "average_precision": 0.11850110638940324,
+   "auroc_by_type": {
+    "dense_tubules": 0.9807342784442021,
+    "nuclear_crowding": 0.9018538713195201,
+    "glomerular_cluster": 0.9243952612273223
+   },
+   "auroc_ci95": [
+    0.8751176091976012,
+    0.9780729722306769
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.18584070796460178,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.5752212389380531,
+   "region_recall": 0.7142857142857143,
+   "n_instances": 7,
+   "false_regions": 7,
+   "regions_total": 11,
+   "false_regions_per_slide": 0.4375
+  },
+  "Isolation Forest, lattice-smoothed (raw score)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9809586286804798,
+   "average_precision": 0.2898636504919132,
+   "auroc_by_type": {
+    "dense_tubules": 0.9963952502120441,
+    "nuclear_crowding": 0.9925708833151581,
+    "glomerular_cluster": 0.9556607514622781
+   },
+   "auroc_ci95": [
+    0.9604304045293552,
+    0.9975335557608475
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.30973451327433627,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.584070796460177,
+   "region_recall": 0.8571428571428571,
+   "n_instances": 7,
+   "false_regions": 5,
+   "regions_total": 13,
+   "false_regions_per_slide": 0.3125
+  },
+  "Local Outlier Factor": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9556808887677208,
+   "average_precision": 0.12142916423648933,
+   "auroc_by_type": {
+    "dense_tubules": 0.9138495092693566,
+    "nuclear_crowding": 0.9797119229371138,
+    "glomerular_cluster": 0.9636908892634084
+   },
+   "auroc_ci95": [
+    0.9127646063978627,
+    0.9789790140115923
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.19469026548672566,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.336283185840708,
+   "region_recall": 0.7142857142857143,
+   "n_instances": 7,
+   "false_regions": 4,
+   "regions_total": 9,
+   "false_regions_per_slide": 0.25
+  },
+  "Local Outlier Factor, lattice-smoothed (rank)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9679278557797164,
+   "average_precision": 0.24004896597868924,
+   "auroc_by_type": {
+    "dense_tubules": 0.978674421422513,
+    "nuclear_crowding": 0.9878680479825517,
+    "glomerular_cluster": 0.9373822742143353
+   },
+   "auroc_ci95": [
+    0.9466661550268611,
+    0.9865743275470891
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.2831858407079646,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.672566371681416,
+   "region_recall": 1.0,
+   "n_instances": 7,
+   "false_regions": 9,
+   "regions_total": 16,
+   "false_regions_per_slide": 0.5625
+  },
+  "Mahalanobis distance": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9578363549618322,
+   "average_precision": 0.128335898515768,
+   "auroc_by_type": {
+    "dense_tubules": 0.9857930449533503,
+    "nuclear_crowding": 0.9703516902944384,
+    "glomerular_cluster": 0.9213096064241103
+   },
+   "auroc_ci95": [
+    0.9201108489990979,
+    0.9819982786834788
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.13274336283185842,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.21238938053097345,
+   "region_recall": 0.7142857142857143,
+   "n_instances": 7,
+   "false_regions": 1,
+   "regions_total": 7,
+   "false_regions_per_slide": 0.0625
+  },
+  "Mahalanobis distance, lattice-smoothed (rank)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9312423323336968,
+   "average_precision": 0.10671028534917619,
+   "auroc_by_type": {
+    "dense_tubules": 0.9730855446504303,
+    "nuclear_crowding": 0.8959696474009451,
+    "glomerular_cluster": 0.9354862694557351
+   },
+   "auroc_ci95": [
+    0.8814019361435588,
+    0.9740866313132975
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.20353982300884957,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.5929203539823009,
+   "region_recall": 0.8571428571428571,
+   "n_instances": 7,
+   "false_regions": 5,
+   "regions_total": 11,
+   "false_regions_per_slide": 0.3125
+  },
+  "Mahalanobis distance, lattice-smoothed (raw score)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9622154443838604,
+   "average_precision": 0.14970026572371456,
+   "auroc_by_type": {
+    "dense_tubules": 0.9925178722888646,
+    "nuclear_crowding": 0.9776444929116684,
+    "glomerular_cluster": 0.9205908595221572
+   },
+   "auroc_ci95": [
+    0.9215940690063181,
+    0.9896167495657817
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.22123893805309736,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.7345132743362832,
+   "region_recall": 0.8571428571428571,
+   "n_instances": 7,
+   "false_regions": 3,
+   "regions_total": 13,
+   "false_regions_per_slide": 0.1875
+  },
+  "kNN distance, k = 10": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9557064476553979,
+   "average_precision": 0.13741914373930156,
+   "auroc_by_type": {
+    "dense_tubules": 0.9860656730885738,
+    "nuclear_crowding": 0.9706015994183933,
+    "glomerular_cluster": 0.9146178249231683
+   },
+   "auroc_ci95": [
+    0.92091935486023,
+    0.9825933485634515
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.1504424778761062,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.2831858407079646,
+   "region_recall": 0.5714285714285714,
+   "n_instances": 7,
+   "false_regions": 2,
+   "regions_total": 7,
+   "false_regions_per_slide": 0.125
+  },
+  "kNN distance, k = 10, lattice-smoothed (rank)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9123031965648856,
+   "average_precision": 0.11511063746103693,
+   "auroc_by_type": {
+    "dense_tubules": 0.9672543317581486,
+    "nuclear_crowding": 0.9238004362050164,
+    "glomerular_cluster": 0.8548007336175276
+   },
+   "auroc_ci95": [
+    0.8578950716499024,
+    0.9687420237226134
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.19469026548672566,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.6371681415929203,
+   "region_recall": 0.7142857142857143,
+   "n_instances": 7,
+   "false_regions": 4,
+   "regions_total": 10,
+   "false_regions_per_slide": 0.25
+  },
+  "kNN distance, k = 10, lattice-smoothed (raw score)": {
+   "n_normal": 3668,
+   "n_anomalous": 32,
+   "auroc": 0.9773548255179935,
+   "average_precision": 0.31813907225518406,
+   "auroc_by_type": {
+    "dense_tubules": 0.9956379498364232,
+    "nuclear_crowding": 0.9715330788804071,
+    "glomerular_cluster": 0.9687469019530088
+   },
+   "auroc_ci95": [
+    0.9646377751753051,
+    0.9878867882467341
+   ],
+   "top_q": 0.03,
+   "top_k": 113,
+   "precision_within_one_patch": 0.3008849557522124,
+   "base_rate_within_one_patch": 0.0318894499069891,
+   "spatial_coherence": 0.7433628318584071,
+   "region_recall": 1.0,
+   "n_instances": 7,
+   "false_regions": 6,
+   "regions_total": 14,
+   "false_regions_per_slide": 0.375
+  }
+ }
+}

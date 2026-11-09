@@ -23,10 +23,11 @@ def main(argv=None):
     r.add_argument("--max-patches", type=int, default=0, help="coarsen the grid until a slide has at most this many patches (0 = no limit)")
     r.add_argument("--q", type=float, default=0.02, help="top fraction of novelty scores that become candidate patches")
     r.add_argument("--seed", type=int, default=0)
-    r.add_argument("--weights", default="0.4,0.4,0.2", help="novelty axis weights: appearance,disorder,contacts (e.g. 1,0,0 for the appearance axis alone)")
+    r.add_argument("--weights", default="1,0,0", help="novelty axis weights: appearance,disorder,contacts (default 1,0,0: appearance only, the frozen setting; 0.4,0.4,0.2 adds the lattice axes)")
+    r.add_argument("--scorer", default="knn", choices=["knn", "mahalanobis"], help="appearance scorer: multi-scale nearest-neighbour rarity (default) or Mahalanobis distance; both are lattice-smoothed")
     r.add_argument("--rarity", type=float, default=0.01, help="rarity scale: fraction of the reference set used as k; a state is only 'rare' if it covers less than this share of the cohort")
     r.add_argument("--no-figures", action="store_true")
-    r.add_argument("--no-progression", action="store_true")
+    r.add_argument("--scenarios", action="store_true", help="EXPLORATORY: add the MyUncle scenario analysis per slide (a modelling analogy, not validated)")
     r.add_argument("--hash-files", action="store_true")
     v = sub.add_parser("validate-synthetic", help="run the validation benchmark on synthetic slides (writes results/validation.json)")
     v.add_argument("--output", default="results")
@@ -36,7 +37,7 @@ def main(argv=None):
     w.add_argument("--encoder", default="handcrafted", choices=["auto", "dinov2", "handcrafted"])
     a = ap.parse_args(argv)
     if a.cmd == "run":
-        cfg = RunConfig(encoder=a.encoder, device=a.device, mpp=a.mpp, max_patches=a.max_patches, q=a.q, seed=a.seed, weights=tuple(float(x) for x in a.weights.split(",")), rarity_fraction=a.rarity, figures=not a.no_figures, progression=not a.no_progression, hash_files=a.hash_files)
+        cfg = RunConfig(encoder=a.encoder, device=a.device, mpp=a.mpp, max_patches=a.max_patches, q=a.q, seed=a.seed, weights=tuple(float(x) for x in a.weights.split(",")), rarity_fraction=a.rarity, scorer=a.scorer, figures=not a.no_figures, progression=a.scenarios, hash_files=a.hash_files)
         run(a.input, a.output, cfg)
     elif a.cmd == "rarity-sweep":
         from .validate import rarity_sweep

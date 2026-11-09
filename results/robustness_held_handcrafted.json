@@ -1,0 +1,103 @@
+{
+ "kind": "held",
+ "encoder": "handcrafted",
+ "q": 0.03,
+ "rows": [
+  {
+   "variant": "default (frozen)",
+   "jaccard": 1.0,
+   "auroc": 0.8035842080152672,
+   "average_precision": 0.04096801199826529,
+   "spatial_coherence": 0.8938053097345132,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "seed 1",
+   "jaccard": 1.0,
+   "auroc": 0.8035842080152672,
+   "average_precision": 0.04096801199826529,
+   "spatial_coherence": 0.8938053097345132,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "seed 2",
+   "jaccard": 1.0,
+   "auroc": 0.8035842080152672,
+   "average_precision": 0.04096801199826529,
+   "spatial_coherence": 0.8938053097345132,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "seed 3",
+   "jaccard": 1.0,
+   "auroc": 0.8035842080152672,
+   "average_precision": 0.04096801199826529,
+   "spatial_coherence": 0.8938053097345132,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "8 PCA components",
+   "jaccard": 0.8833333333333333,
+   "auroc": 0.7885129839149401,
+   "average_precision": 0.03597780055514499,
+   "spatial_coherence": 0.8771929824561403,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "32 PCA components",
+   "jaccard": 0.9316239316239316,
+   "auroc": 0.8106895787895311,
+   "average_precision": 0.04060766891655264,
+   "spatial_coherence": 0.8584070796460177,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "6 states",
+   "jaccard": 1.0,
+   "auroc": 0.8035842080152672,
+   "average_precision": 0.04096801199826529,
+   "spatial_coherence": 0.8938053097345132,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "24 states",
+   "jaccard": 1.0,
+   "auroc": 0.8035842080152672,
+   "average_precision": 0.04096801199826529,
+   "spatial_coherence": 0.8938053097345132,
+   "region_recall": 0.2857142857142857
+  },
+  {
+   "variant": "no lattice smoothing",
+   "jaccard": 0.046296296296296294,
+   "auroc": 0.9779086014176662,
+   "average_precision": 0.168888333585943,
+   "spatial_coherence": 0.30973451327433627,
+   "region_recall": 0.8571428571428571
+  },
+  {
+   "variant": "three-axis weights 0.4/0.4/0.2",
+   "jaccard": 0.0970873786407767,
+   "auroc": 0.9662537486368593,
+   "average_precision": 0.26337384385220186,
+   "spatial_coherence": 0.8407079646017699,
+   "region_recall": 0.8571428571428571
+  },
+  {
+   "variant": "equal axis weights",
+   "jaccard": 0.056074766355140186,
+   "auroc": 0.9589779852780808,
+   "average_precision": 0.1753689756827973,
+   "spatial_coherence": 0.8141592920353983,
+   "region_recall": 0.8571428571428571
+  },
+  {
+   "variant": "coarser patches (0.75 um/px)",
+   "jaccard": NaN,
+   "auroc": 0.6009355297945902,
+   "average_precision": 0.036459085146187904,
+   "spatial_coherence": 0.9803921568627451,
+   "region_recall": 0.0
+  }
+ ]
+}

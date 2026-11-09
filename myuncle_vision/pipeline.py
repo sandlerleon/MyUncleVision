@@ -31,9 +31,10 @@ class RunConfig:
     seed: int = 0
     n_components: int = 16
     n_states: int = 12
-    weights: tuple = (0.4, 0.4, 0.2)  # novelty axis weights: appearance, state-wise disorder, contact rarity
+    weights: tuple = (1.0, 0.0, 0.0)  # novelty axis weights: appearance, state-wise disorder, contact rarity (frozen default: appearance only; see results/frozen_settings.json)
+    scorer: str = "knn"               # appearance scorer: knn (multi-scale nearest-neighbour rarity) or mahalanobis
     rarity_fraction: float = 0.01     # scale at which appearance rarity is judged (fraction of the reference set)
-    progression: bool = True
+    progression: bool = False        # EXPLORATORY MyUncle scenario analysis (opt-in, --scenarios): a modelling analogy, not evidence about disease progression
     figures: bool = True
     hash_files: bool = False         # SHA-256 of every input file (slow for TB-scale input)
     data_source: str = "KPMP open data supplied by the user (the user confirms that no controlled-access data are used)"
@@ -122,7 +123,7 @@ def run(input_dir, output_dir, cfg=None, log=print):
     slides = [s for s in slides if s.ok.sum() >= 5]
     if not slides:
         raise SystemExit("no slide had enough analysable tissue")
-    ccfg = cohort.Config(n_components=cfg.n_components, n_states=cfg.n_states, seed=cfg.seed, weights=tuple(cfg.weights), rarity_fraction=cfg.rarity_fraction)
+    ccfg = cohort.Config(n_components=cfg.n_components, n_states=cfg.n_states, seed=cfg.seed, weights=tuple(cfg.weights), rarity_fraction=cfg.rarity_fraction, scorer=cfg.scorer)
     space, csum = cohort.analyse(slides, ccfg)
     thr, regions = discover.candidates(slides, cfg.q, cfg.min_region)
     findings = discover.cluster_regions(regions, len(slides), cfg.link_threshold)
@@ -152,6 +153,7 @@ def run(input_dir, output_dir, cfg=None, log=print):
             render.slide_figure(s, findings, os.path.join(d, "heatmaps.png"))
         prog = progression.scenarios(s) if cfg.progression else None
         if prog:
+            prog = dict(exploratory=True, note="Model-based scenario analysis with the MyUncle simulation; a modelling analogy that is not calibrated against any biological measurement and is not evidence of disease progression or repair dynamics.", **prog)
             json.dump(prog, open(os.path.join(d, "progression_scenarios.json"), "w"), indent=1)
         o = s.extra["order"]
         summary.append(dict(slide=s.name, n_patches=s.n, n_analysed=int(s.ok.sum()), n_artifact=int((~s.ok).sum()), n_candidate_patches=int(s.extra["cand_mask"].sum()), n_regions=len(regs),

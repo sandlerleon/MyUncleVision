@@ -6,12 +6,13 @@ NIDDK/HeroX *Kidney AI Discovery Challenge* (Kidney Precision Medicine Project, 
 
 Leon Sandler, Independent Researcher, sandler.leon@gmail.com, ORCID 0009-0007-4584-808X. MIT license (code); MyUncle is vendored unmodified (also MIT). Archived on Zenodo (all versions): software [10.5281/zenodo.24066260](https://doi.org/10.5281/zenodo.24066260), manuscript [10.5281/zenodo.24066256](https://doi.org/10.5281/zenodo.24066256). Version 0.1.1 DOIs: software 10.5281/zenodo.24066261, manuscript 10.5281/zenodo.24066257.
 
-> **Status and honest limits.** The platform runs end to end on SVS and on plain TIFF/PNG/JPEG, is covered by automated tests, and is validated on **synthetic** slides with planted anomalies and
-> artifacts (`results/validation_*.json`; synthetic slides are not kidney tissue). **It has not yet been run on KPMP slides**: no KPMP image was available to the author when this repository was
-> written (the data are released to registered HeroX participants, 2.4 TB for Release 1). Everything it outputs about real tissue is a candidate for expert review, not a finding.
-> The vision encoder (DINOv2, pretrained on natural images) is not trained on kidney tissue. No pathologist or nephrologist has reviewed any output.
+> **Status and honest limits (v0.2.0).** The platform runs end to end on SVS and on plain TIFF/PNG/JPEG, is covered by automated tests, was built and run in Docker (default command, offline, three slides), and is evaluated on **synthetic** slides only
+> (a development cohort and a held-out cohort with settings frozen beforehand, `results/frozen_settings.json`, `results/bench_*.json`, `results/robustness_*.json`). Synthetic slides are not kidney tissue and were written by the author of the method.
+> **It has not been run on KPMP slides** (data released to registered HeroX participants, 2.4 TB for Release 1), and no pathologist has reviewed any output. Everything it outputs about real tissue is a candidate for expert review, not a finding.
 >
-> **Important validation result.** On the synthetic benchmark the default configuration with DINOv2 does **not** separate the planted structure from normal tissue (AUROC 0.22 for the novelty score; the handcrafted encoder reaches 0.90). Causes, shown in `results/rarity_sweep_*.json` and the paper: the planted states cover 3% of the benchmark patches, more than the 1% rarity scale, and DINOv2 embeds them more homogeneously than normal tissue, so the disorder and contact axes point the wrong way. On real slides compare encoders, inspect the three axes separately (`--weights 1,0,0` gives the appearance axis alone) and set the rarity scale deliberately (`--rarity`). The Docker image has **not been built or run** by the author (Docker was not running on the development machine).
+> **What the evaluation showed.** Lattice smoothing raised the spatial coherence of every scorer. On the held-out cohort the frozen score was the best method with DINOv2 and a poor one with handcrafted features; a smoothed Mahalanobis baseline scored higher on the development cohort;
+> the disorder and contact axes of the lattice helped with handcrafted features and hurt with DINOv2, so they are optional diagnostics (the default weights are 1,0,0); with handcrafted features the frozen score was unstable to a coarser patch size. On real slides compare encoders (`--encoder`), scorers (`--scorer knn|mahalanobis`) and axes (`--weights`).
+> The MyUncle scenario analysis is an exploratory modelling analogy, off by default (`--scenarios`).
 
 ## One command
 
@@ -32,10 +33,10 @@ Useful options: `--max-patches N` (coarsens the patch grid until a slide has at 
 3. **Order and entropy (MyUncle).** Local disorder `D = 1 - ||mean of the neighbours' unit embeddings||` is MyUncle's `MC.local_disorder` for any dimension; the von Mises-Fisher entropy of the neighbourhood and
    `H_chi = S_uniform - S_vmf` generalize MyUncle's order-entropy bridge (`Bridge.S`, `Bridge.H`) from d = 2 to d dimensions. The tests check the d = 2 equality against the vendored, unmodified MyUncle core.
 4. **Tissue states and transitions.** k-means prototype states on the sphere; windowed state entropy; rarity of the contacts between states (`-log P(neighbour state | own state)` over the cohort).
-5. **Novelty score** from three cohort-rank axes (appearance rarity at the 1%-of-cohort scale, local disorder *for the patch's own state*, rarity of contacts) combined as a weighted probabilistic OR.
+5. **Novelty score** (frozen default): appearance rarity judged at five prevalence scales (0.5 to 10% of the cohort, highest rank), smoothed over the 3 x 3 lattice window. Local disorder *for the patch's own state* and the rarity of contacts are computed as diagnostics and can be added with `--weights`.
 6. **Discovery.** Top-scoring patches form connected regions; regions are clustered across slides into candidate states, ranked by novelty, recurrence, reproducibility under two disjoint halves of the reference set.
 7. **Explanations and maps.** Plain-language, number-only explanations per finding; heat maps of D, H_chi and novelty; masks; per-patch scores.
-8. **Progression scenarios** (MyUncle simulation reuse, model-based, not prognosis): slide order mapped onto MyUncle's maintenance lattice, `rho_hat` against the bistable window of MyUncle's mean-field model, kinetic Monte Carlo started from the observed slide under half/equal/double repair.
+8. **Exploratory scenarios** (opt-in `--scenarios`; MyUncle simulation reuse, a modelling analogy, not validated and not prognosis): slide order mapped onto MyUncle's maintenance lattice, `rho_hat` against the bistable window of MyUncle's mean-field model, kinetic Monte Carlo started from the observed slide under half/equal/double repair.
 
 ## Models and files (HeroX README requirement)
 
@@ -56,16 +57,17 @@ Every model must support at least one finding: all four are used by the ranking 
 | `slides/<slide>/annotations.json` | region boxes per finding in level-0 pixel coordinates of the source slide |
 | `slides/<slide>/patch_scores.csv` | per patch: grid position, coordinates, QC result, state, novelty and its three axes, D, H_chi, state entropy, transition rarity, candidate flag |
 | `slides/<slide>/novelty_mask.png`, `novelty_map.npy`, `heatmaps.png` | binary candidate mask (thumbnail geometry), novelty lattice, four-panel heat map figure |
-| `slides/<slide>/progression_scenarios.json` | MyUncle scenario analysis for the slide |
+| `slides/<slide>/progression_scenarios.json` | only with `--scenarios`: exploratory MyUncle scenario analysis for the slide (labelled exploratory) |
 | `summary_statistics.csv` | per slide: patches, artifacts, candidates, order vs spatial-shuffle null (z), D, H_chi, `rho_hat`, bistable-window flag |
 | `images_used.csv` | **every input image and how it was used** (source statement: KPMP open data supplied by the user), size, optional SHA-256, resolution, patch counts, status |
 | `run_manifest.json` | versions, configuration, encoder and model files, MyUncle core hash and `unmodified` flag, seeds, runtime, device |
 
-## Validation (synthetic, reproducible)
+## Evaluation (synthetic, reproducible)
 
-`python -m myuncle_vision validate-synthetic --output results --encoder handcrafted|dinov2` builds eight synthetic slides (two planted anomaly types, three artifact types, two with nothing or only artifacts), runs the production pipeline and writes
-`results/validation_<encoder>.json` (AUROC per axis, precision of the top fraction, QC recall and false-flag rate, region recall, null-slide behaviour, a no-QC ablation) and an example figure. See the paper for numbers and for what they do not show.
-`python tests/test_all.py` runs the automated checks (about 4 minutes on one CPU core).
+`myuncle_vision/bench.py` builds two synthetic cohorts (development: 8 slides; held-out: 16 slides with three anomaly types never used in development, about 1% prevalence, stain and scanner shifts), computes every ablation and baseline
+(Isolation Forest, LOF, kNN, Mahalanobis, each raw and lattice-smoothed) and the robustness suite, for the DINOv2 and the handcrafted encoder, and writes `results/bench_*.json`, `results/robustness_*.json`.
+Settings were frozen in `results/frozen_settings.json` before the held-out cohort existed. `python docs/build/build_documents.py` turns the results into the manuscript and the HeroX pack; its asserts stop the build if a sentence stops being true.
+`python -m myuncle_vision validate-synthetic` and `rarity-sweep` are the original v0.1 checks (`results/validation_*.json`, `rarity_sweep_*.json`, kept as development history). `python tests/test_all.py` runs the automated checks.
 
 ## Compute
 
