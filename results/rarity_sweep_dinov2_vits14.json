@@ -1,0 +1,47 @@
+{
+ "encoder": "dinov2_vits14",
+ "fractions": [
+  0.005,
+  0.01,
+  0.02,
+  0.05,
+  0.1
+ ],
+ "results": [
+  {
+   "rarity_fraction": 0.005,
+   "k_reference": 9,
+   "auroc_novelty": 0.17470163155847615,
+   "auroc_appearance": 0.34070298266085275,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.01,
+   "k_reference": 18,
+   "auroc_novelty": 0.22314684026285084,
+   "auroc_appearance": 0.5029990378513378,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.02,
+   "k_reference": 36,
+   "auroc_novelty": 0.33312862085201334,
+   "auroc_appearance": 0.6837089807365555,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.05,
+   "k_reference": 91,
+   "auroc_novelty": 0.5845564904092202,
+   "auroc_appearance": 0.8607750414542774,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.1,
+   "k_reference": 182,
+   "auroc_novelty": 0.7121026018956376,
+   "auroc_appearance": 0.912096460521198,
+   "anomalous_share": 0.032185206098249576
+  }
+ ]
+}

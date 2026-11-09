@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+results_tmp/
+smoke/
+*.egg-info/
+.pytest_cache/
+_scratch*.py
+_scratch*.log
+cache/
+tests/data/*.svs
+docs/_superseded/

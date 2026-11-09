@@ -1,0 +1,232 @@
+{
+ "encoder": "handcrafted",
+ "n_slides": 8,
+ "n_patches": 1843,
+ "n_analysed": 1824,
+ "n_normal": 1714,
+ "n_anomalous": 57,
+ "auroc_vs_normal": {
+  "any": {
+   "novelty": 0.9029509304182275,
+   "p_emb": 0.9667956355298983,
+   "p_het": 0.6721901319823164,
+   "p_adj": 0.6496461176568119,
+   "D": 0.8398356406036551,
+   "d_emb": 0.9667956355298983
+  },
+  "disorganized": {
+   "novelty": 0.9479841467830845,
+   "p_emb": 0.9807669094274334,
+   "p_het": 0.7552273832427747,
+   "p_adj": 0.6204656088966738,
+   "D": 0.8277342015687436,
+   "d_emb": 0.9807669094274334
+  },
+  "novel_state": {
+   "novelty": 0.8563093848974829,
+   "p_emb": 0.9523253875645942,
+   "p_het": 0.586187264605413,
+   "p_adj": 0.6798687874440975,
+   "D": 0.8523692738898134,
+   "d_emb": 0.9523253875645942
+  }
+ },
+ "top_q": {
+  "q": 0.03,
+  "k": 55,
+  "precision_planted_anomaly": 0.12727272727272726,
+  "precision_within_one_patch": 0.6363636363636364,
+  "precision_artifact": 0.0,
+  "base_rate_anomaly": 0.03125,
+  "base_rate_within_one_patch": 0.08771929824561403
+ },
+ "auroc_novelty_any_ci95_slide_bootstrap": [
+  0.862769819140517,
+  0.9369661456868829
+ ],
+ "qc": {
+  "artifact_patches_planted": 19,
+  "flagged_among_planted": 0.42105263157894735,
+  "false_flag_rate_normal": 0.00622524052065648,
+  "false_flag_rate_anomaly": 0.0
+ },
+ "instances": [
+  {
+   "slide": "synth_101",
+   "type": "disorganized",
+   "n_patches": 7,
+   "hit": false,
+   "frac_candidate": 0.0
+  },
+  {
+   "slide": "synth_101",
+   "type": "novel_state",
+   "n_patches": 7,
+   "hit": false,
+   "frac_candidate": 0.0
+  },
+  {
+   "slide": "synth_102",
+   "type": "disorganized",
+   "n_patches": 9,
+   "hit": true,
+   "frac_candidate": 0.2222222222222222
+  },
+  {
+   "slide": "synth_102",
+   "type": "novel_state",
+   "n_patches": 7,
+   "hit": true,
+   "frac_candidate": 0.14285714285714285
+  },
+  {
+   "slide": "synth_103",
+   "type": "novel_state",
+   "n_patches": 7,
+   "hit": false,
+   "frac_candidate": 0.0
+  },
+  {
+   "slide": "synth_104",
+   "type": "disorganized",
+   "n_patches": 7,
+   "hit": true,
+   "frac_candidate": 0.2857142857142857
+  },
+  {
+   "slide": "synth_105",
+   "type": "novel_state",
+   "n_patches": 7,
+   "hit": true,
+   "frac_candidate": 0.14285714285714285
+  },
+  {
+   "slide": "synth_106",
+   "type": "disorganized",
+   "n_patches": 6,
+   "hit": true,
+   "frac_candidate": 0.16666666666666666
+  }
+ ],
+ "instance_recall": {
+  "disorganized": 0.75,
+  "novel_state": 0.5
+ },
+ "null_slides": {
+  "synth_107": {
+   "n_candidate_patches": 5,
+   "expected_by_construction": 7.5,
+   "order_z": 1.0996211346440015,
+   "n_regions_in_findings": 0
+  },
+  "synth_108": {
+   "n_candidate_patches": 5,
+   "expected_by_construction": 7.5,
+   "order_z": 1.4613568803679258,
+   "n_regions_in_findings": 0
+  }
+ },
+ "findings": [
+  {
+   "id": "F1",
+   "n_slides": 2,
+   "n_patches": 16,
+   "type": "rare contacts between tissue states (transition zone)",
+   "novelty": 0.968934937086092,
+   "repro": 1.0,
+   "planted": {
+    "disorganized": 0.0,
+    "novel_state": 0.188,
+    "blur": 0.0,
+    "pen": 0.0,
+    "fold": 0.0,
+    "normal": 0.812
+   }
+  },
+  {
+   "id": "F2",
+   "n_slides": 1,
+   "n_patches": 7,
+   "type": "disordered neighbourhood for its tissue state",
+   "novelty": 0.9812628139137802,
+   "repro": 1.0,
+   "planted": {
+    "disorganized": 0.0,
+    "novel_state": 0.286,
+    "blur": 0.0,
+    "pen": 0.0,
+    "fold": 0.0,
+    "normal": 0.714
+   }
+  }
+ ],
+ "order": {
+  "synth_101": {
+   "order_z": 7.638085269219541,
+   "D_mean": 0.04489330421360632,
+   "rho_hat": 3.3750000000000004,
+   "in_window": false
+  },
+  "synth_102": {
+   "order_z": 4.494595249073782,
+   "D_mean": 0.06376097163374767,
+   "rho_hat": 2.8124999999999996,
+   "in_window": false
+  },
+  "synth_103": {
+   "order_z": 6.344878384168729,
+   "D_mean": 0.05819104280761047,
+   "rho_hat": 4.142857142857143,
+   "in_window": true
+  },
+  "synth_104": {
+   "order_z": 0.5586085049896449,
+   "D_mean": 0.02369956568204026,
+   "rho_hat": 6.529411764705882,
+   "in_window": true
+  },
+  "synth_105": {
+   "order_z": 7.77150908324454,
+   "D_mean": 0.05688695656794638,
+   "rho_hat": 3.0192307692307696,
+   "in_window": false
+  },
+  "synth_106": {
+   "order_z": 3.977520270617613,
+   "D_mean": 0.034512615983997096,
+   "rho_hat": 3.392857142857143,
+   "in_window": false
+  },
+  "synth_107": {
+   "order_z": 1.0996211346440015,
+   "D_mean": 0.05184431940555024,
+   "rho_hat": 2.012048192771084,
+   "in_window": false
+  },
+  "synth_108": {
+   "order_z": 1.4613568803679258,
+   "D_mean": 0.049918238028306555,
+   "rho_hat": 3.032258064516129,
+   "in_window": false
+  }
+ },
+ "ablation_no_qc": {
+  "precision_artifact_in_top_q": 0.01818181818181818,
+  "precision_planted_anomaly_in_top_q": 0.09090909090909091
+ },
+ "runtime_seconds": 128.6,
+ "headline": {
+  "encoder": "handcrafted",
+  "auroc_novelty_any": 0.9029509304182275,
+  "auroc_novelty_disorganized": 0.9479841467830845,
+  "auroc_novelty_novel_state": 0.8563093848974829,
+  "precision_top_q": 0.12727272727272726,
+  "artifact_in_top_q": 0.0,
+  "artifact_in_top_q_without_qc": 0.01818181818181818,
+  "instance_recall": {
+   "disorganized": 0.75,
+   "novel_state": 0.5
+  },
+  "qc_recall": 0.42105263157894735
+ }
+}

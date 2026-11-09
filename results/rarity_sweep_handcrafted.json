@@ -1,0 +1,47 @@
+{
+ "encoder": "handcrafted",
+ "fractions": [
+  0.005,
+  0.01,
+  0.02,
+  0.05,
+  0.1
+ ],
+ "results": [
+  {
+   "rarity_fraction": 0.005,
+   "k_reference": 9,
+   "auroc_novelty": 0.8291469630903395,
+   "auroc_appearance": 0.8908063624639193,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.01,
+   "k_reference": 18,
+   "auroc_novelty": 0.9029509304182275,
+   "auroc_appearance": 0.9667956355298983,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.02,
+   "k_reference": 36,
+   "auroc_novelty": 0.9249114618518292,
+   "auroc_appearance": 0.9791602694016255,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.05,
+   "k_reference": 91,
+   "auroc_novelty": 0.9350754365493664,
+   "auroc_appearance": 0.9787201375667874,
+   "anomalous_share": 0.032185206098249576
+  },
+  {
+   "rarity_fraction": 0.1,
+   "k_reference": 182,
+   "auroc_novelty": 0.9323937030440745,
+   "auroc_appearance": 0.9609613298122787,
+   "anomalous_share": 0.032185206098249576
+  }
+ ]
+}

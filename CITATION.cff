@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "MyUncleVision: an entropy-guided discovery platform for unusual tissue organization in kidney whole-slide images"
+version: "0.1.0"
+date-released: "2026-11-08"
+license: MIT
+repository-code: "https://github.com/sandlerleon/MyUncleVision"
+authors:
+  - family-names: Sandler
+    given-names: Leon
+    orcid: "https://orcid.org/0009-0007-4584-808X"
+    affiliation: "Independent Researcher"
+references:
+  - type: software
+    title: "MyUncle: a compact maintenance-lattice framework"
+    authors:
+      - family-names: Sandler
+        given-names: Leon
+    doi: "10.5281/zenodo.21223570"
+    url: "https://github.com/sandlerleon/MyUncle"
