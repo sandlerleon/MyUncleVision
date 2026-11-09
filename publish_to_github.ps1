@@ -1,4 +1,4 @@
-# Publishes MyUncleVision to GitHub (public) and attaches the PDFs to release v0.1.0.
+# Publishes MyUncleVision to GitHub (public) and attaches the PDFs to release v0.1.1 (v0.1.0 is already released).
 # Run from PowerShell:   powershell -ExecutionPolicy Bypass -File "C:\Users\Leon\Downloads\MyUncleVision_work\repo\MyUncleVision\publish_to_github.ps1"
 # Needs: git and the GitHub CLI (gh), logged in as sandlerleon (gh auth status).
 # NOTE: a public repository discloses the method before the HeroX deadline. HeroX allows the repository to stay private (it needs read access only for shortlisted teams).
@@ -24,9 +24,11 @@ if ((git remote) -notcontains "origin") { git remote add origin "https://github.
 git push -u origin main
 if ($LASTEXITCODE -ne 0) { throw "git push (main) failed" }
 git push origin v0.1.0 --force
-if ($LASTEXITCODE -ne 0) { throw "git push (tag) failed" }
-if (-not (Test-Gh @("release", "view", "v0.1.0", "--repo", $Repo))) {
-    gh release create v0.1.0 "docs\MyUncleVision_Manuscript_CMPB.pdf" "docs\MyUncleVision_HeroX_Submission.pdf" --repo $Repo --title "v0.1.0" `
+if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.1.0) failed" }
+git push origin v0.1.1 --force
+if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.1.1) failed" }
+if (-not (Test-Gh @("release", "view", "v0.1.1", "--repo", $Repo))) {
+    gh release create v0.1.1 "docs\MyUncleVision_Manuscript_CMPB.pdf" "docs\MyUncleVision_HeroX_Submission.pdf" --repo $Repo --title "v0.1.1" `
         --notes "First release. Validated on synthetic slides only; not yet run on KPMP images. MyUncle core vendored unmodified."
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 }

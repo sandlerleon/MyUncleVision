@@ -4,7 +4,7 @@ An entropy-guided, label-free discovery platform for unusual tissue organization
 [MyUncle](https://github.com/sandlerleon/MyUncle) maintenance-lattice core (Sandler, doi:[10.5281/zenodo.21223570](https://doi.org/10.5281/zenodo.21223570)). It was written for the
 NIDDK/HeroX *Kidney AI Discovery Challenge* (Kidney Precision Medicine Project, KPMP, whole-slide images), but nothing in it is specific to the kidney.
 
-Leon Sandler, Independent Researcher, sandler.leon@gmail.com, ORCID 0009-0007-4584-808X. MIT license (code); MyUncle is vendored unmodified (also MIT).
+Leon Sandler, Independent Researcher, sandler.leon@gmail.com, ORCID 0009-0007-4584-808X. MIT license (code); MyUncle is vendored unmodified (also MIT). Archived on Zenodo (all versions): software [10.5281/zenodo.24066260](https://doi.org/10.5281/zenodo.24066260), manuscript [10.5281/zenodo.24066256](https://doi.org/10.5281/zenodo.24066256). Version 0.1.1 DOIs: software 10.5281/zenodo.24066261, manuscript 10.5281/zenodo.24066257.
 
 > **Status and honest limits.** The platform runs end to end on SVS and on plain TIFF/PNG/JPEG, is covered by automated tests, and is validated on **synthetic** slides with planted anomalies and
 > artifacts (`results/validation_*.json`; synthetic slides are not kidney tissue). **It has not yet been run on KPMP slides**: no KPMP image was available to the author when this repository was
