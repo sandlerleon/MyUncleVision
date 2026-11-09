@@ -289,7 +289,7 @@ add(("p", "An opt-in option (--scenarios) maps a slide onto the lattice of MyUnc
           "This is a modeling analogy. It is not calibrated against any biological measurement, no result of it is reported in this paper, and its output is labeled exploratory; it is no evidence about disease progression or repair dynamics."))
 add(("h1", "Declarations"))
 add(("p0", "Funding: this work received no external funding."))
-add(("p0", "Competing interests: the author declares no competing interests. [To be confirmed by the author.]"))
+add(("p0", "Competing interests: the author declares no competing interests."))
 add(("p0", "Author contributions (CRediT): Leon Sandler, sole author: conceptualization, methodology, software, validation, formal analysis, investigation, visualization, writing – original draft, writing – review and editing."))
 add(("p0", "Data and code availability: the code, the tests, the synthetic benchmarks and their results are open at %s (MIT license) and archived on Zenodo (software: https://doi.org/%s, manuscript: https://doi.org/%s, all versions). The MyUncle core is vendored unmodified (doi:10.5281/zenodo.21223570). No patient data were used; the KPMP images are not part of this work." % (GITHUB, ZEN_CODE, ZEN_PAPER)))
 add(("p0", "Declaration of generative AI and AI-assisted technologies in the writing process: during the preparation of this work the author used Claude (Anthropic) to assist with writing and testing the code, running the analyses and drafting the text and figures. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the publication."))
