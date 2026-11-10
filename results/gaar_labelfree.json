@@ -1,0 +1,52 @@
+{
+ "rows": [
+  {
+   "scenario": "images-dev-handcrafted",
+   "split": "dev",
+   "effect": 0.020742283690858343,
+   "moran": 0.2542316260076378
+  },
+  {
+   "scenario": "images-dev-dinov2_vits14",
+   "split": "dev",
+   "effect": 0.534270784258841,
+   "moran": 0.14272556066236217
+  },
+  {
+   "scenario": "sim-dev-rotor",
+   "split": "dev",
+   "effect": -0.311838945296979,
+   "moran": 0.008215948007772138
+  },
+  {
+   "scenario": "sim-dev-rotor_D",
+   "split": "dev",
+   "effect": -0.018907818761931483,
+   "moran": 0.15232142237836852
+  },
+  {
+   "scenario": "images-test-handcrafted",
+   "split": "test",
+   "effect": -0.143738607614252,
+   "moran": 0.16058150056473816
+  },
+  {
+   "scenario": "images-test-dinov2_vits14",
+   "split": "test",
+   "effect": 0.3960316225283708,
+   "moran": 0.10628881663098105
+  },
+  {
+   "scenario": "sim-test-rotor",
+   "split": "test",
+   "effect": -0.24558928615071962,
+   "moran": 0.012380954389666896
+  },
+  {
+   "scenario": "sim-test-rotor_D",
+   "split": "test",
+   "effect": 0.030648722388687655,
+   "moran": 0.2388519996222617
+  }
+ ]
+}

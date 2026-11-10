@@ -43,6 +43,7 @@ HELD_SPECS = [   # (seed, anomalies, artifacts, palette_shift, soft_blur)
     (311, (), (), 0.0, 0.8), (312, (), ("fold",), 0.6, 0.8), (313, (), (), -0.6, 1.2), (314, (), ("blur", "pen"), 0.0, 0.8),
     (315, (), (), 0.3, 0.8), (316, (), ("pen", "fold"), -0.3, 1.2),
 ]
+TEST_SPECS = [(seed + 100, an, ar, shift, soft) for seed, an, ar, shift, soft in HELD_SPECS]      # fresh seeds (new textures and layouts), same anomaly types as the held-out cohort
 SCALES = (0.005, 0.01, 0.02, 0.05, 0.10)
 
 
@@ -53,7 +54,7 @@ def build_cohort(kind, root, size=4480, log=print):
     os.makedirs(os.path.join(d, "slides"), exist_ok=True)
     os.makedirs(os.path.join(d, "truth"), exist_ok=True)
     paths = []
-    specs = [(s, a, r, 0.0, 0.8) for s, a, r in DEV_SPECS] if kind == "dev" else HELD_SPECS
+    specs = [(s, a, r, 0.0, 0.8) for s, a, r in DEV_SPECS] if kind == "dev" else (TEST_SPECS if kind == "test" else HELD_SPECS)
     radius = int(size * (0.075 if kind == "dev" else 0.065))
     for seed, an, ar, shift, soft in specs:
         name = "%s_%d" % (kind, seed)

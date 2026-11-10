@@ -60,6 +60,9 @@ class Config:
     rarity_scales: tuple = (0.005, 0.01, 0.02, 0.05, 0.10)   # appearance rarity is judged at all of these scales and the highest rank counts (the prevalence of an interesting state is not known in advance)
     multiscale: bool = True
     scorer: str = "knn"                        # appearance scorer feeding the novelty score: 'knn' (multi-scale nearest-neighbour rarity, frozen candidate A) or 'mahalanobis' (frozen candidate B)
+    null_permutations: int = 8                # spatial-shuffle null of the slide-level order statistic (0 = skip; the search scenarios do not need it)
+    smooth_window: int = 3                    # lattice smoothing window (1 = none); 3 is the frozen default
+    smooth_type: str = "mean"                  # 'mean' (frozen default), 'gaussian' or 'median'
     smooth: bool = True                       # 3 x 3 lattice smoothing of the novelty score: spatially coherent regions are boosted, isolated patches suppressed
     seed: int = 0
 
@@ -132,15 +135,29 @@ def _knn_multi(Uq, sq, posq, ref, scales, k_min, excl):
     return out
 
 
-def smooth_lattice(slide, scores):
-    """3 x 3 lattice smoothing of per-patch scores: mean of the valid scores in the window of every site, NaN where the patch itself has no score"""
-    from scipy.ndimage import uniform_filter
+def smooth_lattice(slide, scores, window=3, kind="mean"):
+    """lattice smoothing of per-patch scores over a (window x window) neighborhood, NaN-aware: the mean (frozen default, window 3), Gaussian-weighted mean or median of the valid scores
+    in the window of every site; NaN where the patch itself has no score.  window = 1 returns the scores unchanged."""
+    if window <= 1:
+        return np.asarray(scores, float).copy()
+    from scipy.ndimage import uniform_filter, gaussian_filter, generic_filter
     a = np.full(slide.shape, np.nan)
     a[slide.rows, slide.cols] = scores
     w = np.isfinite(a).astype(float)
-    num = uniform_filter(np.nan_to_num(a), 3, mode="constant")
-    den = uniform_filter(w, 3, mode="constant")
-    sm = np.where(den > 0, num / np.maximum(den, 1e-9), np.nan)
+    if kind == "mean":
+        num = uniform_filter(np.nan_to_num(a), window, mode="constant")
+        den = uniform_filter(w, window, mode="constant")
+        sm = np.where(den > 0, num / np.maximum(den, 1e-9), np.nan)
+    elif kind == "gaussian":
+        sig = window / 4.0 if window > 3 else 0.75
+        tr = (window // 2) / sig
+        num = gaussian_filter(np.nan_to_num(a), sig, mode="constant", truncate=tr)
+        den = gaussian_filter(w, sig, mode="constant", truncate=tr)
+        sm = np.where(den > 1e-9, num / np.maximum(den, 1e-9), np.nan)
+    elif kind == "median":
+        sm = generic_filter(a, np.nanmedian, size=window, mode="constant", cval=np.nan)
+    else:
+        raise ValueError("unknown smoothing type " + str(kind))
     return np.where(np.isfinite(scores), sm[slide.rows, slide.cols], np.nan)
 
 
@@ -186,14 +203,14 @@ def analyse(slides, cfg=None, space=None):
         # spatial-shuffle null for the order of the whole slide: permute the embeddings among the valid sites
         idx = np.argwhere(valid)
         nulls = []
-        for _ in range(8):
+        for _ in range(cfg.null_permutations):
             perm = rng.permutation(len(idx))
             Ln = np.zeros_like(L)
             Ln[idx[:, 0], idx[:, 1]] = L[idx[perm, 0], idx[perm, 1]]
             nulls.append(np.nanmean(lat.local_order_maps(Ln, valid, cfg.neighbors)["Rbar"]))
         obs = float(np.nanmean(m["Rbar"]))
-        s.extra["order"] = dict(Rbar_obs=obs, Rbar_null_mean=float(np.mean(nulls)), Rbar_null_sd=float(np.std(nulls) + 1e-9),
-                                z=float((obs - np.mean(nulls)) / (np.std(nulls) + 1e-9)), H_chi_mean=float(np.nanmean(m["H_chi"])), D_mean=float(np.nanmean(m["D"])))
+        s.extra["order"] = dict(Rbar_obs=obs, Rbar_null_mean=float(np.mean(nulls)) if nulls else float("nan"), Rbar_null_sd=float(np.std(nulls) + 1e-9) if nulls else float("nan"),
+                                z=float((obs - np.mean(nulls)) / (np.std(nulls) + 1e-9)) if nulls else float("nan"), H_chi_mean=float(np.nanmean(m["H_chi"])), D_mean=float(np.nanmean(m["D"])))
     # ---- reference set for the novelty axis
     refU, refS, refP = [], [], []
     for i, s in enumerate(slides):
@@ -264,5 +281,5 @@ def analyse(slides, cfg=None, space=None):
         nov = 1.0 - ((1.0 - pe) ** w[0]) * ((1.0 - ph_) ** w[1]) * ((1.0 - pa) ** w[2])        # weighted probabilistic OR of the axes (the default weights keep the appearance axis only)
         nov[~s.ok] = np.nan
         s.extra["novelty_raw"] = nov
-        s.extra["novelty"] = smooth_lattice(s, nov) if cfg.smooth else nov
+        s.extra["novelty"] = smooth_lattice(s, nov, cfg.smooth_window, cfg.smooth_type) if cfg.smooth else nov
     return space, dict(K=K, d=d, adjacency=A.tolist(), pair_prob=P.tolist(), n_reference=int(len(ref["U"])), weights=w.tolist())

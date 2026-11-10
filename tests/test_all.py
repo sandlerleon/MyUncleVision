@@ -358,6 +358,42 @@ def test_bridge_bench_states_truth_and_run_level_bootstrap():
     assert 0.5 < lo < hi <= 1.0
 
 
+def test_smoothing_options_and_gaar_vendored_search():
+    """smoothing types/windows are backward compatible; GaaR is vendored unmodified and searches the configuration grid reproducibly"""
+    import hashlib
+    from myuncle_vision import gaar_opt as GO
+    from myuncle_vision.cohort import smooth_lattice
+    rec = open(os.path.join(HERE, "..", "third_party", "gaar", "GaaR_core.sha256")).read().split()[0]
+    assert hashlib.sha256(open(GO.GAAR_PATH, "rb").read()).hexdigest() == rec, "vendored GaaR_core.py differs from the recorded copy"
+
+    class Sl:
+        shape = (6, 6)
+        rows = np.repeat(np.arange(6), 6)
+        cols = np.tile(np.arange(6), 6)
+    sc = np.random.default_rng(1).random(36)
+    sc[5] = np.nan
+    assert np.allclose(smooth_lattice(Sl, sc, 1), sc, equal_nan=True)
+    ref = smooth_lattice(Sl, sc)                                                              # the frozen default: mean over 3 x 3
+    assert np.allclose(smooth_lattice(Sl, sc, 3, "mean"), ref, equal_nan=True)
+    for kind in ("gaussian", "median"):
+        out = smooth_lattice(Sl, sc, 5, kind)
+        assert np.isnan(out[5]) and np.isfinite(np.delete(out, 5)).all()
+    cfg = GO.to_config(GO.DEFAULT)
+    assert cfg.smooth_window == 3 and cfg.smooth_type == "mean" and cfg.weights == (1.0, 0.0, 0.0) and cfg.n_components == 16 and max(cfg.rarity_scales) == 0.10
+    assert len(GO.all_genomes()) == 360
+    G = GO.load_gaar()
+    rng = np.random.default_rng(0)
+    table = {json.dumps(g, sort_keys=True): float(rng.random()) for g in GO.all_genomes()}
+    runs = []
+    for _ in range(2):
+        dom = GO.make_domain(G, table)
+        dom.reseed(7)
+        runs.append(G.GaaR(dom, strategy="greedy", seed=3, db_path=os.devnull, log=False).run(budget=30, verbose=False)["best_score"])
+    assert runs[0] == runs[1]                                                                 # seeded: reproducible
+    assert abs(GO.fitness_from([0.4, 0.8]) - (0.5 * 0.6 + 0.5 * 0.4)) < 1e-12
+    assert np.isfinite(GO.moran_I(Sl, np.random.default_rng(2).random(36)))
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

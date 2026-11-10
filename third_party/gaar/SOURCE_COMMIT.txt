@@ -1,0 +1,2 @@
+github.com/sandlerleon/GaaR commit 4021e64 (GaaR_core.py, byte-identical copy)
+GaaR: Leon Sandler, Goal-Aware Adaptive Regulation; README of that repository states CC BY 4.0. Vendored unmodified, attribution kept.

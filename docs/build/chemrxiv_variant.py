@@ -6,22 +6,60 @@ no micrograph of a real material and no real tissue image was analysed, which th
 CHEM_TITLE = "Order and entropy of lattices of unit vectors in d dimensions: label-free discovery of unusual local organization in simulated maintenance lattices and synthetic images"
 CHEM_KEYWORDS = "Keywords: lattice models; statistical mechanics; von Mises-Fisher distribution; orientational order; entropy; unsupervised anomaly detection; microscopy image analysis; open-source software"
 
+import json as _json
+_GS = _json.load(open(os.path.join(RES, "gaar_search_comparison.json")))
+_GT = _json.load(open(os.path.join(RES, "gaar_test.json")))
+_GL = _json.load(open(os.path.join(RES, "gaar_labelfree.json")))
+_DEF, _NOS, _OPT = "frozen default", "no smoothing", "exhaustive dev optimum"
+_RST, _GRD, _RND = "GaaR restart (seed 0, budget 40)", "GaaR greedy (seed 0, budget 40)", "GaaR random (seed 0, budget 40)"
+_TF = lambda k: _GT["test"][k]["fitness"]
+assert _TF(_RST) > _TF(_DEF) and _TF(_RND) > _TF(_DEF) and _TF(_GRD) > _TF(_DEF) and _TF(_OPT) > _TF(_DEF)
+assert _TF(_RST) > _TF(_OPT) > _TF(_RND) and _GT["dev"][_OPT]["fitness"] > _GT["dev"][_RST]["fitness"] > _GT["dev"][_RND]["fitness"]
+assert _GT["test"][_RST]["aps"][1] < _GT["test"][_DEF]["aps"][1] and _GT["test"][_RST]["aps"][0] > _GT["test"][_DEF]["aps"][0]
+_st = _GS["strategies"]
+assert _st["greedy"]["hit_top1pct"] > 2 * _st["random"]["hit_top1pct"] and _st["restart"]["hit_top1pct"] > 2 * _st["random"]["hit_top1pct"]
+assert _st["random"]["hit_top5pct"] >= _st["population"]["hit_top5pct"] > _st["restart"]["hit_top5pct"] >= _st["greedy"]["hit_top5pct"]
+_mor = {r["scenario"]: r["moran"] for r in _GL["rows"]}
+_eff = {r["scenario"]: r["effect"] for r in _GL["rows"]}
+_bad = [k for k in _eff if _eff[k] < -0.2]
+assert sorted(_bad) == ["sim-dev-rotor", "sim-test-rotor"] and all(_mor[k] < 0.02 for k in _bad) and all(_mor[k] > 0.1 for k in _mor if k not in _bad)
+
 CHEM_ABSTRACT = (
     "Averaged order parameters say how ordered a lattice of orientational states is, but not where its organization is unusual. "
-    "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model from the plane to unit vectors in d dimensions: the local disorder is one minus the length of the mean of the neighbors' unit vectors, and the information held in the local order follows from the von Mises-Fisher distribution; both equal MyUncle's at d = 2 (tested against the unmodified code). "
+    "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model from the plane to unit vectors in d dimensions with the von Mises-Fisher distribution; both equal MyUncle's at d = 2 (tested against the unmodified code). "
     "On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with isolation forest, local outlier factor, nearest-neighbor and Mahalanobis baselines, with settings frozen before the held-out data were generated. "
-    "On lattices simulated with MyUncle (damaged sites as ground truth; one development and three held-out parameter sets, labeled polymer photodegradation, liquid crystal and magnetic storage decay), smoothing lowered the average precision of every baseline because damaged sites are not compact regions, adding the local disorder as a feature raised it, and the frozen score was within 0.02 of the best on the held-out sets but clearly beaten on the development set. "
+    "On lattices simulated with MyUncle (damaged sites as ground truth; parameter sets labeled polymer photodegradation, liquid crystal and magnetic storage decay), smoothing lowered the average precision of every baseline because damaged sites are not compact regions. "
     "On synthetic stained-tissue images, smoothing raised the spatial coherence of every scorer; the frozen score was the best method with DINOv2 embeddings and a poor one with handcrafted features. "
-    "All evidence is simulated; validation on experimental micrographs is future work. Code and results are open.")
+    "A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from %s to %s, but random search also beat the default, so the gain belongs to the selected configuration and not to the search. "
+    "All evidence is simulated; validation on experimental micrographs is future work. Code and results are open." % (n(_TF(_DEF)), n(_TF(_RST))))
 
 CHEM_INTRO = [
     ("p", "Lattice systems whose sites carry an orientation or a state vector, such as liquid-crystal textures, degrading polymer films, magnetic media and self-assembled layers, are commonly summarized by averaged order parameters. These say how ordered a system is, not where something unusual is. "
           "Finding unusual local organization without labels, and saying how unusual it is in the language of order and entropy, is the problem addressed here. Unsupervised anomaly detection has been developed in other fields: in astronomy for large surveys [@Baron2017;@Lochner2021], and in medical imaging mostly as detection of deviation from a healthy appearance with generative models [@Schlegl2019]."),
     ("p", "MyUncle [@MyUncle2026] is a simulation framework for a maintenance lattice: rotors on a square lattice whose order is eroded by a state-dependent flux and restored by repair, with an order-entropy bridge that links the length of the neighbors' mean unit vector to a von Mises entropy. "
-          "This paper makes four contributions. (1) It extends the local order and entropy quantities from the plane to unit vectors in d dimensions (the von Mises-Fisher distribution) and verifies that they equal MyUncle's at d = 2 against the unmodified code. "
+          "This paper makes five contributions. (1) It extends the local order and entropy quantities from the plane to unit vectors in d dimensions (the von Mises-Fisher distribution) and verifies that they equal MyUncle's at d = 2 against the unmodified code. "
           "(2) It builds a label-free score that judges the rarity of the state of a site at several prevalence scales and smooths it over the lattice. "
           "(3) It tests the score, with frozen settings and baselines, first on lattices simulated with MyUncle's kinetic Monte Carlo (damaged sites as ground truth; one development and three held-out model parameter sets) and second on synthetic stained-tissue images, where the lattice sites are image patches described by an embedding; the results are mixed and are reported as such. "
-          "(4) It provides an open, containerized pipeline for both, archived with the vendored MyUncle core [@MyUncleVision2026]. All evidence is computational and simulated: no micrograph of a real material and no real tissue image was analysed, and the application to experimental data is stated as future work (Section 5)."),
+          "(4) It studies a supervised configuration search with GaaR [@GaaR2026] on fresh test scenarios that no search saw. (5) It provides an open, containerized pipeline for all of it, archived with the vendored MyUncle core [@MyUncleVision2026]. All evidence is computational and simulated: no micrograph of a real material and no real tissue image was analysed, and the application to experimental data is stated as future work (Section 5)."),
+]
+
+
+_ROWS6 = [[lab, n(_GT["dev"][k]["fitness"])] + [n(x) for x in _GT["test"][k]["aps"]] + [n(_TF(k))] for k, lab in ((_DEF, "Frozen default"), (_NOS, "No smoothing"), (_RST, "GaaR restart / population champion"), (_GRD, "GaaR greedy / random-search champion"), (_OPT, "Exhaustive development optimum"))]
+CHEM_GAAR = [
+    ("h2", "4.6 Configuration search with GaaR"),
+    ("p", "The frozen configuration is one choice for all data, and the results above show that it is not best for every embedding. GaaR (Goal-Aware Adaptive Regulation) [@GaaR2026], an evolutionary search framework by the same author, was used to select a configuration of the score from %d candidates: smoothing type and window (none, mean 3, 5, 7, Gaussian 5, 7, median 3, 5), five sets of axis weights, the PCA dimension (8, 16, 32) and the largest rarity scale (2, 5, 10%%). "
+          "This is supervised hyperparameter selection on labeled development scenarios, not label-free adaptation: the chosen configuration is fixed afterwards. The fitness is a lower-tail average precision, F = 0.5 mean(AP) + 0.5 min(AP), over four development scenarios (the development images with each embedding and the development lattices with each of their two embeddings). "
+          "All %d configurations were evaluated once on these scenarios, so any search can be compared exactly with the optimum; each strategy of GaaR and plain random search then ran %d times with a budget of %d evaluations. The champions were evaluated once on fresh test scenarios that no search saw: 16 new synthetic images (new seeds, the held-out anomaly types) and 48 new lattice states, including a preset not used before (superconducting scaffold)."
+          % (_GS["n_configs"], _GS["n_configs"], _GS["repeats"], _GS["budget"])),
+    ("table", "Table 5. Fresh test scenarios: average precision (AP) of the frozen configuration, of no smoothing and of the champions found on the development scenarios (development fitness F in column 2; test AP for handcrafted-feature images, DINOv2 images, and lattices with the rotor and the rotor + D embedding in columns 3-6; test fitness in column 7).",
+     ["Configuration", "F dev", "Img. hand.", "Img. DINOv2", "Lat. rotor", "Lat. rotor+D", "F test"], _ROWS6, [2.6, 0.6, 0.75, 0.8, 0.75, 0.85, 0.65], True, 14),
+    ("p", "The default configuration ranked %dth of %d on the development fitness (%s; optimum %s). With %d evaluations, the greedy and restart strategies found a configuration in the top 1%% in %s and %s of the runs and random search in %s (population: %s), whereas at the top 5%% level random search did as well or better (%s against %s, %s and %s). "
+          "On the test scenarios (Table 5) the champion of the restart and population strategies raised the test fitness from %s (default) to %s, mainly by lifting the worst scenario (handcrafted-feature images, AP %s to %s), while the AP with DINOv2 fell from %s to %s. The champion of the greedy strategy and of random search (the same configuration here) reached %s, and the exhaustive development optimum %s: every development-optimized configuration beat the default, but their order did not follow the development fitness. "
+          "The gain is therefore due to the selected configuration (a smaller PCA dimension and the disorder axis at weight 0.5, with 3 x 3 mean smoothing) and not to the search algorithm; each strategy contributed one champion, four scenarios are few, and the test data come from the same generators as the development data."
+          % (int(round(_GS["default_rank_fraction"] * _GS["n_configs"])) + 1, _GS["n_configs"], n(_GS["default_fitness"]), n(_GS["optimum"]), _GS["budget"], pc(_st["greedy"]["hit_top1pct"]), pc(_st["restart"]["hit_top1pct"]), pc(_st["random"]["hit_top1pct"]), pc(_st["population"]["hit_top1pct"]),
+             pc(_st["random"]["hit_top5pct"]), pc(_st["greedy"]["hit_top5pct"]), pc(_st["restart"]["hit_top5pct"]), pc(_st["population"]["hit_top5pct"]),
+             n(_TF(_DEF)), n(_TF(_RST)), n(_GT["test"][_DEF]["aps"][0]), n(_GT["test"][_RST]["aps"][0]), n(_GT["test"][_DEF]["aps"][1]), n(_GT["test"][_RST]["aps"][1]), n(_TF(_GRD)), n(_TF(_OPT)))),
+    ("p", "A label-free alternative was explored. Moran's I of the unsmoothed rarity score (spatial autocorrelation of the score field) was below 0.02 in exactly the two lattice scenarios, one development and one test, in which smoothing lost most of the AP, and above 0.1 in the other six. A rule that smooths only above 0.05 would have avoided the largest loss in both, but it would not have helped the handcrafted-feature test images (eight scenarios, one threshold, exploratory)."),
 ]
 
 CHEM_FUTURE = [
@@ -45,7 +83,7 @@ CHEM_FUTURE = [
 
 CHEM_DISCUSSION = [
     ("p", "What the evaluation supports. The order and entropy definitions are MyUncle's, verified at d = 2, and extend to unit vectors in d dimensions with the von Mises-Fisher distribution. The lattice smoothing gives spatially coherent candidate regions for any scorer when the anomalies form regions, "
-          "and it is harmful when they do not: on the simulated lattices the damaged sites are scattered and smoothing lowered the average precision of every baseline, whereas on the synthetic images it raised the spatial coherence of every scorer. The multi-scale rarity removes the dependence on a prevalence chosen in advance, "
+          "and it is harmful when they do not: on the simulated lattices the damaged sites are scattered and smoothing lowered the average precision of every baseline, whereas on the synthetic images it raised the spatial coherence of every scorer. The multi-scale rarity removes the dependence on a prevalence chosen in advance, and a supervised search with GaaR improved the lower-tail average precision on fresh test scenarios, although random search also beat the default and the gain therefore belongs to the selected configuration, "
           "although the damaged share of three of the four parameter sets (about 10%, 30% and 26%; the fourth is 8%) is near or above the largest prevalence scale of the rarity score (10% of the reference set), a limit of the frozen settings that the simulated testbed exposes."),
     ("p", "What it does not support. The lattices and the images are simulated, written by the author of the method (the simulation is MyUncle's, with an easy kind of anomaly, a site that lost its coupling, and with model parameter sets that carry application names but are not fitted to measurements); nothing here shows that the method finds anything in an experimental material or in tissue, or that what it finds is meaningful. "
           "The held-out sets were used once but are of the same family as the development sets, and four simulation runs per parameter set are few. The two embeddings of the images disagree on whether smoothing helps and on whether the lattice axes help, and a single Gaussian model scored higher than the frozen score on the development cohort. "
@@ -57,7 +95,7 @@ CHEM_DISCUSSION = [
 CHEM_CONCLUSION = [
     ("p", "The local disorder and the von Mises-Fisher order information of MyUncle generalize to lattices of unit vectors in d dimensions and equal MyUncle's at d = 2. A label-free score built on them, rarity of the state of a site at several prevalence scales smoothed over the lattice, was tested on lattices simulated with MyUncle and on synthetic stained-tissue images, with frozen settings and four baselines. "
           "The results are mixed: smoothing helps when anomalies form regions and hurts when they do not, adding the local disorder as a feature helped on the simulated lattices, the frozen score was competitive but not uniformly best, and a simple Mahalanobis baseline was a strong competitor. "
-          "All evidence is simulated; validation on experimental micrographs and on histology, with expert review, is the planned next step (Section 5)."),
+          "A supervised configuration search with GaaR raised the lower-tail average precision on fresh test scenarios, but random search also beat the default, so the gain belongs to the selected configuration. All evidence is simulated; validation on experimental micrographs and on histology, with expert review, is the planned next step (Section 5)."),
 ]
 
 
@@ -94,7 +132,7 @@ def chemrxiv_blocks(B):
     sub("p", "The development set was one preset", "The presets are model parameter sets that MyUncle labels with application names; they are not fitted to measurements of any material. The development set was one preset")
     # future work, discussion, conclusions
     i, j = find("h1", "5. Future work"), find("h1", "6. Discussion")
-    out[i:j] = CHEM_FUTURE
+    out[i:j] = CHEM_GAAR + CHEM_FUTURE
     i, j = find("p", "What the evaluation supports."), find("h1", "7. Conclusions")
     out[i:j] = CHEM_DISCUSSION
     i = find("p", "MyUncleVision turns a whole-slide image")

@@ -355,7 +355,7 @@ if __name__ == "__main__":
         exec(open(os.path.join(HERE, "chemrxiv_variant.py"), encoding="utf-8").read())
         B = chemrxiv_blocks(B)
         TITLE = CHEM_TITLE
-        LIB = dict(LIB, MyUncleVision2026='L. Sandler, MyUncleVision: a lattice-based framework for unsupervised anomaly discovery in images, software, Zenodo (2026). https://doi.org/10.5281/zenodo.24066260 (all versions; companion of MyUncle, https://doi.org/10.5281/zenodo.21223570)')
+        LIB = dict(LIB, GaaR2026='L. Sandler, GaaR: goal-aware adaptive regulation, evolutionary search on consumer hardware, software, GitHub (2026), commit 4021e64. https://github.com/sandlerleon/GaaR', MyUncleVision2026='L. Sandler, MyUncleVision: a lattice-based framework for unsupervised anomaly discovery in images, software, Zenodo (2026). https://doi.org/10.5281/zenodo.24066260 (all versions; companion of MyUncle, https://doi.org/10.5281/zenodo.21223570)')
         cit = E.Citations(LIB)
         for b in B:
             for x in b[1:]:

@@ -22,13 +22,37 @@ os.makedirs(OUT, exist_ok=True)
 for f in ("fig_bridge.png", "fig_heldout_example.png", "fig_bridge_maps.png"):
     shutil.copy(os.path.join(HERE, "..", "figures", f), os.path.join(OUT, f))
 
+import json
+RES = os.path.join(HERE, "..", "..", "results")
+GS = json.load(open(os.path.join(RES, "gaar_search_comparison.json")))
+GT = json.load(open(os.path.join(RES, "gaar_test.json")))
+GL = json.load(open(os.path.join(RES, "gaar_labelfree.json")))
+TF = lambda name: GT["test"][name]["fitness"]
+DEF, NOS, OPT = "frozen default", "no smoothing", "exhaustive dev optimum"
+RST, GRD, RND = "GaaR restart (seed 0, budget 40)", "GaaR greedy (seed 0, budget 40)", "GaaR random (seed 0, budget 40)"
+assert TF(RST) > TF(DEF) and TF(RND) > TF(DEF) and TF(GRD) > TF(DEF) and TF(OPT) > TF(DEF), "text says every development-optimized configuration beat the default on the test scenarios"
+assert TF(RST) > TF(OPT) > TF(RND), "text says the test ordering did not follow the development fitness"
+assert GT["dev"][OPT]["fitness"] > GT["dev"][RST]["fitness"] > GT["dev"][RND]["fitness"], "development order"
+assert GT["test"][RST]["aps"][1] < GT["test"][DEF]["aps"][1], "text says the DINOv2 test AP fell"
+assert GT["test"][RST]["aps"][0] > GT["test"][DEF]["aps"][0], "text says the handcrafted test AP rose"
+st = GS["strategies"]
+assert st["greedy"]["hit_top1pct"] > 2 * st["random"]["hit_top1pct"] and st["restart"]["hit_top1pct"] > 2 * st["random"]["hit_top1pct"], "text says greedy/restart reach the top 1% more than twice as often as random"
+assert st["random"]["hit_top5pct"] >= st["population"]["hit_top5pct"] > st["restart"]["hit_top5pct"] >= st["greedy"]["hit_top5pct"], "text says random matched or beat GaaR at the top 5% level"
+mor = {r["scenario"]: r["moran"] for r in GL["rows"]}
+eff = {r["scenario"]: r["effect"] for r in GL["rows"]}
+bad = [k for k in eff if eff[k] < -0.2]
+assert sorted(bad) == ["sim-dev-rotor", "sim-test-rotor"] and all(mor[k] < 0.02 for k in bad) and all(mor[k] > 0.1 for k in mor if k not in bad), "text says Moran's I separates exactly the two scenarios where smoothing destroyed the signal"
+assert eff["images-test-handcrafted"] < -0.1 and mor["images-test-handcrafted"] > 0.05, "text says the rule would not help the handcrafted test images"
+_row = lambda name, lab: [lab, n(GT["dev"][name]["fitness"])] + [n(x) for x in GT["test"][name]["aps"]] + [n(GT["test"][name]["fitness"])]
+TABGAAR = " \\\\\n".join(" & ".join(_row(nm, lab)) for nm, lab in ((DEF, "Frozen default"), (NOS, "No smoothing"), (RST, "GaaR restart / population champion"), (GRD, "GaaR greedy / random-search champion"), (OPT, "Exhaustive development optimum"))) + " \\\\"
 ABSTRACT = (
     "Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. "
-    "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model from the plane to unit vectors in $d$ dimensions with the von Mises--Fisher distribution; they equal MyUncle's at $d=2$ (tested against the unmodified code). "
-    "On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with isolation forest, local outlier factor, nearest-neighbor and Mahalanobis baselines, with settings frozen before the held-out data. "
-    "On lattices simulated with MyUncle (damaged sites as ground truth), smoothing lowered the average precision of every baseline because damaged sites are not compact regions, adding the local disorder as a feature raised it, and the frozen score was within 0.02 of the best on the held-out sets but clearly beaten on the development set. "
+    "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in $d$ dimensions (von Mises--Fisher distribution); they equal MyUncle's at $d=2$. "
+    "On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with four baselines, with settings frozen before the held-out data. "
+    "On lattices simulated with MyUncle, smoothing lowered the average precision of every baseline because the damaged sites are not compact regions. "
     "On synthetic stained-tissue images, smoothing raised spatial coherence for every scorer, and the frozen score was the best method with DINOv2 embeddings and a poor one with handcrafted features. "
-    "All evidence is simulated; code and results are open.")
+    "A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from %s to %s; random search also beat the default, so the gain belongs to the selected configuration, not to the search. "
+    "All evidence is simulated; code and results are open." % (n(TF(DEF)), n(TF(RST))))
 assert len(ABSTRACT.split()) <= 200, len(ABSTRACT.split())
 
 tex = lambda s: s.replace("&", r"\&").replace("%", r"\%")
@@ -42,7 +66,13 @@ keys = ("auroc", "average_precision", "spatial_coherence", "region_recall")
 tabimg = " \\\\\n".join(" & ".join([lab] + [n(met(R, m, k)) for R in (BH, BD) for k in keys]) for m, lab in img_rows) + " \\\\"
 
 V = dict(
-    ABSTRACT=ABSTRACT, TABSIM=tabsim, TABIMG=tabimg,
+    ABSTRACT=ABSTRACT, TABSIM=tabsim, TABIMG=tabimg, TABGAAR=TABGAAR,
+    G_RANK=str(int(round(GS["default_rank_fraction"] * GS["n_configs"])) + 1), G_NC=str(GS["n_configs"]), G_BUDGET=str(GS["budget"]), G_REP=str(GS["repeats"]), G_DEFDEV=n(GS["default_fitness"]), G_OPTDEV=n(GS["optimum"]),
+    G_G1=pc(st["greedy"]["hit_top1pct"]), G_R1=pc(st["restart"]["hit_top1pct"]), G_P1=pc(st["population"]["hit_top1pct"]), G_N1=pc(st["random"]["hit_top1pct"]),
+    G_G5=pc(st["greedy"]["hit_top5pct"]), G_R5=pc(st["restart"]["hit_top5pct"]), G_P5=pc(st["population"]["hit_top5pct"]), G_N5=pc(st["random"]["hit_top5pct"]),
+    G_MB_R=n(st["restart"]["median_best"]), G_MB_N=n(st["random"]["median_best"]),
+    G_DEF_F=n(TF(DEF)), G_RST_F=n(TF(RST)), G_GRD_F=n(TF(GRD)), G_OPT_F=n(TF(OPT)), G_NOS_F=n(TF(NOS)),
+    G_DEF_HC=n(GT["test"][DEF]["aps"][0]), G_RST_HC=n(GT["test"][RST]["aps"][0]), G_DEF_D=n(GT["test"][DEF]["aps"][1]), G_RST_D=n(GT["test"][RST]["aps"][1]),
     DEVPREV=pc(BRD[("dev", "rotor")]["prevalence_all"]),
     HELDPREV="%s, %s and %s" % (pc(pf["polymer_photodegradation"]), pc(pf["liquid_crystal"]), pc(pf["magnetic_storage_decay"])),
     DEVIMGPREV=pc(DH["anomalous_patch_share"], 1), HELDIMGPREV=pc(BD["anomalous_patch_share"], 1),

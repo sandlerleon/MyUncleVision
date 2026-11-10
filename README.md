@@ -57,6 +57,10 @@ decide the top fraction that counts as a candidate (`--q`); and run the baseline
 
 `myuncle_vision/bridge.py` connects the two repositories in both directions ([docs/BRIDGE.md](docs/BRIDGE.md)): simulate any MyUncle preset and analyse its lattice states with MyUncleVision's order maps and label-free novelty (`python -m myuncle_vision bridge`), check numerically that the two implementations agree (`verify_bridge`), or turn an analysed lattice of embeddings into the initial state of a MyUncle Monte Carlo (`slide_to_myuncle`, exploratory). MyUncle stays unmodified.
 
+## Configuration search with GaaR
+
+`myuncle_vision/gaar_opt.py` uses [GaaR](https://github.com/sandlerleon/GaaR) (vendored unmodified) to select a configuration of the score (smoothing type and window, axis weights, PCA dimension, largest rarity scale) on labeled development scenarios and tests the champions on fresh scenarios; see [docs/GAAR.md](docs/GAAR.md). It is supervised selection, not label-free adaptation, and in the reported test the gain belonged to the selected configuration, not to the search algorithm. The smoothing options (`smooth_type`, `smooth_window`) are available in `Config`; the defaults are unchanged.
+
 ## Models and files
 
 | File | Function | Trained? |
@@ -64,6 +68,7 @@ decide the top fraction that counts as a candidate (`--q`); and run the baseline
 | timm `vit_small_patch14_dinov2.lvd142m` (DINOv2 ViT-S/14, Oquab et al. 2023) | patch embeddings (384-d) | pretrained on natural images, not fine-tuned |
 | `myuncle_vision/encoder.py::HandcraftedEncoder` | deterministic colour/stain/orientation/texture features (64-d); offline fallback and tests | no model file |
 | your own function via `CallableEncoder` / `--encoder-module` | any embedding | yours |
+| `third_party/gaar/GaaR_core.py` (GaaR, unmodified, SHA-256 in `GaaR_core.sha256`) | evolutionary configuration search (`gaar_opt.py`) | no |
 | `third_party/myuncle/MyUncle_core.py` (MyUncle, unmodified, SHA-256 in `MyUncle_core.sha256`) | reference order-entropy definitions, bistability, kinetic Monte Carlo (scenarios) | no |
 | `myuncle_vision/cohort.py` (PCA, k-means, nearest-neighbour reference fitted **at run time** on the input) | cohort space, prototype states, novelty axes | fitted per run; nothing is stored between runs |
 
