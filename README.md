@@ -93,7 +93,7 @@ DINOv2 ViT-S/14 on one CPU core processes roughly 15-30 patches per second; use 
 ## Applications
 
 * [docs/herox/](docs/herox/): the NIDDK/HeroX Kidney AI Discovery Challenge (KPMP kidney whole-slide images): submission pack draft and run guide. That application is one use of this framework, not its scope.
-* Paper: `docs/MyUncleVision_Manuscript_PRL.*` (manuscript for Pattern Recognition Letters, Elsevier, prepared; not yet submitted).
+* Papers: `docs/prl/` (letter for Pattern Recognition Letters, Elsevier: LaTeX source, PDF, highlights, cover letter; submitted, under editorial processing), `docs/MyUncleVision_Manuscript_ChemRxiv.*` (statistical-mechanics framing, prepared for ChemRxiv) and `docs/MyUncleVision_Manuscript_PRL.*` (first, histopathology-framed version, superseded).
 
 ## Reproducibility and provenance
 
