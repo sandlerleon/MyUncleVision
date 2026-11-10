@@ -301,7 +301,7 @@ for b in B:
     for x in b[1:]:
         if isinstance(x, str):
             cit.scan(x)
-FIGNUM = {k: i + 1 for i, k in enumerate(["bridge", "pipe", "held", "ex"])}
+FIGNUM = {k: i + 1 for i, k in enumerate(["bridge", "pipe", "held", "ex", "maps"])}
 
 
 def resolve(s):

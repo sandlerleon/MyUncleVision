@@ -101,5 +101,8 @@ def chemrxiv_blocks(B):
     out[i:i + 1] = CHEM_CONCLUSION
     sub("p0", "No patient data were used; the KPMP images are not part of this work.", "No experimental, patient or tissue data were used.")
     ia = find("small", "Corresponding author")
+    k = find("p", "With the rotor alone")
+    out[k + 1:k + 1] = [("p", "Fig. @F:maps@ shows one simulated run (preset chiral scaffold, 32 x 32 sites, snapshots 15 steps apart): the rotor angle, the local disorder D, the order information H_chi and the novelty score of the frozen method. Novelty is a percentile rank relative to the snapshots analysed together, so it marks where a state is unusual among the snapshots shown; it has not been validated against known defect locations."),
+                        ("fig", "fig_bridge_maps.png", "Fig. @F:maps@. A MyUncle simulation analysed with MyUncleVision (command python -m myuncle_vision bridge, preset chiral scaffold, 32 x 32 sites, seed 0). Rows: rotor angle, local disorder D, order information H_chi (von Mises-Fisher, d = 2) and novelty of the frozen method; columns: snapshots at steps 0, 15, 30, 45 and 60.", 6.4)]
     out.insert(ia + 1, ("small", "Under consideration at Pattern Recognition Letters (submission PRLETTERS-D-26-02906)"))
     return out

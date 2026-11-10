@@ -19,7 +19,7 @@ BD, BH, DD, DH, BRD = bd.BD, bd.BH, bd.DD, bd.DH, bd.BRD
 bm = bd._bm
 OUT = os.path.join(HERE, "..", "prl")
 os.makedirs(OUT, exist_ok=True)
-for f in ("fig_bridge.png", "fig_heldout_example.png"):
+for f in ("fig_bridge.png", "fig_heldout_example.png", "fig_bridge_maps.png"):
     shutil.copy(os.path.join(HERE, "..", "figures", f), os.path.join(OUT, f))
 
 ABSTRACT = (
