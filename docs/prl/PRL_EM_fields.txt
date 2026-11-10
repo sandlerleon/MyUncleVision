@@ -1,0 +1,17 @@
+PRLETTERS-D-26-02906 - edit submission (Editorial Manager) - values to enter
+
+TITLE (sentence case, no abbreviations):
+Order and entropy of lattices of unit vectors in d dimensions: label-free discovery of unusual local organization in simulated lattices and synthetic images
+
+ABSTRACT (196 words, limit 200):
+Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. We extend the local order and entropy quantities of the MyUncle maintenance-lattice model from the plane to unit vectors in d dimensions with the von Mises-Fisher distribution; they equal MyUncle's at d=2 (tested against the unmodified code). On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with isolation forest, local outlier factor, nearest-neighbor and Mahalanobis baselines, with settings frozen before the held-out data. On lattices simulated with MyUncle (damaged sites as ground truth), smoothing lowered the average precision of every baseline because damaged sites are not compact regions, adding the local disorder as a feature raised it, and the frozen score was within 0.02 of the best on the held-out sets but clearly beaten on the development set. On synthetic stained-tissue images, smoothing raised spatial coherence for every scorer, and the frozen score was the best method with DINOv2 embeddings and a poor one with handcrafted features. All evidence is simulated; code and results are open.
+
+KEYWORDS:
+lattice models; von Mises-Fisher distribution; orientational order; entropy; unsupervised anomaly detection; spatial smoothing
+
+HIGHLIGHTS (3-5, <=85 characters each):
+- MyUncle order and entropy extend to unit vectors in d dimensions
+- Label-free score: state rarity at several scales, smoothed over the lattice
+- Settings frozen on development data; held-out data evaluated once
+- On simulated lattices smoothing lowered AP; local disorder as a feature raised it
+- Results are mixed; all evidence is simulated; code and results are open

@@ -100,4 +100,6 @@ def chemrxiv_blocks(B):
     i = find("p", "MyUncleVision turns a whole-slide image")
     out[i:i + 1] = CHEM_CONCLUSION
     sub("p0", "No patient data were used; the KPMP images are not part of this work.", "No experimental, patient or tissue data were used.")
+    ia = find("small", "Corresponding author")
+    out.insert(ia + 1, ("small", "Under consideration at Pattern Recognition Letters (submission PRLETTERS-D-26-02906)"))
     return out
