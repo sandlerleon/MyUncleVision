@@ -59,7 +59,7 @@ decide the top fraction that counts as a candidate (`--q`); and run the baseline
 
 ## Configuration search with GaaR
 
-`myuncle_vision/gaar_opt.py` uses [GaaR](https://github.com/sandlerleon/GaaR) (vendored unmodified) to select a configuration of the score (smoothing type and window, axis weights, PCA dimension, largest rarity scale) on labeled development scenarios and tests the champions on fresh scenarios; see [docs/GAAR.md](docs/GAAR.md). It is supervised selection, not label-free adaptation, and in the reported test the gain belonged to the selected configuration, not to the search algorithm. The smoothing options (`smooth_type`, `smooth_window`) are available in `Config`; the defaults are unchanged.
+`myuncle_vision/gaar_opt.py` uses [GaaR](https://github.com/sandlerleon/GaaR) (vendored unmodified) to select a configuration of the score (smoothing type and window, axis weights, PCA dimension, largest rarity scale) on labeled development scenarios and tests the champions on fresh scenarios; see [docs/GAAR.md](docs/GAAR.md). It is supervised selection, not label-free adaptation; in the reported fresh test the gain of the selected configuration was not distinguishable from zero (paired 95% interval) and a random-search champion also beat the default, so any gain belongs to the configuration, not to the search algorithm. A controlled study on an independent generator (`myuncle_vision/morphology.py`) found that lattice smoothing hurt at every anomaly size, least for compact anomalies. The smoothing options (`smooth_type`, `smooth_window`) are available in `Config`; the defaults are unchanged.
 
 ## Models and files
 

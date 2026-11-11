@@ -43,15 +43,34 @@ eff = {r["scenario"]: r["effect"] for r in GL["rows"]}
 bad = [k for k in eff if eff[k] < -0.2]
 assert sorted(bad) == ["sim-dev-rotor", "sim-test-rotor"] and all(mor[k] < 0.02 for k in bad) and all(mor[k] > 0.1 for k in mor if k not in bad), "text says Moran's I separates exactly the two scenarios where smoothing destroyed the signal"
 assert eff["images-test-handcrafted"] < -0.1 and mor["images-test-handcrafted"] > 0.05, "text says the rule would not help the handcrafted test images"
-_row = lambda name, lab: [lab, n(GT["dev"][name]["fitness"])] + [n(x) for x in GT["test"][name]["aps"]] + [n(GT["test"][name]["fitness"])]
-TABGAAR = " \\\\\n".join(" & ".join(_row(nm, lab)) for nm, lab in ((DEF, "Frozen default"), (NOS, "No smoothing"), (RST, "GaaR restart / population champion"), (GRD, "GaaR greedy / random-search champion"), (OPT, "Exhaustive development optimum"))) + " \\\\"
+BS_ = chr(92)
+MS = json.load(open(os.path.join(RES, "morphology_study.json")))
+BT = GT["bootstrap"]
+_sg = lambda x: ("$-$%.3f" % -x) if x < 0 else ("+%.3f" % x)
+_ci = lambda a: "[%s, %s]" % (_sg(a[0]) if False else ("$-$%.2f" % -a[0] if a[0] < 0 else "%.2f" % a[0]), ("$-$%.2f" % -a[1] if a[1] < 0 else "%.2f" % a[1]))
+_dci = lambda a: "[%s, %s]" % (("$-$%.2f" % -a[0] if a[0] < 0 else "+%.2f" % a[0]), ("$-$%.2f" % -a[1] if a[1] < 0 else "+%.2f" % a[1]))
+_d = lambda nm: GT["test"][nm]["fitness"] - GT["test"][DEF]["fitness"]
+_row = lambda name, lab: [lab, n(GT["dev"][name]["fitness"])] + [n(x) for x in GT["test"][name]["aps"]] + ["%s %s" % (n(GT["test"][name]["fitness"]), _ci(BT[name]["fitness_ci"])), "-" if name == DEF else "%s %s" % (_sg(_d(name)), _dci(BT[name]["diff_vs_default_ci"]))]
+TABGAAR = (" " + BS_ + BS_ + "\n").join(" & ".join(_row(nm, lab)) for nm, lab in ((DEF, "Frozen default"), (NOS, "No smoothing"), (RST, "GaaR restart / population champion"), (GRD, "GaaR greedy / random-search champion"), (OPT, "Exhaustive development optimum"))) + " " + BS_ + BS_
+# guards for the confidence intervals and the controlled morphology study
+assert BT[RST]["diff_vs_default_ci"][0] < 0 < BT[RST]["diff_vs_default_ci"][1], "text says the paired interval of the champion's gain includes zero"
+assert BT["frozen default"]["fitness_ci"][0] < GT["test"][DEF]["fitness"]
+_m = MS["results"]
+_sz = [str(x) for x in MS["sizes"]]
+_ap = lambda cfg, b: _m[b][cfg]["ap"]
+assert all(_m[b]["no smoothing"]["diff_vs_frozen_ci"][0] > 0 for b in _sz), "text says no smoothing beat the frozen configuration at every anomaly size"
+assert all(_ap("frozen (mean 3)", a) < _ap("frozen (mean 3)", b) for a, b in zip(_sz, _sz[1:])), "text says the loss from smoothing shrank as the anomalies grew"
+assert all(_m[b]["mean 5"]["diff_vs_frozen_ci"][1] < 0 for b in _sz), "text says the 5 x 5 mean was worse than the 3 x 3 mean at every size"
+assert all(_m[b]["GaaR restart champion"]["diff_vs_frozen_ci"][0] > 0 for b in ("1", "2", "3")) and all(_m[b]["GaaR restart champion"]["diff_vs_frozen_ci"][0] < 0 < _m[b]["GaaR restart champion"]["diff_vs_frozen_ci"][1] for b in ("6",)), "text says the champion beat the frozen configuration for small anomalies only"
+assert all(_ap("GaaR restart champion", b) < _ap("no smoothing", b) for b in _sz), "text says the champion stayed below no smoothing at every size"
+MORPH_ROWS = " " + BS_ + BS_ + "\n"
+MORPH_ROWS = MORPH_ROWS.join(" & ".join([lab] + ["%.2f" % _ap(cfg, b) for b in _sz]) for cfg, lab in (("no smoothing", "No smoothing"), ("frozen (mean 3)", "Frozen ($3" + BS_ + "times3$ mean)"), ("mean 5", "$5" + BS_ + "times5$ mean"), ("GaaR restart champion", "GaaR restart champion"), ("exhaustive development optimum", "Exhaustive development optimum"))) + " " + BS_ + BS_
 ABSTRACT = (
     "Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. "
     "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in $d$ dimensions (von Mises--Fisher distribution); they equal MyUncle's at $d=2$. "
     "On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with four baselines, with settings frozen before the held-out data. "
-    "On lattices simulated with MyUncle, smoothing lowered the average precision of every baseline because the damaged sites are not compact regions. "
-    "On synthetic stained-tissue images, smoothing raised spatial coherence for every scorer, and the frozen score was the best method with DINOv2 embeddings and a poor one with handcrafted features. "
-    "A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from %s to %s; random search also beat the default, so the gain belongs to the selected configuration, not to the search. "
+    "Smoothing the score over the lattice raised spatial coherence on synthetic images and, with DINOv2 embeddings, average precision, but it lowered average precision on simulated MyUncle lattices; in a controlled study on an independent generator it hurt at every anomaly size, least for compact anomalies. "
+    "A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from %s to %s, but the paired interval of the difference included zero and random search also beat the default, so any gain belongs to the selected configuration, not to the search. "
     "All evidence is simulated; code and results are open." % (n(TF(DEF)), n(TF(RST))))
 assert len(ABSTRACT.split()) <= 200, len(ABSTRACT.split())
 
@@ -66,7 +85,9 @@ keys = ("auroc", "average_precision", "spatial_coherence", "region_recall")
 tabimg = " \\\\\n".join(" & ".join([lab] + [n(met(R, m, k)) for R in (BH, BD) for k in keys]) for m, lab in img_rows) + " \\\\"
 
 V = dict(
-    ABSTRACT=ABSTRACT, TABSIM=tabsim, TABIMG=tabimg, TABGAAR=TABGAAR,
+    ABSTRACT=ABSTRACT, TABSIM=tabsim, TABIMG=tabimg, TABGAAR=TABGAAR, MORPH_ROWS=MORPH_ROWS,
+    M_B=str(MS["images_per_cohort"] * MS["cohorts"]), M_F1="%.2f" % _ap("frozen (mean 3)", "1"), M_F6="%.2f" % _ap("frozen (mean 3)", "6"), M_NMIN="%.2f" % min(_ap("no smoothing", b) for b in _sz), M_NMAX="%.2f" % max(_ap("no smoothing", b) for b in _sz),
+    G_DCI=_dci(BT[RST]["diff_vs_default_ci"]), G_DIFF=_sg(_d(RST)), G_PB=pc(BT[RST]["share_better_than_default"]),
     G_RANK=str(int(round(GS["default_rank_fraction"] * GS["n_configs"])) + 1), G_NC=str(GS["n_configs"]), G_BUDGET=str(GS["budget"]), G_REP=str(GS["repeats"]), G_DEFDEV=n(GS["default_fitness"]), G_OPTDEV=n(GS["optimum"]),
     G_G1=pc(st["greedy"]["hit_top1pct"]), G_R1=pc(st["restart"]["hit_top1pct"]), G_P1=pc(st["population"]["hit_top1pct"]), G_N1=pc(st["random"]["hit_top1pct"]),
     G_G5=pc(st["greedy"]["hit_top5pct"]), G_R5=pc(st["restart"]["hit_top5pct"]), G_P5=pc(st["population"]["hit_top5pct"]), G_N5=pc(st["random"]["hit_top5pct"]),

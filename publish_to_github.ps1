@@ -1,4 +1,4 @@
-# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.4.0 (earlier releases are created if missing).
+# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.5.0 (earlier releases are created if missing).
 # Run from PowerShell:   powershell -ExecutionPolicy Bypass -File "C:\Users\Leon\Downloads\MyUncleVision_work\repo\MyUncleVision\publish_to_github.ps1"
 # Needs: git and the GitHub CLI (gh), logged in as sandlerleon (gh auth status).
 # NOTE: the repository is public. The HeroX pack (docs/herox) is a DRAFT that stays in the repo only as an example application.
@@ -48,6 +48,8 @@ git push origin v0.3.1 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.3.1) failed" }
 git push origin v0.4.0 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.4.0) failed" }
+git push origin v0.5.0 --force
+if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.5.0) failed" }
 if (-not (Test-Gh @("release", "view", "v0.2.1", "--repo", $Repo))) {
     gh release create v0.2.1 --repo $Repo --title "v0.2.1" --notes "v0.2.1: reusable framework for any image collection: Python API, own encoders, demo command, docs/USAGE.md; HeroX material in docs/herox. Synthetic evaluation only."
 }
@@ -75,6 +77,11 @@ if (-not (Test-Gh @("release", "view", "v0.3.1", "--repo", $Repo))) {
 if (-not (Test-Gh @("release", "view", "v0.4.0", "--repo", $Repo))) {
     gh release create v0.4.0 "docs\prl\main.pdf" --repo $Repo --title "v0.4.0" `
         --notes "v0.4.0: configuration search with GaaR (vendored, unmodified) on development scenarios and fresh test scenarios (docs/GAAR.md, results/gaar_*.json); extra smoothing options (type, window) in Config; Pattern Recognition Letters letter and ChemRxiv version updated. Supervised selection, not label-free adaptation; the gain belongs to the selected configuration, not to the search algorithm. Evidence is synthetic and simulated only."
+    if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
+}
+if (-not (Test-Gh @("release", "view", "v0.5.0", "--repo", $Repo))) {
+    gh release create v0.5.0 "docs\prl\main.pdf" --repo $Repo --title "v0.5.0" `
+        --notes "v0.5.0: paired bootstrap intervals for the fresh-test GaaR comparison (the champion's gain is not distinguishable from zero), a controlled morphology study on an independent embedding-lattice generator (smoothing hurt at every anomaly size, least for compact anomalies), Pattern Recognition Letters letter and ChemRxiv version updated. Evidence is synthetic and simulated only. Zenodo (all versions): software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256."
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 }
 git rev-parse HEAD

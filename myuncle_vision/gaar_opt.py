@@ -52,20 +52,26 @@ def to_config(g, n_states=12, seed=0, **extra):
 class Scenario:
     """slides with embeddings + a function that returns (y, score) pooled over the evaluable patches after C.analyse"""
 
-    def __init__(self, name, slides, truth_fn, n_states=12, cfg_extra=None):
+    def __init__(self, name, slides, truth_fn, n_states=12, cfg_extra=None, unit=1):
         self.name, self.slides, self.truth_fn, self.n_states, self.cfg_extra = name, slides, truth_fn, n_states, cfg_extra or {}
+        self.unit = unit                  # slides per independent unit (1 for images; 3 snapshots of one simulation run for lattices)
 
-    def ap(self, g):
+    def units(self, g):
+        """per-slide (y, score) after analysing the scenario with configuration g"""
         for s in self.slides:
             s.extra = {k: v for k, v in s.extra.items() if k in ("path", "backend", "dimensions", "mpp_assumed", "mpp_eff")}
         C.analyse(self.slides, to_config(g, self.n_states, **self.cfg_extra))
-        ys, ss = [], []
+        out = []
         for i, s in enumerate(self.slides):
             y, sel = self.truth_fn(i, s)
             sc = np.asarray(s.extra["novelty"], float)
             m = sel & np.isfinite(sc)
-            ys.append(y[m]); ss.append(sc[m])
-        y, sc = np.concatenate(ys), np.concatenate(ss)
+            out.append((y[m], sc[m]))
+        return out
+
+    def ap(self, g):
+        u = self.units(g)
+        y, sc = np.concatenate([a for a, _ in u]), np.concatenate([b for _, b in u])
         return float(average_precision_score(y, sc)) if 0 < y.sum() < len(y) else float("nan")
 
 
@@ -88,7 +94,7 @@ def sim_scenario(spec, embedding, name):
     states, truth, meta = BB.make_states(spec, L=48)
     slides = BB._slides(states, embedding)
     flat = [t.reshape(-1).astype(int) for t in truth]
-    return Scenario(name, slides, lambda i, s: (flat[i], np.ones(len(flat[i]), bool)), n_states=6, cfg_extra=dict(ref_per_slide=350, ref_max=4200))     # reference sample of about 4,000 sites, as in the image scenarios
+    return Scenario(name, slides, lambda i, s: (flat[i], np.ones(len(flat[i]), bool)), n_states=6, cfg_extra=dict(ref_per_slide=350, ref_max=4200), unit=len(BB.SNAP_STEPS))     # reference sample of about 4,000 sites, as in the image scenarios
 
 
 TEST_SIM = dict(presets=("superconducting_scaffold", "polymer_photodegradation", "liquid_crystal", "magnetic_storage_decay"), seeds=(20, 21, 22, 23))
@@ -222,6 +228,32 @@ def raw_score_moran(sc):
     return float(np.nanmean(vals))
 
 
+def bootstrap_test(units, group, names, B=300, seed=0, ref="frozen default"):
+    """95% intervals by resampling independent units (images; simulation runs) within every scenario, the same draws for every configuration (paired).
+    Returns, per configuration, the test fitness interval and the interval of its difference from the frozen default."""
+    rng = np.random.default_rng(seed)
+    n_sc = len(group)
+    n_units = [len(units[names[0]][k]) // group[k] for k in range(n_sc)]
+    F = {nm: [] for nm in names}
+    AP = {nm: [[] for _ in range(n_sc)] for nm in names}
+    for _ in range(B):
+        draw = [rng.integers(0, n_units[k], n_units[k]) for k in range(n_sc)]
+        for nm in names:
+            aps = []
+            for k in range(n_sc):
+                parts = [units[nm][k][u * group[k] + j] for u in draw[k] for j in range(group[k])]
+                y, f = np.concatenate([a for a, _ in parts]), np.concatenate([b for _, b in parts])
+                aps.append(float(average_precision_score(y, f)) if 0 < y.sum() < len(y) else float("nan"))
+                AP[nm][k].append(aps[-1])
+            F[nm].append(fitness_from(aps))
+    ci = lambda a: [float(np.nanpercentile(a, 2.5)), float(np.nanpercentile(a, 97.5))]
+    out = dict(B=B, units=n_units)
+    for nm in names:
+        d = np.array(F[nm]) - np.array(F[ref])
+        out[nm] = dict(fitness_ci=ci(F[nm]), diff_vs_default_ci=ci(d), share_better_than_default=float(np.mean(d > 0)), ap_ci=[ci(AP[nm][k]) for k in range(n_sc)])
+    return out
+
+
 def run_test(search_json, out, grid_json):
     """evaluate the frozen default, the exhaustive development optimum and the champions of the searches once on the fresh test scenarios (never seen by any search), with the label-free statistic"""
     srch = json.load(open(search_json))
@@ -232,13 +264,19 @@ def run_test(search_json, out, grid_json):
         cands["GaaR %s (seed 0, budget %d)" % (st, srch["budget"])] = srch["strategies"][st]["champion_seed0"]
     scs = test_scenarios()
     res = dict(candidates={k: v for k, v in cands.items()}, test={}, dev={})
+    units = {}
     for name, g in cands.items():
         res["dev"][name] = grid[key(g)]
         aps = []
+        units[name] = []
         for sc in scs:
-            aps.append(sc.ap(g))
+            u = sc.units(g)
+            units[name].append(u)
+            y, f = np.concatenate([a for a, _ in u]), np.concatenate([b for _, b in u])
+            aps.append(float(average_precision_score(y, f)))
             print(name, sc.name, round(aps[-1], 3), flush=True)
         res["test"][name] = dict(aps=aps, fitness=fitness_from(aps))
+    res["bootstrap"] = bootstrap_test(units, [sc.unit for sc in scs], list(cands))
     res["test_scenarios"] = [sc.name for sc in scs]
     res["moran_test"] = {sc.name: raw_score_moran(sc) for sc in scs}
     json.dump(res, open(out, "w"), indent=1)

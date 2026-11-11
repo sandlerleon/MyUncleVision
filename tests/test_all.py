@@ -394,6 +394,22 @@ def test_smoothing_options_and_gaar_vendored_search():
     assert np.isfinite(GO.moran_I(Sl, np.random.default_rng(2).random(36)))
 
 
+def test_morphology_generator_holds_prevalence_and_separability_fixed():
+    from myuncle_vision import morphology as M
+    prev = []
+    for b in (1, 2, 6):
+        X, m = M.make_lattice(5, block=b, **M.GEN)
+        assert X.shape == (32, 32, M.GEN["d"]) and m.dtype == bool
+        prev.append(m.mean())
+        assert 0.02 < m.mean() < 0.04                                        # prevalence held near 3% at every block size
+    X1, m1 = M.make_lattice(5, block=1, **M.GEN)
+    X1b, m1b = M.make_lattice(5, block=1, **M.GEN)
+    assert np.array_equal(X1, X1b) and np.array_equal(m1, m1b)               # seeded
+    X6, m6 = M.make_lattice(5, block=6, **M.GEN)
+    lab = __import__("scipy.ndimage", fromlist=["label"]).label(m6)[1]
+    assert lab >= 1 and m6.sum() % 36 == 0                                   # whole 6 x 6 blocks
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

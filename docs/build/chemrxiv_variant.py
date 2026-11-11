@@ -17,6 +17,20 @@ assert _TF(_RST) > _TF(_DEF) and _TF(_RND) > _TF(_DEF) and _TF(_GRD) > _TF(_DEF)
 assert _TF(_RST) > _TF(_OPT) > _TF(_RND) and _GT["dev"][_OPT]["fitness"] > _GT["dev"][_RST]["fitness"] > _GT["dev"][_RND]["fitness"]
 assert _GT["test"][_RST]["aps"][1] < _GT["test"][_DEF]["aps"][1] and _GT["test"][_RST]["aps"][0] > _GT["test"][_DEF]["aps"][0]
 _st = _GS["strategies"]
+_BT = _GT["bootstrap"]
+_MS = _json.load(open(os.path.join(RES, "morphology_study.json")))
+_mm = _MS["results"]
+_sz = [str(x) for x in _MS["sizes"]]
+assert _BT[_RST]["diff_vs_default_ci"][0] < 0 < _BT[_RST]["diff_vs_default_ci"][1]
+assert all(_mm[b]["no smoothing"]["diff_vs_frozen_ci"][0] > 0 for b in _sz)
+assert all(_mm[a]["frozen (mean 3)"]["ap"] < _mm[b]["frozen (mean 3)"]["ap"] for a, b in zip(_sz, _sz[1:]))
+assert all(_mm[b]["mean 5"]["diff_vs_frozen_ci"][1] < 0 for b in _sz)
+assert all(_mm[b]["GaaR restart champion"]["diff_vs_frozen_ci"][0] > 0 for b in ("1", "2", "3")) and _mm["6"]["GaaR restart champion"]["diff_vs_frozen_ci"][0] < 0 < _mm["6"]["GaaR restart champion"]["diff_vs_frozen_ci"][1]
+assert all(_mm[b]["GaaR restart champion"]["ap"] < _mm[b]["no smoothing"]["ap"] for b in _sz)
+_f2 = lambda x: ("-%.2f" % -x) if x < 0 else ("%.2f" % x)
+_dci = lambda a: "[%s, %s]" % (("-%.2f" % -a[0]) if a[0] < 0 else ("+%.2f" % a[0]), ("-%.2f" % -a[1]) if a[1] < 0 else ("+%.2f" % a[1]))
+_dd = lambda k: _GT["test"][k]["fitness"] - _GT["test"][_DEF]["fitness"]
+
 assert _st["greedy"]["hit_top1pct"] > 2 * _st["random"]["hit_top1pct"] and _st["restart"]["hit_top1pct"] > 2 * _st["random"]["hit_top1pct"]
 assert _st["random"]["hit_top5pct"] >= _st["population"]["hit_top5pct"] > _st["restart"]["hit_top5pct"] >= _st["greedy"]["hit_top5pct"]
 _mor = {r["scenario"]: r["moran"] for r in _GL["rows"]}
@@ -29,8 +43,8 @@ CHEM_ABSTRACT = (
     "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model from the plane to unit vectors in d dimensions with the von Mises-Fisher distribution; both equal MyUncle's at d = 2 (tested against the unmodified code). "
     "On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with isolation forest, local outlier factor, nearest-neighbor and Mahalanobis baselines, with settings frozen before the held-out data were generated. "
     "On lattices simulated with MyUncle (damaged sites as ground truth; parameter sets labeled polymer photodegradation, liquid crystal and magnetic storage decay), smoothing lowered the average precision of every baseline because damaged sites are not compact regions. "
-    "On synthetic stained-tissue images, smoothing raised the spatial coherence of every scorer; the frozen score was the best method with DINOv2 embeddings and a poor one with handcrafted features. "
-    "A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from %s to %s, but random search also beat the default, so the gain belongs to the selected configuration and not to the search. "
+    "On synthetic stained-tissue images, smoothing raised spatial coherence for every scorer and the frozen score was the best method with DINOv2 embeddings and a poor one with handcrafted features. "
+    "A controlled study on an independent generator found that smoothing hurt at every anomaly size, least for compact anomalies. A supervised search over 360 configurations with GaaR raised the lower-tail average precision on fresh test scenarios from %s to %s, but the paired interval of the gain included zero and random search also beat the default. "
     "All evidence is simulated; validation on experimental micrographs is future work. Code and results are open." % (n(_TF(_DEF)), n(_TF(_RST))))
 
 CHEM_INTRO = [
@@ -44,21 +58,30 @@ CHEM_INTRO = [
 ]
 
 
-_ROWS6 = [[lab, n(_GT["dev"][k]["fitness"])] + [n(x) for x in _GT["test"][k]["aps"]] + [n(_TF(k))] for k, lab in ((_DEF, "Frozen default"), (_NOS, "No smoothing"), (_RST, "GaaR restart / population champion"), (_GRD, "GaaR greedy / random-search champion"), (_OPT, "Exhaustive development optimum"))]
+_ROWS6 = [[lab, n(_GT["dev"][k]["fitness"])] + [n(x) for x in _GT["test"][k]["aps"]] + ["%s [%s, %s]" % (n(_TF(k)), _f2(_BT[k]["fitness_ci"][0]), _f2(_BT[k]["fitness_ci"][1])), "-" if k == _DEF else "%+.2f %s" % (_dd(k), _dci(_BT[k]["diff_vs_default_ci"]))] for k, lab in ((_DEF, "Frozen default"), (_NOS, "No smoothing"), (_RST, "GaaR restart / population champion"), (_GRD, "GaaR greedy / random-search champion"), (_OPT, "Exhaustive development optimum"))]
 CHEM_GAAR = [
     ("h2", "4.6 Configuration search with GaaR"),
     ("p", "The frozen configuration is one choice for all data, and the results above show that it is not best for every embedding. GaaR (Goal-Aware Adaptive Regulation) [@GaaR2026], an evolutionary search framework by the same author, was used to select a configuration of the score from %d candidates: smoothing type and window (none, mean 3, 5, 7, Gaussian 5, 7, median 3, 5), five sets of axis weights, the PCA dimension (8, 16, 32) and the largest rarity scale (2, 5, 10%%). "
           "This is supervised hyperparameter selection on labeled development scenarios, not label-free adaptation: the chosen configuration is fixed afterwards. The fitness is a lower-tail average precision, F = 0.5 mean(AP) + 0.5 min(AP), over four development scenarios (the development images with each embedding and the development lattices with each of their two embeddings). "
           "All %d configurations were evaluated once on these scenarios, so any search can be compared exactly with the optimum; each strategy of GaaR and plain random search then ran %d times with a budget of %d evaluations. The champions were evaluated once on fresh test scenarios that no search saw: 16 new synthetic images (new seeds, the held-out anomaly types) and 48 new lattice states, including a preset not used before (superconducting scaffold)."
           % (_GS["n_configs"], _GS["n_configs"], _GS["repeats"], _GS["budget"])),
-    ("table", "Table 5. Fresh test scenarios: average precision (AP) of the frozen configuration, of no smoothing and of the champions found on the development scenarios (development fitness F in column 2; test AP for handcrafted-feature images, DINOv2 images, and lattices with the rotor and the rotor + D embedding in columns 3-6; test fitness in column 7).",
-     ["Configuration", "F dev", "Img. hand.", "Img. DINOv2", "Lat. rotor", "Lat. rotor+D", "F test"], _ROWS6, [2.6, 0.6, 0.75, 0.8, 0.75, 0.85, 0.65], True, 14),
+    ("table", "Table 5. Fresh test scenarios: average precision (AP) of the frozen configuration, of no smoothing and of the champions found on the development scenarios (development fitness F in column 2; test AP for handcrafted-feature images, DINOv2 images, and lattices with the rotor and the rotor + D embedding in columns 3-6; test fitness with a 95% interval in column 7 and its paired difference from the default in column 8; intervals resample the 16 images and the 16 simulation runs of each scenario).",
+     ["Configuration", "F dev", "Img. hand.", "Img. DINOv2", "Lat. rotor", "Lat. rotor+D", "F test [95% interval]", "Difference from default [95% interval]"], _ROWS6, [1.9, 0.5, 0.55, 0.65, 0.55, 0.65, 1.1, 1.35], True, 12),
     ("p", "The default configuration ranked %dth of %d on the development fitness (%s; optimum %s). With %d evaluations, the greedy and restart strategies found a configuration in the top 1%% in %s and %s of the runs and random search in %s (population: %s), whereas at the top 5%% level random search did as well or better (%s against %s, %s and %s). "
-          "On the test scenarios (Table 5) the champion of the restart and population strategies raised the test fitness from %s (default) to %s, mainly by lifting the worst scenario (handcrafted-feature images, AP %s to %s), while the AP with DINOv2 fell from %s to %s. The champion of the greedy strategy and of random search (the same configuration here) reached %s, and the exhaustive development optimum %s: every development-optimized configuration beat the default, but their order did not follow the development fitness. "
+          "On the test scenarios (Table 5) the champion of the restart and population strategies raised the test fitness from %s (default) to %s, mainly by lifting the worst scenario (handcrafted-feature images, AP %s to %s), while the AP with DINOv2 fell from %s to %s. The paired 95%% interval of this gain (%+.2f) is %s and the champion was better than the default in %s of the resamples, so with 16 independent units per scenario it cannot be distinguished from zero. The champion of the greedy strategy and of random search (the same configuration here) reached %s, and the exhaustive development optimum %s: every development-optimized configuration beat the default, but their order did not follow the development fitness. "
           "The gain is therefore due to the selected configuration (a smaller PCA dimension and the disorder axis at weight 0.5, with 3 x 3 mean smoothing) and not to the search algorithm; each strategy contributed one champion, four scenarios are few, and the test data come from the same generators as the development data."
           % (int(round(_GS["default_rank_fraction"] * _GS["n_configs"])) + 1, _GS["n_configs"], n(_GS["default_fitness"]), n(_GS["optimum"]), _GS["budget"], pc(_st["greedy"]["hit_top1pct"]), pc(_st["restart"]["hit_top1pct"]), pc(_st["random"]["hit_top1pct"]), pc(_st["population"]["hit_top1pct"]),
              pc(_st["random"]["hit_top5pct"]), pc(_st["greedy"]["hit_top5pct"]), pc(_st["restart"]["hit_top5pct"]), pc(_st["population"]["hit_top5pct"]),
-             n(_TF(_DEF)), n(_TF(_RST)), n(_GT["test"][_DEF]["aps"][0]), n(_GT["test"][_RST]["aps"][0]), n(_GT["test"][_DEF]["aps"][1]), n(_GT["test"][_RST]["aps"][1]), n(_TF(_GRD)), n(_TF(_OPT)))),
+             n(_TF(_DEF)), n(_TF(_RST)), n(_GT["test"][_DEF]["aps"][0]), n(_GT["test"][_RST]["aps"][0]), n(_GT["test"][_DEF]["aps"][1]), n(_GT["test"][_RST]["aps"][1]), _dd(_RST), _dci(_BT[_RST]["diff_vs_default_ci"]), pc(_BT[_RST]["share_better_than_default"]), n(_TF(_GRD)), n(_TF(_OPT)))),
+    ("h2", "4.7 Smoothing against anomaly morphology"),
+    ("p", "The results above leave open when smoothing helps. A controlled study on an independent generator varied only the spatial size of the anomalies. Each of %d lattices (32 x 32 sites, 16-dimensional embeddings) has smooth background domains and 3%% anomalous sites with a fixed separability (a shift of 10 noise standard deviations, calibrated beforehand on the unsmoothed score only); the anomalies are b x b blocks, b = 1 being scattered single sites and b = 6 compact regions, and each block has its own direction, so no recurring state exists. "
+          "Without smoothing the average precision was between %s and %s across sizes; the frozen 3 x 3 mean lowered it to %s at b = 1 and %s at b = 6 (Table 6). Smoothing hurt at every size, the loss shrinking as the anomalies grew, and a 5 x 5 mean was worse than the 3 x 3 mean at every size (paired 95%% intervals of all these differences exclude zero). "
+          "The champion of the GaaR search was better than the frozen configuration for b up to 3 and not distinguishable from it for b = 4 and 6, but it stayed below no smoothing at every size: configuration selection on the development scenarios, in which smoothing helped the DINOv2 images, mitigated the loss without removing it."
+          % (_MS["images_per_cohort"] * _MS["cohorts"], "%.2f" % min(_mm[b]["no smoothing"]["ap"] for b in _sz), "%.2f" % max(_mm[b]["no smoothing"]["ap"] for b in _sz), "%.2f" % _mm["1"]["frozen (mean 3)"]["ap"], "%.2f" % _mm["6"]["frozen (mean 3)"]["ap"])),
+    ("table", "Table 6. Average precision against anomaly block size b (independent embedding-lattice generator; 3% anomalous sites, fixed separability).",
+     ["Configuration", "b = 1", "b = 2", "b = 3", "b = 4", "b = 6"],
+     [[lab] + ["%.2f" % _mm[b][cfg]["ap"] for b in _sz] for cfg, lab in (("no smoothing", "No smoothing"), ("frozen (mean 3)", "Frozen (3 x 3 mean)"), ("mean 5", "5 x 5 mean"), ("GaaR restart champion", "GaaR restart champion"), ("exhaustive development optimum", "Exhaustive development optimum"))],
+     [2.6, 0.7, 0.7, 0.7, 0.7, 0.7], True, 14),
     ("p", "A label-free alternative was explored. Moran's I of the unsmoothed rarity score (spatial autocorrelation of the score field) was below 0.02 in exactly the two lattice scenarios, one development and one test, in which smoothing lost most of the AP, and above 0.1 in the other six. A rule that smooths only above 0.05 would have avoided the largest loss in both, but it would not have helped the handcrafted-feature test images (eight scenarios, one threshold, exploratory)."),
 ]
 
@@ -94,8 +117,8 @@ CHEM_DISCUSSION = [
 
 CHEM_CONCLUSION = [
     ("p", "The local disorder and the von Mises-Fisher order information of MyUncle generalize to lattices of unit vectors in d dimensions and equal MyUncle's at d = 2. A label-free score built on them, rarity of the state of a site at several prevalence scales smoothed over the lattice, was tested on lattices simulated with MyUncle and on synthetic stained-tissue images, with frozen settings and four baselines. "
-          "The results are mixed: smoothing helps when anomalies form regions and hurts when they do not, adding the local disorder as a feature helped on the simulated lattices, the frozen score was competitive but not uniformly best, and a simple Mahalanobis baseline was a strong competitor. "
-          "A supervised configuration search with GaaR raised the lower-tail average precision on fresh test scenarios, but random search also beat the default, so the gain belongs to the selected configuration. All evidence is simulated; validation on experimental micrographs and on histology, with expert review, is the planned next step (Section 5)."),
+          "The results are mixed: smoothing helped only with the DINOv2 embeddings of the synthetic images, whose unsmoothed score is noisy, and hurt on simulated lattices and in a controlled study on an independent generator, least for compact anomalies; adding the local disorder as a feature helped on the simulated lattices, the frozen score was competitive but not uniformly best, and a simple Mahalanobis baseline was a strong competitor. "
+          "A supervised configuration search with GaaR raised the lower-tail average precision on fresh test scenarios, but the paired interval of the gain included zero and random search also beat the default, so any gain belongs to the selected configuration. All evidence is simulated; validation on experimental micrographs and on histology, with expert review, is the planned next step (Section 5)."),
 ]
 
 

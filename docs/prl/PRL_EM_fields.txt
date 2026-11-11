@@ -3,8 +3,8 @@ PRLETTERS-D-26-02906 - edit submission (Editorial Manager) - values to enter
 TITLE (sentence case, no abbreviations):
 Order and entropy of lattices of unit vectors in d dimensions: label-free discovery of unusual local organization in simulated lattices and synthetic images
 
-ABSTRACT (188 words, limit 200):
-Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in d dimensions (von Mises-Fisher distribution); they equal MyUncle's at d=2. On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with four baselines, with settings frozen before the held-out data. On lattices simulated with MyUncle, smoothing lowered the average precision of every baseline because the damaged sites are not compact regions. On synthetic stained-tissue images, smoothing raised spatial coherence for every scorer, and the frozen score was the best method with DINOv2 embeddings and a poor one with handcrafted features. A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from 0.18 to 0.26; random search also beat the default, so the gain belongs to the selected configuration, not to the search. All evidence is simulated; code and results are open.
+ABSTRACT (193 words, limit 200):
+Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in d dimensions (von Mises-Fisher distribution); they equal MyUncle's at d=2. On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with four baselines, with settings frozen before the held-out data. Smoothing the score over the lattice raised spatial coherence on synthetic images and, with DINOv2 embeddings, average precision, but it lowered average precision on simulated MyUncle lattices; in a controlled study on an independent generator it hurt at every anomaly size, least for compact anomalies. A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from 0.18 to 0.26, but the paired interval of the difference included zero and random search also beat the default, so any gain belongs to the selected configuration, not to the search. All evidence is simulated; code and results are open.
 
 KEYWORDS:
 lattice models; von Mises-Fisher distribution; orientational order; entropy; unsupervised anomaly detection; spatial smoothing
@@ -13,5 +13,5 @@ HIGHLIGHTS (3-5, <=85 characters each):
 - MyUncle order and entropy extend to unit vectors in d dimensions
 - Label-free score: state rarity at several scales, smoothed over the lattice
 - Settings frozen on development data; held-out data evaluated once
-- Smoothing helps when anomalies form regions and hurts when they do not
-- A GaaR configuration search helped on fresh tests; the search was not decisive
+- Controlled study: smoothing hurt at every anomaly size, least for compact ones
+- GaaR configuration search: gain not significant on fresh tests, search not decisive
