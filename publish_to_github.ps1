@@ -1,4 +1,4 @@
-# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.7.0 (earlier releases are created if missing).
+# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.8.0 (earlier releases are created if missing).
 # Run from PowerShell:   powershell -ExecutionPolicy Bypass -File "C:\Users\Leon\Downloads\MyUncleVision_work\repo\MyUncleVision\publish_to_github.ps1"
 # Needs: git and the GitHub CLI (gh), logged in as sandlerleon (gh auth status).
 # NOTE: the repository is public. The HeroX pack (docs/herox) is a DRAFT that stays in the repo only as an example application.
@@ -54,6 +54,8 @@ git push origin v0.6.0 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.6.0) failed" }
 git push origin v0.7.0 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.7.0) failed" }
+git push origin v0.8.0 --force
+if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.8.0) failed" }
 if (-not (Test-Gh @("release", "view", "v0.2.1", "--repo", $Repo))) {
     gh release create v0.2.1 --repo $Repo --title "v0.2.1" --notes "v0.2.1: reusable framework for any image collection: Python API, own encoders, demo command, docs/USAGE.md; HeroX material in docs/herox. Synthetic evaluation only."
 }
@@ -96,6 +98,11 @@ if (-not (Test-Gh @("release", "view", "v0.6.0", "--repo", $Repo))) {
 if (-not (Test-Gh @("release", "view", "v0.7.0", "--repo", $Repo))) {
     gh release create v0.7.0 "docs\prl\main.pdf" --repo $Repo --title "v0.7.0" `
         --notes "v0.7.0: two further experiments on the aggregation rules (nucleation-and-growth rule with hysteresis; closure-gap diagnostic) and a shape-invariance criterion, both with negative or neutral outcomes reported; no reference to unpublished preprints in the manuscript. Evidence is synthetic and simulated only. Zenodo (all versions): software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256."
+    if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
+}
+if (-not (Test-Gh @("release", "view", "v0.8.0", "--repo", $Repo))) {
+    gh release create v0.8.0 "docs\prl\main.pdf" --repo $Repo --title "v0.8.0" `
+        --notes "v0.8.0: contrast-survival model of the fixed smoothing window (a fixed w x w mean keeps only the interior of an anomaly and erases anomalies thinner than the window; predicted survival correlates with the measured AP of the fixed mean, Spearman 0.82 over 60 cohorts, 0.76 on test cohorts, 0.64 for a 5 x 5 window); explanatory, labels used to calibrate the two rank levels. Letter, ChemRxiv version, highlights and cover letter updated. Evidence is synthetic and simulated only. Zenodo (all versions): software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256."
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 }
 git rev-parse HEAD

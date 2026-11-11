@@ -67,6 +67,22 @@ For $d=2$ these are MyUncle's quantities; the tests agree with the unmodified co
 \subsection{A fixed window can destroy the signal}
 On the independent test scenarios (Table~\ref{tab:ap}) the fixed $3\times3$ mean lowered the average precision of scattered single-site anomalies from @T_NONE_SC@ to @T_MEAN_SC@, of 8-site bars from @T_NONE_BAR@ to @T_MEAN_BAR@ and of the simulated lattices (rotor embedding) from @T_NONE_ROT@ to @T_MEAN_ROT@; the region recall of scattered anomalies at the top 3\% fell from @R_NONE_SC@ to @R_MEAN_SC@ and that of bars from @R_NONE_BAR@ to @R_MEAN_BAR@. The loss shrank as the anomalies became compact, and the mean helped only the DINOv2 embeddings of the synthetic images (@T_NONE_D@ to @T_MEAN_D@), whose unsmoothed score is noisy. Averaged in the lower-tail fitness $F$, the fixed mean (@F_MEAN@) was below no smoothing (@F_NONE@) at the test (paired difference @D_MEAN_NONE@).
 
+\subsection{Contrast survival}
+A simple model explains the failure. Let anomalous sites have the mean rarity rank $r_a$ and normal sites $r_n$ (calibrated on the development cohorts: @CS_RA@ and @CS_RN@; the ranks saturate near 1 because the highest of five scales counts). After the $w\times w$ mean, a site with $k$ anomalous among its $n$ window sites scores $(kr_a+(n-k)r_n)/n$, and it stays in the top 3\% of the cohort, whose threshold $\theta$ is read from the smoothed scores themselves (label-free, @CS_TH@ on average), only if $k\ge k^{*}=n(\theta-r_n)/(r_a-r_n)$; here $k^{*}\approx$ @CS_K@ of 9 sites, so practically the whole window must be anomalous. The fixed mean therefore preserves only the interior of an anomaly, the sites at least $(w-1)/2$ steps from its border, and erases anomalies thinner than the window; for a square block of side $b$ the surviving share is $((b-w+1)/b)^2$, and for scattered sites and bars it is zero. The predicted share of surviving anomalous sites, computed from the true masks, correlated with the measured average precision of the fixed mean over the @CS_N@ cohorts of the controlled generator (Spearman $\rho=$ @CS_RHO@; test cohorts only @CS_RHOT@; $5\times5$ window @CS_RHO5@) and reproduced the order of the shapes (Table~\ref{tab:cs}). The model is explanatory: $r_a$ and $r_n$ were calibrated with labels on the development cohorts, and it describes the fixed mean only. It also explains why similarity weighting works: neighbors with dissimilar embeddings receive small weights, so a site at the border of an anomaly is averaged mainly with anomalous neighbors.
+
+\begin{table}[t]
+\caption{Contrast survival (window $3\times3$): predicted share of anomalous sites that survive the fixed mean and the measured average precision (development and test cohorts).}
+\label{tab:cs}
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccc}
+\toprule
+Anomaly & Predicted survival & AP, fixed mean & AP, no smoothing\\
+\midrule
+@TABCS@
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Similarity-weighted aggregation}
 Weighting neighbors by embedding similarity removed most of that loss (Table~\ref{tab:ap}). The untuned $3\times3$ rule reached $F=$ @F_SIMW@, @D_SIMW_MEAN@ above the fixed mean and @D_SIMW_NONE@ above no smoothing (paired 95\% intervals). It kept the region recall of scattered anomalies at @R_SIMW_SC@ and of bars at @R_SIMW_BAR@, lowered the false regions per image from @FR_NONE@ (no smoothing, averaged over the controlled shapes) to @FR_SIMW@, and raised the DINOv2 image AP to @T_SIMW_D@. It did not help the handcrafted-feature images (@T_SIMW_H@, against @T_NONE_H@ without smoothing), and on the rotor-only lattices it stayed slightly below no smoothing (@T_SIMW_ROT@ against @T_NONE_ROT@). The one-sided rule matched no smoothing (@D_ONE_NONE@ in $F$).
 

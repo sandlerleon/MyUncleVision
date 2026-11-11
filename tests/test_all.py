@@ -451,6 +451,21 @@ def test_nucleation_growth_rule_and_closure_gap():
     assert G.closure_gap(comp + 0.01 * rng.random((H, W)), valid, 3, 0.02) > G.closure_gap(iso + 0.01 * rng.random((H, W)), valid, 3, 0.02)
 
 
+def test_contrast_survival_is_the_interior_of_the_anomaly():
+    from myuncle_vision import og_extra as E
+    m = np.zeros((20, 20), bool)
+    m[4:10, 4:10] = True                                              # a 6 x 6 block
+    valid = np.ones((20, 20), bool)
+    assert abs(E.survival_fraction(m, valid, 1.0, 0.0, 0.99, 3) - 16 / 36) < 1e-12      # only the sites whose whole 3 x 3 window is anomalous survive
+    assert abs(E.survival_fraction(m, valid, 1.0, 0.0, 0.99, 5) - 4 / 36) < 1e-12
+    bar = np.zeros((20, 20), bool)
+    bar[10, 3:11] = True
+    assert E.survival_fraction(bar, valid, 1.0, 0.0, 0.99, 3) == 0.0                     # anomalies thinner than the window are erased
+    dot = np.zeros((20, 20), bool)
+    dot[5, 5] = True
+    assert E.survival_fraction(dot, valid, 1.0, 0.0, 0.5, 3) == 0.0
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

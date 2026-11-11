@@ -39,3 +39,7 @@ Scenarios: synthetic images (handcrafted and DINOv2 embeddings), MyUncle lattice
 * Nucleation-and-growth rule (`ngh`): on the test scenarios `F` 0.228, equal to no smoothing, below similarity weighting.
 * Closure gap: retention of the top-3% sites under the fixed mean correlates with the effect of the fixed mean (Spearman 0.43, 68 cohorts), but a retention-based choice between the mean and no smoothing did not beat no smoothing; similarity weighting makes the choice unnecessary.
 * Range of AP over the six shapes: none 0.06, fixed mean 0.22, similarity-weighted 0.06.
+
+## Contrast survival (`og_extra.py survival [w]`)
+
+A site with `k` anomalous among its `n` window sites scores `(k r_a + (n - k) r_n)/n` after the fixed mean; it stays in the cohort's top 3% only if `k >= k* = n (theta - r_n)/(r_a - r_n)`, here about 8.8 of 9 sites (`r_a` 0.98, `r_n` 0.65 calibrated on the development cohorts; `theta` label-free). The fixed mean keeps only the interior of an anomaly: `((b - w + 1)/b)^2` for blocks, zero for scattered sites and bars. The predicted survival correlates with the measured AP of the fixed mean over the 60 cohorts of the controlled generator (Spearman 0.82; test cohorts 0.76; 5 x 5 window 0.64). Explanatory (labels used for `r_a`, `r_n`), fixed mean only.

@@ -8,6 +8,7 @@
 
     python -m myuncle_vision.og_extra ngh        -> results/og_ngh.json
     python -m myuncle_vision.og_extra closure    -> results/og_closure.json
+    python -m myuncle_vision.og_extra survival   -> results/og_survival.json
 """
 import itertools
 import json
@@ -89,6 +90,68 @@ def run_closure(out):
     return res
 
 
+def survival_fraction(mask, valid, r_a, r_n, theta, w=3):
+    """share of the anomalous sites that stay above `theta` after the fixed w x w mean when anomalous sites have rank r_a and normal sites r_n (the contrast-survival model);
+    a site with k anomalous among n valid window sites scores (k r_a + (n - k) r_n)/n"""
+    from scipy.ndimage import uniform_filter
+    ok = valid
+    k = uniform_filter((mask & ok).astype(float), w, mode="constant") * w * w
+    n = uniform_filter(ok.astype(float), w, mode="constant") * w * w
+    pred = (k * r_a + (n - k) * r_n) / np.maximum(n, 1)
+    sel = mask & ok
+    return float(np.mean(pred[sel] > theta)) if sel.any() else float("nan")
+
+
+def run_survival(out, q=0.03, w=3):
+    """contrast-survival model of the fixed w x w mean.  Normal sites have rarity ranks with mean r_n, anomalous sites r_a (calibrated on the development cohorts, with labels).  After the mean a site with k anomalous
+    sites among its n valid window sites scores (k r_a + (n - k) r_n)/n; it stays detectable when that exceeds the cohort's own top-q threshold theta of the smoothed scores (label-free).  The model's prediction is the share
+    phi of anomalous sites that survive; it is compared with the measured average precision of the fixed mean on every controlled-generator cohort of the development and test scenarios."""
+    from scipy.ndimage import uniform_filter
+    dev, test = O.load_cache("dev"), O.load_cache("test")
+    morph = lambda scs: [sc for sc in scs if sc["kind"] == "morph"]
+    ra, rn = [], []
+    for sc in morph(dev):
+        for items in sc["cohorts"]:
+            for it in items:
+                ok = it["valid"] & np.isfinite(it["r"])
+                ra.append(it["r"][ok & (it["y"] == 1)])
+                rn.append(it["r"][ok & (it["y"] == 0)])
+    r_a, r_n = float(np.mean(np.concatenate(ra))), float(np.mean(np.concatenate(rn)))
+    rows = []
+    for split, scs in (("dev", morph(dev)), ("test", morph(test))):
+        for sc in scs:
+            for ci, items in enumerate(sc["cohorts"]):
+                sm_all, phis = [], []
+                # the cohort's own top-q threshold of the (measured) smoothed score
+                sc_l = G.cohort_apply(items, "mean", w, 0, 0, 0, 0.5)
+                theta = float(np.quantile(np.concatenate([x[np.isfinite(x)] for x in sc_l]), 1.0 - q))
+                ph = [survival_fraction(it["y"] == 1, it["valid"] & np.isfinite(it["r"]), r_a, r_n, theta, w) for it in items]
+                wts = [int(((it["y"] == 1) & it["valid"]).sum()) for it in items]
+                phi = float(np.average(np.nan_to_num(ph), weights=np.maximum(wts, 1)))
+                none = G.cohort_apply(items, "none", 1, 0, 0, 0, 0.5)
+                ap = {}
+                for nm, scores in (("none", none), ("mean", sc_l)):
+                    y = np.concatenate([it["y"][it["sel"] & np.isfinite(s)] for it, s in zip(items, scores)])
+                    f = np.concatenate([s[it["sel"] & np.isfinite(s)] for it, s in zip(items, scores)])
+                    ap[nm] = float(average_precision_score(y, f))
+                rows.append(dict(split=split, scenario=sc["name"], cohort=ci, phi=phi, theta=theta, ap_none=ap["none"], ap_mean=ap["mean"]))
+    phi = np.array([r["phi"] for r in rows])
+    apm = np.array([r["ap_mean"] for r in rows])
+    sp_all = spearmanr(phi, apm)
+    te = [r for r in rows if r["split"] == "test"]
+    sp_test = spearmanr([r["phi"] for r in te], [r["ap_mean"] for r in te])
+    by = {}
+    for r in rows:
+        by.setdefault(r["scenario"].split("-")[-1], []).append((r["phi"], r["ap_mean"]))
+    res = dict(r_a=r_a, r_n=r_n, q=q, window=w, k_star_formula="ceil(n (theta - r_n) / (r_a - r_n))", rows=rows, spearman_all=dict(rho=float(sp_all.correlation), p=float(sp_all.pvalue), n=len(rows)),
+               spearman_test=dict(rho=float(sp_test.correlation), p=float(sp_test.pvalue), n=len(te)), by_shape={k: dict(phi=float(np.mean([a for a, _ in v])), ap_mean=float(np.mean([b for _, b in v]))) for k, v in by.items()})
+    json.dump(res, open(out, "w"), indent=1)
+    print("r_a %.3f r_n %.3f" % (r_a, r_n), "spearman all", res["spearman_all"], "test", res["spearman_test"])
+    for k, v in res["by_shape"].items():
+        print("  %-12s predicted survival %.2f   measured AP of the fixed mean %.2f" % (k, v["phi"], v["ap_mean"]))
+    return res
+
+
 if __name__ == "__main__":
     import warnings
     warnings.filterwarnings("ignore")
@@ -96,3 +159,6 @@ if __name__ == "__main__":
         run_ngh("results/og_ngh.json")
     elif sys.argv[1] == "closure":
         run_closure("results/og_closure.json")
+    elif sys.argv[1] == "survival":
+        w_ = int(sys.argv[2]) if len(sys.argv) > 2 else 3
+        run_survival("results/og_survival.json" if w_ == 3 else "results/og_survival_w%d.json" % w_, w=w_)

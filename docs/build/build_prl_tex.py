@@ -20,6 +20,7 @@ J = lambda name: json.load(open(os.path.join(RES, name)))
 OT, OS, OG = J("og_test.json"), J("og_search.json"), J("og_grid_dev.json")
 GT = J("gaar_test.json")
 NG, CG = J("og_ngh.json"), J("og_closure.json")
+SV, SV5 = J("og_survival.json"), J("og_survival_w5.json")
 R = OT["results"]
 BT = OT["bootstrap"]
 n2 = lambda x: "%.2f" % x
@@ -62,6 +63,18 @@ assert CG["spearman_retention_vs_mean_effect"]["rho"] > 0.3 and CG["spearman_ret
 assert CG["test_mean_ap"]["retention_choice"] <= CG["test_mean_ap"]["always_none"] + 0.01 and CG["test_mean_ap"]["always_simw"] > CG["test_mean_ap"]["retention_choice"], "text: the retention-based choice did not beat no smoothing; similarity weighting made it unnecessary"
 _rng = lambda c: max(ap(c, k) for k in ("SC", "B3", "B6", "BAR", "IRR", "BND")) - min(ap(c, k) for k in ("SC", "B3", "B6", "BAR", "IRR", "BND"))
 assert _rng(MEAN) > 3 * _rng(SIMW) and _rng(SIMW) <= _rng(NONE) + 0.02, "text: shape ranges"
+import math
+_th = float(np.mean([r["theta"] for r in SV["rows"]]))
+_kstar = 9 * (_th - SV["r_n"]) / (SV["r_a"] - SV["r_n"])
+_bs = SV["by_shape"]
+_apn = {}
+for _r in SV["rows"]:
+    _apn.setdefault(_r["scenario"].split("-")[-1], []).append(_r["ap_none"])
+assert SV["spearman_all"]["rho"] > 0.7 and SV["spearman_test"]["rho"] > 0.7 and SV5["spearman_all"]["rho"] > 0.5, "text: the contrast-survival model correlated with the measured AP of the fixed mean"
+assert _kstar > 8 and _bs["scattered"]["phi"] == 0 and _bs["bar8"]["phi"] == 0 and _bs["scattered"]["ap_mean"] < 0.06 and _bs["bar8"]["ap_mean"] < 0.06, "text: k* is almost the whole window; scattered sites and bars are erased"
+assert max(_bs, key=lambda k: _bs[k]["phi"]) == "block6" and max(_bs, key=lambda k: _bs[k]["ap_mean"]) == "block6", "text: the 6 x 6 blocks survive best"
+_shape_lab = [("scattered", "Scattered sites"), ("block3", "$3\\times3$ blocks"), ("block6", "$6\\times6$ blocks"), ("bar8", "Bars of 8"), ("irregular12", "Irregular clusters (12)"), ("boundary3", "Boundary blocks $3\\times3$")]
+tabcs = (" \\\\\n").join(" & ".join([lab, n2(_bs[k]["phi"]), n2(_bs[k]["ap_mean"]), n2(float(np.mean(_apn[k])))]) for k, lab in _shape_lab) + " \\\\"
 rows = [(NONE, "No smoothing"), (MEAN, "Fixed $3\\times3$ mean (frozen)"), (SIMW, "Similarity-weighted $3\\times3$ (untuned)"), (GAR, "GaaR / random-search champion"), (ONE, "One-sided (dev-selected)"), (OGC, "Order gate, compatibility (dev)"), (OGV, "Order gate, $R_i$ or $H_\\chi$ (dev)")]
 tabap = (" \\\\\n").join(" & ".join([lab] + [n2(ap(c, k)) for k in ("H", "D", "R", "RD", "SC", "B3", "B6", "BAR", "IRR", "BND")] + ["%s [%s, %s]" % (n2(F(c)), n2(BT[c]["fitness_ci"][0]), n2(BT[c]["fitness_ci"][1]))]) for c, lab in rows) + " \\\\"
 
@@ -96,7 +109,7 @@ ABSTRACT = (
     "On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed $3\\times3$ mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. "
     "Aggregation weighted by the cosine similarity of the embeddings of neighboring sites, with a label-free scale, preserved scattered, bar-shaped, irregular and boundary anomalies: on independent test scenarios it raised the lower-tail average precision from %s (fixed mean) and %s (no smoothing) to %s, with paired 95\\%% intervals above zero. "
     "Gates based on local order and on the von Mises--Fisher information of the neighborhood, a $d$-dimensional extension of MyUncle's entropy quantities, did not beat ordinary similarity; rank gates on that information coincide with gates on the resultant length. "
-    "A GaaR search over %d rule configurations did not beat random search. All evidence is simulated; code and results are open." % (n2(F(MEAN)), n2(F(NONE)), n2(F(SIMW)), OS["n_unique"]))
+    "A contrast-survival model, in which a fixed window keeps only the interior of an anomaly, predicted the loss (Spearman %s). A GaaR search over %d rule configurations did not beat random search. All evidence is simulated; code and results are open." % (n2(F(MEAN)), n2(F(NONE)), n2(F(SIMW)), n2(SV["spearman_all"]["rho"]), OS["n_unique"]))
 assert len(ABSTRACT.split()) <= 200, len(ABSTRACT.split())
 
 V = dict(
@@ -112,6 +125,7 @@ V = dict(
     N_COH=str(CG["spearman_retention_vs_mean_effect"]["n"]), CG_RHO=n2(CG["spearman_retention_vs_mean_effect"]["rho"]), CG_P="%.4f" % CG["spearman_retention_vs_mean_effect"]["p"], CG_SHARE=pc(CG["share_chose_mean_test"]),
     CG_CHOICE=n2(CG["test_mean_ap"]["retention_choice"]), CG_NONE=n2(CG["test_mean_ap"]["always_none"]), CG_ORACLE=n2(CG["test_mean_ap"]["oracle"]), CG_SIMW=n2(CG["test_mean_ap"]["always_simw"]),
     RG_NONE=n2(_rng(NONE)), RG_MEAN=n2(_rng(MEAN)), RG_SIMW=n2(_rng(SIMW)),
+    CS_RA=n2(SV["r_a"]), CS_RN=n2(SV["r_n"]), CS_TH=n2(_th), CS_K="%.1f" % _kstar, CS_N=str(SV["spearman_all"]["n"]), CS_RHO=n2(SV["spearman_all"]["rho"]), CS_RHOT=n2(SV["spearman_test"]["rho"]), CS_RHO5=n2(SV5["spearman_all"]["rho"]), TABCS=tabcs,
     OLD_DIFF=sg(_old), OLD_CI=cif(_oci), TEST_UNITS="16 to 50",
 )
 s = open(os.path.join(HERE, "prl_template.tex.in"), encoding="utf-8").read()

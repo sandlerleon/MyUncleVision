@@ -3,15 +3,15 @@ PRLETTERS-D-26-02906 - edit submission (Editorial Manager) - values to enter
 TITLE (sentence case, no abbreviations):
 When does spatial smoothing help anomaly scoring on lattices of embeddings? Fixed windows, similarity-weighted aggregation and order gates
 
-ABSTRACT (170 words, limit 200):
-Anomaly scores on lattices of embeddings, such as the patches of an image, are often smoothed over a fixed spatial window. On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed 3x3 mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. Aggregation weighted by the cosine similarity of the embeddings of neighboring sites, with a label-free scale, preserved scattered, bar-shaped, irregular and boundary anomalies: on independent test scenarios it raised the lower-tail average precision from 0.11 (fixed mean) and 0.23 (no smoothing) to 0.32, with paired 95% intervals above zero. Gates based on local order and on the von Mises-Fisher information of the neighborhood, a d-dimensional extension of MyUncle's entropy quantities, did not beat ordinary similarity; rank gates on that information coincide with gates on the resultant length. A GaaR search over 460 rule configurations did not beat random search. All evidence is simulated; code and results are open.
+ABSTRACT (190 words, limit 200):
+Anomaly scores on lattices of embeddings, such as the patches of an image, are often smoothed over a fixed spatial window. On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed 3x3 mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. Aggregation weighted by the cosine similarity of the embeddings of neighboring sites, with a label-free scale, preserved scattered, bar-shaped, irregular and boundary anomalies: on independent test scenarios it raised the lower-tail average precision from 0.11 (fixed mean) and 0.23 (no smoothing) to 0.32, with paired 95% intervals above zero. Gates based on local order and on the von Mises-Fisher information of the neighborhood, a d-dimensional extension of MyUncle's entropy quantities, did not beat ordinary similarity; rank gates on that information coincide with gates on the resultant length. A contrast-survival model, in which a fixed window keeps only the interior of an anomaly, predicted the loss (Spearman 0.82). A GaaR search over 460 rule configurations did not beat random search. All evidence is simulated; code and results are open.
 
 KEYWORDS:
 anomaly detection; spatial aggregation; embedding lattices; von Mises-Fisher distribution; orientational order; configuration search
 
 HIGHLIGHTS (3-5, <=85 characters each):
 - A fixed smoothing window can destroy anomaly signals, depending on their shape
+- Contrast survival: a fixed window keeps only the interior of an anomaly
 - Similarity-weighted aggregation beat fixed windows and no smoothing on fresh tests
 - Order and von Mises-Fisher gates did not beat plain embedding similarity
 - GaaR rule search was not better than random search at equal budget
-- d-dimensional MyUncle entropy extension verified; it does not drive detection

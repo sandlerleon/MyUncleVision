@@ -18,10 +18,10 @@ BT = OT["bootstrap"]
 NONE, MEAN, SIMW = "none", "frozen (mean 3)", "similarity-weighted (3), untuned"
 TITLE = "When does spatial smoothing help anomaly scoring on lattices of embeddings? Fixed windows, similarity-weighted aggregation and order gates"
 H = ["A fixed smoothing window can destroy anomaly signals, depending on their shape",
+     "Contrast survival: a fixed window keeps only the interior of an anomaly",
      "Similarity-weighted aggregation beat fixed windows and no smoothing on fresh tests",
      "Order and von Mises-Fisher gates did not beat plain embedding similarity",
-     "GaaR rule search was not better than random search at equal budget",
-     "d-dimensional MyUncle entropy extension verified; it does not drive detection"]
+     "GaaR rule search was not better than random search at equal budget"]
 assert all(len(h) <= 85 for h in H) and 3 <= len(H) <= 5, [len(h) for h in H]
 
 d = docx.Document()
@@ -50,7 +50,7 @@ P("Re: PRLETTERS-D-26-02906, revised submission", True)
 P("Dear Editor,")
 P("Thank you for the editorial office's message. In response, I have uploaded the Authorship Confirmation form as a Cover Letter item and have reformatted the manuscript to the journal's requirements (elsarticle layout, a length inside the seven-page limit including figures, tables and references, an abstract of fewer than 200 words, five highlights of at most 85 characters, author-year references, high-resolution figure files).")
 P("I have also changed the manuscript and its title. The first version, \"MyUncleVision: An Interpretable Lattice-Based Framework for Unsupervised Anomaly Discovery in Whole-Slide Histopathology Images\", was written around one application and was far over the page limit. The revised manuscript, \"%s\", asks a narrower question that applies to any lattice of embeddings: when does smoothing an anomaly score over a spatial window help?" % TITLE)
-P("The study is entirely computational. On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed 3x3 mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. "
+P("The study is entirely computational. On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed 3x3 mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings; a contrast-survival model (a fixed window keeps only the interior of an anomaly) predicted the loss across anomaly shapes. "
   "Aggregation weighted by the similarity of the embeddings of neighboring sites, with a label-free scale, preserved those anomalies: on ten independent test scenarios the lower-tail average precision rose from %.2f (fixed mean) and %.2f (no smoothing) to %.2f, and the paired 95%% intervals of the differences exclude zero. "
   "I state that similarity-weighted filtering is an established kind of edge-preserving filter; the contribution is the controlled failure analysis and the independent test, not the filter." % (F(MEAN), F(NONE), F(SIMW)))
 P("Two further results are negative and are reported as such. Gates based on local order and on the von Mises-Fisher information of the neighborhood (the d-dimensional extension of the entropy quantities of the MyUncle maintenance-lattice framework, which I verified against the unmodified code) did not beat ordinary similarity, and the manuscript says that the entropy quantities characterize local order but do not drive the detection. "
