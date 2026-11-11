@@ -143,6 +143,9 @@ CHEM_OG2 = [
 
 _SV = _json.load(open(os.path.join(RES, "og_survival.json")))
 _SV5 = _json.load(open(os.path.join(RES, "og_survival_w5.json")))
+_LF = _json.load(open(os.path.join(RES, "og_lfsurv.json")))
+_lr = _LF["rows"]
+assert _LF["lf_vs_ap_mean"]["rho"] > 0.5 and sum(x["ap_mean"] > x["ap_none"] for x in _lr) == 0 and all(x["ap_simw"] > x["ap_mean"] and x["ap_simw"] > x["ap_none"] for x in _lr)
 _thv = sum(r["theta"] for r in _SV["rows"]) / len(_SV["rows"])
 _kv = 9 * (_thv - _SV["r_n"]) / (_SV["r_a"] - _SV["r_n"])
 assert _SV["spearman_all"]["rho"] > 0.7 and _SV["spearman_test"]["rho"] > 0.7 and _kv > 8 and _SV["by_shape"]["scattered"]["phi"] == 0 and _SV["by_shape"]["bar8"]["phi"] == 0
@@ -152,6 +155,9 @@ CHEM_SURV = [
           "The fixed mean therefore preserves only the interior of an anomaly and erases anomalies thinner than the window; for a square block of side b the surviving share is ((b - w + 1)/b)^2, and for scattered sites and bars it is zero. The predicted share of surviving anomalous sites, computed from the true masks, correlated with the measured average precision of the fixed mean over the %d cohorts of the controlled generator (Spearman rho = %s; test cohorts only %s; 5 x 5 window %s). "
           "The model is explanatory (r_a and r_n were calibrated with labels on the development cohorts and it describes the fixed mean only); it also explains why similarity weighting works, since neighbors with dissimilar embeddings receive small weights."
           % (n(_SV["r_a"]), n(_SV["r_n"]), n(_thv), _kv, _SV["spearman_all"]["n"], n(_SV["spearman_all"]["rho"]), n(_SV["spearman_test"]["rho"]), n(_SV5["spearman_all"]["rho"]))),
+    ("p", "A label-free version replaces the masks by the score field itself: the candidates are the sites of the top 3%% of the unsmoothed rarity, and a candidate survives when all sites of its 3 x 3 window lie in the top 9%%. It correlated with the measured average precision of the fixed mean over the %d cohorts (Spearman rho = %s; test cohorts only %s) and with the label-based prediction (rho = %s). "
+          "It tracks the loss of the fixed mean only: it correlated negatively with the average precision of no smoothing and of similarity weighting (%s and %s). In this generator the fixed mean did not beat no smoothing in any cohort, while similarity weighting beat both in all %d (mean AP %s without smoothing, %s for the fixed mean, %s for similarity weighting), so a choice between the fixed mean and no smoothing based on the predictor is unnecessary once similarity weighting is used."
+          % (_SV["spearman_all"]["n"], n(_LF["lf_vs_ap_mean"]["rho"]), n(_LF["lf_vs_ap_mean_test"]["rho"]), n(_LF["lf_vs_label_phi"]["rho"]), n(_LF["lf_vs_ap_none"]["rho"]), n(_LF["lf_vs_ap_simw"]["rho"]), _SV["spearman_all"]["n"], n(_LF["mean_ap"]["none"]), n(_LF["mean_ap"]["mean"]), n(_LF["mean_ap"]["simw"]))),
     ("table", "Table 8. Contrast survival (window 3 x 3): predicted share of anomalous sites that survive the fixed mean and the measured average precision (AP) of the fixed mean (development and test cohorts).",
      ["Anomaly", "Predicted survival", "AP, fixed mean"],
      [[lab, "%.2f" % _SV["by_shape"][k2]["phi"], "%.2f" % _SV["by_shape"][k2]["ap_mean"]] for k2, lab in (("scattered", "Scattered sites"), ("block3", "3 x 3 blocks"), ("block6", "6 x 6 blocks"), ("bar8", "Bars of 8"), ("irregular12", "Irregular clusters (12)"), ("boundary3", "Boundary blocks 3 x 3"))],

@@ -466,6 +466,19 @@ def test_contrast_survival_is_the_interior_of_the_anomaly():
     assert E.survival_fraction(dot, valid, 1.0, 0.0, 0.5, 3) == 0.0
 
 
+def test_label_free_survival_predictor_separates_compact_from_scattered_candidates():
+    from myuncle_vision import og_extra as E
+    rng = np.random.default_rng(3)
+    valid = np.ones((30, 30), bool)
+    base = 0.3 * rng.random((30, 30))
+    comp = base.copy()
+    comp[10:16, 10:16] = 1.0                                       # one compact high-score region
+    spik = base.copy()
+    for y, x in ((3, 3), (3, 20), (12, 7), (20, 25), (25, 5), (27, 18), (8, 26), (17, 15), (22, 10)):
+        spik[y, x] = 1.0                                           # isolated spikes with the same number of high sites
+    assert E.label_free_survival(comp, valid, 0.04, 3.0, 3) > E.label_free_survival(spik, valid, 0.04, 3.0, 3)
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

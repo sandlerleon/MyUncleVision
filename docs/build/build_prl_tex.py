@@ -21,6 +21,7 @@ OT, OS, OG = J("og_test.json"), J("og_search.json"), J("og_grid_dev.json")
 GT = J("gaar_test.json")
 NG, CG = J("og_ngh.json"), J("og_closure.json")
 SV, SV5 = J("og_survival.json"), J("og_survival_w5.json")
+LF = J("og_lfsurv.json")
 R = OT["results"]
 BT = OT["bootstrap"]
 n2 = lambda x: "%.2f" % x
@@ -75,6 +76,15 @@ assert _kstar > 8 and _bs["scattered"]["phi"] == 0 and _bs["bar8"]["phi"] == 0 a
 assert max(_bs, key=lambda k: _bs[k]["phi"]) == "block6" and max(_bs, key=lambda k: _bs[k]["ap_mean"]) == "block6", "text: the 6 x 6 blocks survive best"
 _shape_lab = [("scattered", "Scattered sites"), ("block3", "$3\\times3$ blocks"), ("block6", "$6\\times6$ blocks"), ("bar8", "Bars of 8"), ("irregular12", "Irregular clusters (12)"), ("boundary3", "Boundary blocks $3\\times3$")]
 tabcs = (" \\\\\n").join(" & ".join([lab, n2(_bs[k]["phi"]), n2(_bs[k]["ap_mean"]), n2(float(np.mean(_apn[k])))]) for k, lab in _shape_lab) + " \\\\"
+_lr = LF["rows"]
+_dv = [x for x in _lr if x["split"] == "dev"]
+_ts = [x for x in _lr if x["split"] == "test"]
+_best = max(sorted({round(x["phi_lf"], 3) for x in _dv}), key=lambda t: np.mean([x["ap_mean"] if x["phi_lf"] >= t else x["ap_none"] for x in _dv]))
+_choice = float(np.mean([x["ap_mean"] if x["phi_lf"] >= _best else x["ap_none"] for x in _ts]))
+_apnt = float(np.mean([x["ap_none"] for x in _ts]))
+assert LF["lf_vs_ap_mean"]["rho"] > 0.5 and LF["lf_vs_ap_mean_test"]["rho"] > 0.45 and LF["lf_vs_ap_simw"]["rho"] < 0 and LF["lf_vs_ap_none"]["rho"] < 0, "text: the label-free predictor tracks the fixed mean and correlates negatively with the AP of none and simw"
+assert sum(x["ap_mean"] > x["ap_none"] for x in _lr) == 0 and all(x["ap_simw"] > x["ap_mean"] and x["ap_simw"] > x["ap_none"] for x in _lr), "text: the fixed mean never beat no smoothing; simw beat both in every cohort"
+assert _choice <= _apnt + 0.01, "text: the predictor-based choice did not beat no smoothing"
 rows = [(NONE, "No smoothing"), (MEAN, "Fixed $3\\times3$ mean (frozen)"), (SIMW, "Similarity-weighted $3\\times3$ (untuned)"), (GAR, "GaaR / random-search champion"), (ONE, "One-sided (dev-selected)"), (OGC, "Order gate, compatibility (dev)"), (OGV, "Order gate, $R_i$ or $H_\\chi$ (dev)")]
 tabap = (" \\\\\n").join(" & ".join([lab] + [n2(ap(c, k)) for k in ("H", "D", "R", "RD", "SC", "B3", "B6", "BAR", "IRR", "BND")] + ["%s [%s, %s]" % (n2(F(c)), n2(BT[c]["fitness_ci"][0]), n2(BT[c]["fitness_ci"][1]))]) for c, lab in rows) + " \\\\"
 
@@ -126,6 +136,8 @@ V = dict(
     CG_CHOICE=n2(CG["test_mean_ap"]["retention_choice"]), CG_NONE=n2(CG["test_mean_ap"]["always_none"]), CG_ORACLE=n2(CG["test_mean_ap"]["oracle"]), CG_SIMW=n2(CG["test_mean_ap"]["always_simw"]),
     RG_NONE=n2(_rng(NONE)), RG_MEAN=n2(_rng(MEAN)), RG_SIMW=n2(_rng(SIMW)),
     CS_RA=n2(SV["r_a"]), CS_RN=n2(SV["r_n"]), CS_TH=n2(_th), CS_K="%.1f" % _kstar, CS_N=str(SV["spearman_all"]["n"]), CS_RHO=n2(SV["spearman_all"]["rho"]), CS_RHOT=n2(SV["spearman_test"]["rho"]), CS_RHO5=n2(SV5["spearman_all"]["rho"]), TABCS=tabcs,
+    LF_RHO=n2(LF["lf_vs_ap_mean"]["rho"]), LF_RHOT=n2(LF["lf_vs_ap_mean_test"]["rho"]), LF_RHO2=n2(LF["sensitivity"]["2.0"]), LF_RHO5=n2(LF["sensitivity"]["5.0"]), LF_LAB=n2(LF["lf_vs_label_phi"]["rho"]),
+    LF_NONE=sg(LF["lf_vs_ap_none"]["rho"]), LF_SIMW=sg(LF["lf_vs_ap_simw"]["rho"]), LF_APN=n2(LF["mean_ap"]["none"]), LF_APM=n2(LF["mean_ap"]["mean"]), LF_APS=n2(LF["mean_ap"]["simw"]), LF_CH=n2(_choice), LF_APNT=n2(_apnt),
     OLD_DIFF=sg(_old), OLD_CI=cif(_oci), TEST_UNITS="16 to 50",
 )
 s = open(os.path.join(HERE, "prl_template.tex.in"), encoding="utf-8").read()

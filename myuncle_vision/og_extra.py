@@ -9,6 +9,7 @@
     python -m myuncle_vision.og_extra ngh        -> results/og_ngh.json
     python -m myuncle_vision.og_extra closure    -> results/og_closure.json
     python -m myuncle_vision.og_extra survival   -> results/og_survival.json
+    python -m myuncle_vision.og_extra lfsurv     -> results/og_lfsurv.json   (label-free survival predictor)
 """
 import itertools
 import json
@@ -102,6 +103,54 @@ def survival_fraction(mask, valid, r_a, r_n, theta, w=3):
     return float(np.mean(pred[sel] > theta)) if sel.any() else float("nan")
 
 
+def label_free_survival(r, valid, q=0.03, m=3.0, w=3):
+    """label-free predictor of the contrast survival of the fixed w x w mean: the candidates are the sites of the top q of the unsmoothed rarity r; a candidate 'survives' when every site of its window
+    is within the top m q of r (the same idea as the model, with the labels replaced by the score field itself: the interior of the candidate set).  Returns the share of candidates that survive."""
+    from scipy.ndimage import minimum_filter
+    ok = valid & np.isfinite(r)
+    hi = np.quantile(r[ok], 1.0 - q)
+    lo = np.quantile(r[ok], 1.0 - min(m * q, 0.99))
+    cand = ok & (r >= hi)
+    within = np.where(ok, r >= lo, True)
+    all_in = minimum_filter(within.astype(np.uint8), size=w, mode="constant", cval=0).astype(bool)
+    return float(np.mean(all_in[cand])) if cand.any() else float("nan")
+
+
+def run_lfsurv(out, q=0.03, w=3):
+    sv = json.load(open("results/og_survival.json"))
+    key = {(r["scenario"], r["cohort"]): r for r in sv["rows"]}
+    dev, test = O.load_cache("dev"), O.load_cache("test")
+    rows = []
+    for split, scs in (("dev", dev), ("test", test)):
+        for sc in scs:
+            if sc["kind"] != "morph":
+                continue
+            for ci, items in enumerate(sc["cohorts"]):
+                tau = G.estimate_tau([it["U"] for it in items], [it["valid"] for it in items])
+                ap = {}
+                for nm, g in (("none", ("none", 1)), ("mean", ("mean", 3)), ("simw", ("simw", 3))):
+                    sc_l = G.cohort_apply(items, g[0], g[1], 0, 0, 0, tau)
+                    y = np.concatenate([it["y"][it["sel"] & np.isfinite(s)] for it, s in zip(items, sc_l)])
+                    f = np.concatenate([s[it["sel"] & np.isfinite(s)] for it, s in zip(items, sc_l)])
+                    ap[nm] = float(average_precision_score(y, f))
+                est = {m_: float(np.nanmean([label_free_survival(it["r"], it["valid"], q, m_, w) for it in items])) for m_ in (2.0, 3.0, 5.0)}
+                rows.append(dict(split=split, scenario=sc["name"], cohort=ci, phi_label=key[(sc["name"], ci)]["phi"], phi_lf=est[3.0], phi_lf_m2=est[2.0], phi_lf_m5=est[5.0], **{"ap_" + k: v for k, v in ap.items()}))
+    arr = lambda k: np.array([r[k] for r in rows])
+    te = [r for r in rows if r["split"] == "test"]
+    sp = lambda a, b, rs=rows: spearmanr([r[a] for r in rs], [r[b] for r in rs])
+    res = dict(q=q, m=3.0, window=w, rows=rows,
+               lf_vs_ap_mean=dict(rho=float(sp("phi_lf", "ap_mean").correlation), p=float(sp("phi_lf", "ap_mean").pvalue), n=len(rows)),
+               lf_vs_ap_mean_test=dict(rho=float(sp("phi_lf", "ap_mean", te).correlation), p=float(sp("phi_lf", "ap_mean", te).pvalue), n=len(te)),
+               lf_vs_label_phi=dict(rho=float(sp("phi_lf", "phi_label").correlation)),
+               lf_vs_ap_simw=dict(rho=float(sp("phi_lf", "ap_simw").correlation), p=float(sp("phi_lf", "ap_simw").pvalue)),
+               lf_vs_ap_none=dict(rho=float(sp("phi_lf", "ap_none").correlation), p=float(sp("phi_lf", "ap_none").pvalue)),
+               sensitivity={m_: float(sp(k, "ap_mean").correlation) for m_, k in ((2.0, "phi_lf_m2"), (3.0, "phi_lf"), (5.0, "phi_lf_m5"))},
+               mean_ap=dict(none=float(arr("ap_none").mean()), mean=float(arr("ap_mean").mean()), simw=float(arr("ap_simw").mean())))
+    json.dump(res, open(out, "w"), indent=1)
+    print({k: v for k, v in res.items() if k != "rows"})
+    return res
+
+
 def run_survival(out, q=0.03, w=3):
     """contrast-survival model of the fixed w x w mean.  Normal sites have rarity ranks with mean r_n, anomalous sites r_a (calibrated on the development cohorts, with labels).  After the mean a site with k anomalous
     sites among its n valid window sites scores (k r_a + (n - k) r_n)/n; it stays detectable when that exceeds the cohort's own top-q threshold theta of the smoothed scores (label-free).  The model's prediction is the share
@@ -159,6 +208,8 @@ if __name__ == "__main__":
         run_ngh("results/og_ngh.json")
     elif sys.argv[1] == "closure":
         run_closure("results/og_closure.json")
+    elif sys.argv[1] == "lfsurv":
+        run_lfsurv("results/og_lfsurv.json")
     elif sys.argv[1] == "survival":
         w_ = int(sys.argv[2]) if len(sys.argv) > 2 else 3
         run_survival("results/og_survival.json" if w_ == 3 else "results/og_survival_w%d.json" % w_, w=w_)
