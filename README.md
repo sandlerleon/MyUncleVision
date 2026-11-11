@@ -61,6 +61,10 @@ decide the top fraction that counts as a candidate (`--q`); and run the baseline
 
 `myuncle_vision/gaar_opt.py` uses [GaaR](https://github.com/sandlerleon/GaaR) (vendored unmodified) to select a configuration of the score (smoothing type and window, axis weights, PCA dimension, largest rarity scale) on labeled development scenarios and tests the champions on fresh scenarios; see [docs/GAAR.md](docs/GAAR.md). It is supervised selection, not label-free adaptation; in the reported fresh test the gain of the selected configuration was not distinguishable from zero (paired 95% interval) and a random-search champion also beat the default, so any gain belongs to the configuration, not to the search algorithm. A controlled study on an independent generator (`myuncle_vision/morphology.py`) found that lattice smoothing hurt at every anomaly size, least for compact anomalies. The smoothing options (`smooth_type`, `smooth_window`) are available in `Config`; the defaults are unchanged.
 
+## Spatial aggregation of anomaly scores
+
+A fixed smoothing window can destroy an anomaly signal (scattered and bar-shaped anomalies); aggregation weighted by embedding similarity (an established edge-preserving filter, with a label-free scale) preserved it on independent test scenarios, while gates on local order and on the von Mises-Fisher information did not beat ordinary similarity. Rules: `myuncle_vision/gating.py`; protocol and search: `og_study.py`; independent generator: `morphology.py`; details and reproduction: [docs/AGGREGATION.md](docs/AGGREGATION.md).
+
 ## Models and files
 
 | File | Function | Trained? |

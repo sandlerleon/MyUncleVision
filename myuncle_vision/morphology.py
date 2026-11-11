@@ -28,8 +28,33 @@ CONFIGS = {
 }
 
 
-def make_lattice(seed, n=32, d=16, prevalence=0.03, block=1, shift=3.0, domains=4, noise=1.0, domain_scale=1.5):
-    """one embedding lattice: (n, n, d) embeddings and the (n, n) boolean anomaly mask"""
+def _pixels(rng, shape, size, n, dom):
+    """coordinates of one anomaly of the given shape: block (size x size), bar (1 x size, either orientation), irregular (random-walk cluster of `size` sites), boundary (3 x 3 block on a domain boundary)"""
+    if shape == "block":
+        y, x = rng.integers(0, n - size + 1), rng.integers(0, n - size + 1)
+        return [(y + i, x + j) for i in range(size) for j in range(size)]
+    if shape == "bar":
+        horiz = rng.random() < 0.5
+        y, x = (rng.integers(0, n), rng.integers(0, n - size + 1)) if horiz else (rng.integers(0, n - size + 1), rng.integers(0, n))
+        return [(y, x + k) for k in range(size)] if horiz else [(y + k, x) for k in range(size)]
+    if shape == "irregular":
+        cur = {(int(rng.integers(2, n - 2)), int(rng.integers(2, n - 2)))}
+        while len(cur) < size:
+            y, x = list(cur)[int(rng.integers(0, len(cur)))]
+            dy, dx = [(1, 0), (-1, 0), (0, 1), (0, -1)][int(rng.integers(0, 4))]
+            if 0 <= y + dy < n and 0 <= x + dx < n:
+                cur.add((y + dy, x + dx))
+        return list(cur)
+    if shape == "boundary":
+        edge = np.argwhere((dom != np.roll(dom, -1, 0)) | (dom != np.roll(dom, -1, 1)))
+        edge = edge[(edge[:, 0] > 1) & (edge[:, 0] < n - 2) & (edge[:, 1] > 1) & (edge[:, 1] < n - 2)]
+        y, x = edge[int(rng.integers(0, len(edge)))]
+        return [(y + i, x + j) for i in (-1, 0, 1) for j in (-1, 0, 1)]
+    raise ValueError(shape)
+
+
+def make_lattice(seed, n=32, d=16, prevalence=0.03, block=1, shift=3.0, domains=4, noise=1.0, domain_scale=1.5, shape="block"):
+    """one embedding lattice: (n, n, d) embeddings and the (n, n) boolean anomaly mask.  `block` is the size of the anomaly (side of a square, length of a bar, number of sites of an irregular cluster)"""
     rng = np.random.default_rng(seed)
     # background: smooth spatial domains (nearest of a few random centers) with different embedding means
     cent = rng.uniform(0, n, (domains, 2))
@@ -37,19 +62,23 @@ def make_lattice(seed, n=32, d=16, prevalence=0.03, block=1, shift=3.0, domains=
     yy, xx = np.mgrid[0:n, 0:n]
     dom = np.argmin((yy[..., None] - cent[:, 0]) ** 2 + (xx[..., None] - cent[:, 1]) ** 2, axis=-1)
     X = means[dom] + rng.normal(0, noise, (n, n, d))
-    # anomalies: block x block squares, total prevalence fixed
-    k = max(1, int(round(prevalence * n * n / (block * block))))
+    area = {"block": block * block, "bar": block, "irregular": block, "boundary": 9}[shape]
+    k = max(1, int(round(prevalence * n * n / area)))
     mask = np.zeros((n, n), bool)
     placed, tries = 0, 0
-    while placed < k and tries < 5000:
+    while placed < k and tries < 20000:
         tries += 1
-        y, x = rng.integers(0, n - block + 1), rng.integers(0, n - block + 1)
-        if mask[max(0, y - 1):y + block + 1, max(0, x - 1):x + block + 1].any():
+        px = _pixels(rng, shape, block, n, dom)
+        ys, xs = [p[0] for p in px], [p[1] for p in px]
+        if min(ys) < 0 or min(xs) < 0 or max(ys) >= n or max(xs) >= n:
             continue
-        mask[y:y + block, x:x + block] = True
-        u = rng.normal(0, 1, d)                          # every block has its own direction: the anomalies are diverse, not one recurring state
+        if mask[max(0, min(ys) - 1):max(ys) + 2, max(0, min(xs) - 1):max(xs) + 2].any():
+            continue
+        u = rng.normal(0, 1, d)                          # every anomaly has its own direction: the anomalies are diverse, not one recurring state
         u /= np.linalg.norm(u)
-        X[y:y + block, x:x + block] += shift * u
+        for y, x in px:
+            mask[y, x] = True
+            X[y, x] += shift * u
         placed += 1
     return X, mask
 

@@ -1,0 +1,156 @@
+{
+ "n_configs": 864,
+ "n_unique": 460,
+ "budget": 40,
+ "repeats": 100,
+ "optimum": 0.40769859785507234,
+ "strategies": {
+  "greedy": {
+   "median_best": 0.4075595296325192,
+   "mean_best": 0.3822946896739791,
+   "hit_top1pct": 0.53,
+   "hit_top5pct": 0.7,
+   "champion_seed0": {
+    "rule": "simw",
+    "window": 3,
+    "theta": 0.4,
+    "alpha": 2.0,
+    "lam": 0.5
+   },
+   "best_score_seed0": 0.4073278790184275
+  },
+  "restart": {
+   "median_best": 0.4075595296325192,
+   "mean_best": 0.393672789496635,
+   "hit_top1pct": 0.58,
+   "hit_top5pct": 0.81,
+   "champion_seed0": {
+    "rule": "simw",
+    "window": 3,
+    "theta": 0.4,
+    "alpha": 2.0,
+    "lam": 0.5
+   },
+   "best_score_seed0": 0.4073278790184275
+  },
+  "population": {
+   "median_best": 0.40744370432547333,
+   "mean_best": 0.39950401906974803,
+   "hit_top1pct": 0.59,
+   "hit_top5pct": 0.8,
+   "champion_seed0": {
+    "rule": "og_cos",
+    "window": 3,
+    "theta": 0.2,
+    "alpha": 5.0,
+    "lam": 0.5
+   },
+   "best_score_seed0": 0.40769859785507234
+  },
+  "random": {
+   "median_best": 0.4073278790184275,
+   "mean_best": 0.403026374380371,
+   "hit_top1pct": 0.67,
+   "hit_top5pct": 0.94,
+   "champion_seed0": {
+    "rule": "simw",
+    "window": 3,
+    "theta": 0.4,
+    "alpha": 10.0,
+    "lam": 0.5
+   },
+   "best_score_seed0": 0.4073278790184275
+  }
+ },
+ "optimum_config": {
+  "alpha": 5.0,
+  "lam": 0.5,
+  "rule": "og_cos",
+  "theta": 0.2,
+  "window": 3
+ },
+ "frozen_fitness": 0.13150255056651475,
+ "frozen_rank": 455,
+ "family_champions": {
+  "none": {
+   "config": {
+    "alpha": 0.0,
+    "lam": 0.0,
+    "rule": "none",
+    "theta": 0.0,
+    "window": 1
+   },
+   "dev_fitness": 0.3020457093672026
+  },
+  "mean": {
+   "config": {
+    "alpha": 0.0,
+    "lam": 0.5,
+    "rule": "mean",
+    "theta": 0.0,
+    "window": 3
+   },
+   "dev_fitness": 0.179921595923118
+  },
+  "simw": {
+   "config": {
+    "alpha": 0.0,
+    "lam": 0.25,
+    "rule": "simw",
+    "theta": 0.0,
+    "window": 3
+   },
+   "dev_fitness": 0.4075595296325192
+  },
+  "onesided": {
+   "config": {
+    "alpha": 0.0,
+    "lam": 0.25,
+    "rule": "onesided",
+    "theta": 0.0,
+    "window": 3
+   },
+   "dev_fitness": 0.3148498640419155
+  },
+  "og_cos": {
+   "config": {
+    "alpha": 5.0,
+    "lam": 0.5,
+    "rule": "og_cos",
+    "theta": 0.2,
+    "window": 3
+   },
+   "dev_fitness": 0.40769859785507234
+  },
+  "og_disorder": {
+   "config": {
+    "alpha": 2.0,
+    "lam": 0.5,
+    "rule": "og_disorder",
+    "theta": 0.2,
+    "window": 3
+   },
+   "dev_fitness": 0.39049208927813917
+  },
+  "og_vmf": {
+   "config": {
+    "alpha": 2.0,
+    "lam": 0.5,
+    "rule": "og_vmf",
+    "theta": 0.2,
+    "window": 3
+   },
+   "dev_fitness": 0.3904920894883125
+  },
+  "onesided_gate": {
+   "config": {
+    "alpha": 10.0,
+    "lam": 0.5,
+    "rule": "onesided_gate",
+    "theta": 0.4,
+    "window": 3
+   },
+   "dev_fitness": 0.3159270609520969
+  }
+ }
+}

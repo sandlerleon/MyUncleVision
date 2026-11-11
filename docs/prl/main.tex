@@ -12,181 +12,129 @@
 \begin{document}
 \begin{frontmatter}
 
-\title{Order and entropy of lattices of unit vectors in d dimensions: label-free discovery of unusual local organization in simulated lattices and synthetic images}
+\title{When does spatial smoothing help anomaly scoring on lattices of embeddings? Fixed windows, similarity-weighted aggregation and order gates}
 
 \author[a]{Leon Sandler\corref{cor1}}
 \cortext[cor1]{Corresponding author. e-mail: sandler.leon@gmail.com; ORCID 0009-0007-4584-808X}
 \address[a]{Independent Researcher, Northbrook, IL, USA}
 
 \begin{abstract}
-Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in $d$ dimensions (von Mises--Fisher distribution); they equal MyUncle's at $d=2$. On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with four baselines, with settings frozen before the held-out data. Smoothing the score over the lattice raised spatial coherence on synthetic images and, with DINOv2 embeddings, average precision, but it lowered average precision on simulated MyUncle lattices; in a controlled study on an independent generator it hurt at every anomaly size, least for compact anomalies. A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from 0.18 to 0.26, but the paired interval of the difference included zero and random search also beat the default, so any gain belongs to the selected configuration, not to the search. All evidence is simulated; code and results are open.
+Anomaly scores on lattices of embeddings, such as the patches of an image, are often smoothed over a fixed spatial window. On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed $3\times3$ mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. Aggregation weighted by the cosine similarity of the embeddings of neighboring sites, with a label-free scale, preserved scattered, bar-shaped, irregular and boundary anomalies: on independent test scenarios it raised the lower-tail average precision from 0.11 (fixed mean) and 0.23 (no smoothing) to 0.32, with paired 95\% intervals above zero. Gates based on local order and on the von Mises--Fisher information of the neighborhood, a $d$-dimensional extension of MyUncle's entropy quantities, did not beat ordinary similarity; rank gates on that information coincide with gates on the resultant length. A GaaR search over 460 rule configurations did not beat random search. All evidence is simulated; code and results are open.
 \end{abstract}
 
 \begin{keyword}
-lattice models \sep von Mises--Fisher distribution \sep orientational order \sep entropy \sep unsupervised anomaly detection \sep spatial smoothing
+anomaly detection \sep spatial aggregation \sep embedding lattices \sep von Mises--Fisher distribution \sep orientational order \sep configuration search
 \end{keyword}
 
 \end{frontmatter}
 
 \section{Introduction}
-Many pattern recognition problems put a vector on every site of a grid: orientation fields of ordered media, and embeddings of the patches of an image. Averaged order parameters say how ordered such a lattice is, not where its organization is unusual. Finding unusual local organization without labels, and saying how unusual it is in the language of order and entropy, is the problem addressed here. Unsupervised anomaly detection has been developed in other fields: in astronomy for large surveys \citep{Baron2017,Lochner2021}, and in medical imaging mostly as detection of deviation from a healthy appearance with generative models \citep{Schlegl2019}.
+Many pattern recognition problems put a vector on every site of a grid: the embeddings of the patches of an image, or the orientation field of an ordered medium. A common way to turn per-site anomaly scores into regions is to smooth them over a fixed window, which suppresses isolated false alarms. We ask when that helps. Unsupervised anomaly detection has been developed for large surveys in astronomy \citep{Baron2017,Lochner2021} and in medical imaging, mostly as detection of deviation from a healthy appearance \citep{Schlegl2019}; spatial aggregation of the scores is a routine post-processing step, and its failure modes are rarely measured.
 
-MyUncle \citep{MyUncle2026} is a simulation framework for a maintenance lattice: rotors on a square lattice whose order is eroded by a state-dependent flux and restored by repair, with an order-entropy bridge that links the length of the neighbors' mean unit vector to a von Mises entropy. This paper makes four contributions. (1) It extends the local order and entropy quantities from the plane to unit vectors in $d$ dimensions (the von Mises--Fisher distribution) and verifies that they equal MyUncle's at $d=2$ against the unmodified code. (2) It builds a label-free score that judges the rarity of the state of a site at several prevalence scales and smooths it over the lattice. (3) It tests the score, with frozen settings and four baselines, on lattices simulated with MyUncle (damaged sites as ground truth) and on synthetic stained-tissue images, where the sites are image patches described by an embedding; the results are mixed and are reported as such. (4) It studies a supervised configuration search with GaaR \citep{GaaR2026} on fresh test scenarios, and provides an open pipeline \citep{MyUncleVision2026}. All evidence is simulated; no experimental image was analyzed.
+MyUncle \citep{MyUncle2026} is a simulation framework for a maintenance lattice (rotors whose order is eroded by a state-dependent flux and restored by repair) with an order-entropy bridge. This paper uses its lattices as a testbed and its order quantities as a candidate gate. Contributions: (1) a controlled failure analysis, on lattices simulated with MyUncle, on synthetic images and on an independent generator that varies only the size and shape of the anomalies, showing that a fixed window can destroy the signal; (2) aggregation weighted by the similarity of the embeddings of neighboring sites, with a label-free scale, which preserved scattered, bar-shaped, irregular and boundary anomalies on independent test scenarios, with paired confidence intervals; (3) a negative result for gates based on local order and on the von Mises--Fisher information of the neighborhood (the $d$-dimensional extension of MyUncle's entropy quantities, verified against the unmodified code), which did not beat ordinary similarity; (4) a comparison of GaaR \citep{GaaR2026}, an evolutionary search framework, with random search for selecting among rule configurations; and (5) an open pipeline \citep{MyUncleVision2026}. All evidence is simulated; no experimental image was analyzed.
 
-\section{Order and entropy of a lattice of unit vectors}
-Let $u_j$ be the unit vector at site $j$ of a lattice, $N_i$ the valid neighbors of site $i$ (four, on a square lattice), and $d$ the dimension of the vectors. MyUncle's local disorder is one minus the length of the mean of the neighbors' unit vectors; the same definition holds in any dimension:
-\begin{equation}
-R_i=\Bigl|\tfrac{1}{|N_i|}\textstyle\sum_{j\in N_i}u_j\Bigr|,\qquad D_i=1-R_i .
-\end{equation}
-The concentration $\kappa_i$ of the von Mises--Fisher distribution on $S^{d-1}$ \citep{Banerjee2005,Mardia2000} with mean resultant length $R_i$ solves
-\begin{equation}
-A_d(\kappa)=\frac{I_{d/2}(\kappa)}{I_{d/2-1}(\kappa)}=R_i ,
-\end{equation}
-and the entropy of that distribution and the information held in the local order are
-\begin{equation}
-\begin{split}
-S_{\mathrm{vMF}}(\kappa,d)&=-\bigl(\tfrac d2-1\bigr)\ln\kappa+\tfrac d2\ln(2\pi)\\&\quad+\ln I_{d/2-1}(\kappa)-\kappa A_d(\kappa),
-\end{split}\qquad H_\chi=S_{\mathrm{unif}}-S_{\mathrm{vMF}},
-\end{equation}
-with $S_{\mathrm{unif}}$ the entropy of the uniform distribution on the sphere. For $d=2$ these are MyUncle's $U=A(\kappa)=I_1/I_0$, $S(\kappa)$ and $H_\chi$. The tests compare them with the vendored, unmodified core (Fig.~\ref{fig:bridge}): the local disorder on a periodic lattice agrees to $10^{-12}$ and the entropy to $10^{-9}$. With a neighborhood of four sites the resultant length is a noisy estimate of the local order; this is a stated limitation.
+\section{Scores and aggregation rules}
+\subsection{Rarity score}
+Each site $i$ carries a unit vector $u_i$. For images, a patch is a $224\times224$ px window (0.5~$\mu$m/px) encoded by DINOv2 ViT-S/14 \citep{Oquab2023} (384-d, pretrained on natural images) or by a deterministic handcrafted encoder of color, gradient-orientation and texture statistics (64-d; \citealp{Ruifrok2001}); embeddings are centered, reduced by a cohort PCA (16 components; \citealp{Pedregosa2011}) and normalized. For simulated lattices the vector is the rotor $(\cos\theta,\sin\theta)$, optionally with the local disorder as a third coordinate; the intact flag is never part of it. The rarity $r_i$ is the cohort percentile of the mean cosine distance to the $k$ nearest sites of a reference sample (same-image neighbors within six steps excluded), evaluated with $k$ equal to 0.5, 1, 2, 5 and 10\% of the sample, the highest rank counting, because the prevalence of an interesting state is not known in advance.
 
-\begin{figure*}[t]
+\subsection{Aggregation rules}
+A rule turns $r$ into the final score $s$ using the lattice neighbors $N_i$ in a $w\times w$ window and the unit embeddings, never labels. The frozen configuration of earlier versions of this work is the fixed mean, $s_i=|W_i|^{-1}\sum_{j\in W_i}r_j$ with $w=3$. Similarity-weighted aggregation weights each neighbor by the compatibility of its embedding with that of site $i$,
+\begin{equation}
+c_{ij}=\exp\!\bigl(-(1-u_i^{\top}u_j)/\tau\bigr),\qquad s_i=\frac{\sum_{j\in W_i}c_{ij}\,r_j}{\sum_{j\in W_i}c_{ij}},
+\end{equation}
+with $\tau$ the median of $1-u_i^\top u_j$ over lattice-adjacent pairs of the cohort (label-free, no free parameter). It is an edge-preserving filter in embedding space of the bilateral kind; we make no claim to its novelty. Gated variants mix the unsmoothed and the aggregated score, $s_i=(1-g_i)r_i+g_i\,s^{\mathrm{sim}}_i$ with $g_i=\sigma(\alpha(A_i-\vartheta))$, where $A_i$ is the cohort rank of a local statistic of the neighbors of $i$: the mean compatibility $c_{ij}$, the resultant length $R_i$ (one minus MyUncle's local disorder) or the von Mises--Fisher order information $H_\chi$. A one-sided rule, $s_i=r_i+\max(0,m_i-r_i)$ with $m_i$ the similarity-weighted mean over the neighbors, lets neighbors add evidence but never remove it; it adapts the asymmetric damping of a flowmeter estimation paper by the author \citep{Sandler2026d}. An optional persistence factor multiplies $s$ by $(1-\lambda)+\lambda P_i$, where $P_i$ is the share of the windows 1, 3, 5, 7 at which the score exceeds its cohort top-3\% threshold.
+
+\subsection{Order and entropy}
+MyUncle's local disorder is $D_i=1-R_i$ with $R_i=\bigl|\tfrac{1}{|N_i|}\sum_{j\in N_i}u_j\bigr|$, valid in any dimension. The concentration $\kappa_i$ of the von Mises--Fisher distribution on $S^{d-1}$ \citep{Banerjee2005,Mardia2000} with mean resultant length $R_i$ solves $A_d(\kappa)=I_{d/2}(\kappa)/I_{d/2-1}(\kappa)=R_i$, and the information held in the local order is $H_\chi=S_{\mathrm{unif}}-S_{\mathrm{vMF}}(\kappa,d)$ with
+\begin{equation}
+S_{\mathrm{vMF}}=-\bigl(\tfrac d2-1\bigr)\ln\kappa+\tfrac d2\ln(2\pi)+\ln I_{d/2-1}(\kappa)-\kappa A_d(\kappa).
+\end{equation}
+For $d=2$ these are MyUncle's quantities; the tests agree with the unmodified core to $10^{-12}$ (disorder) and $10^{-9}$ (entropy; Fig.~\ref{fig:bridge}). These are a mathematical characterization of local order. $H_\chi$ is a monotone function of $R_i$, so a gate on the \emph{rank} of $H_\chi$ is identical to a gate on the rank of $R_i$; the detector's behavior below comes from the rarity score and the aggregation rule, not from the entropy.
+
+\begin{figure}[t]
 \centering
-\includegraphics[width=0.72\textwidth]{fig_bridge.png}
-\caption{(a) The order-information bridge in $d$ dimensions, per dimension: MyUncle's $H_\chi$ ($d=2$, red) and the von Mises--Fisher generalization for $d=2$, 16, 64 and 384. (b) Difference between the $d=2$ entropy and the vendored MyUncle function.}
+\includegraphics[width=0.95\columnwidth]{fig_bridge.png}
+\caption{(a) The order-information bridge in $d$ dimensions: MyUncle's $H_\chi$ ($d=2$, red) and the von Mises--Fisher generalization for $d=2$, 16, 64 and 384. (b) Difference between the $d=2$ entropy and the vendored MyUncle function.}
 \label{fig:bridge}
-\end{figure*}
-
-\section{A label-free score on the lattice}
-\textbf{Embeddings.} For images, a patch is a $224\times224$ px window (0.5~$\mu$m/px) of the image; it is encoded either by DINOv2 ViT-S/14 \citep{Oquab2023} (384-d, pretrained on natural images, no fine-tuning) or by a deterministic handcrafted encoder of color, gradient-orientation and texture statistics (64-d) built on color deconvolution \citep{Ruifrok2001}. Embeddings are centered, reduced by a cohort PCA (16 components, scikit-learn; \citealp{Pedregosa2011}) and normalized to unit length. For simulated lattices the vector of a site is the rotor $(\cos\theta,\sin\theta)$, optionally with the local disorder $D$ as a third coordinate; the intact flag is never part of it.
-
-\textbf{Score.} Appearance rarity $p_{\mathrm{emb}}$ is the cohort percentile of the mean cosine distance to the $k$ nearest sites of a reference sample of the cohort (same-image neighbors within six lattice steps excluded). Because the prevalence of an interesting state is not known in advance, it is evaluated with $k$ equal to 0.5, 1, 2, 5 and 10\% of the reference sample and the highest rank counts. Two further rank-based axes, state-wise disorder $p_{\mathrm{het}}$ (the rank of $D_i$ among sites of the same $k$-means prototype state) and contact rarity $p_{\mathrm{adj}}$ (the rarity of the states a site touches), are diagnostics. The novelty of a site is the mean over its $3\times3$ lattice window $W_i$ of a weighted probabilistic OR of the axes,
-\begin{equation}
-N_i=\tfrac{1}{|W_i|}\textstyle\sum_{j\in W_i}q_j,\quad q_j=1-\prod_{a}(1-p_{a,j})^{w_a},
-\end{equation}
-with the frozen weights $(w_{\mathrm{emb}},w_{\mathrm{het}},w_{\mathrm{adj}})=(1,0,0)$: the default score is the smoothed multi-scale appearance rarity. The disorder and contact axes were part of the original design; they are kept as options because their effect depended on the embedding (Section~\ref{sec:res}). Candidates are the top fraction of $N_i$; connected candidates form regions, clustered across images into ranked findings with explanations made of measured numbers. \citet{MyUncleVision2026} gives the pipeline, including a bridge that simulates any MyUncle preset and analyzes its states.
+\end{figure}
 
 \section{Evaluation design}
-All settings of the score were frozen on development data (\texttt{results/frozen\_settings.json}, written before the held-out data existed), and the held-out data were evaluated once. The baselines are isolation forest, local outlier factor, nearest-neighbor distance ($k=10$) and Mahalanobis distance on the same embeddings, each raw and smoothed in the same way as the proposed score (percentile rank, then the $3\times3$ window); implementations are from scikit-learn. Metrics are AUROC and average precision (AP) against the ground truth; for the top 3\% of scores on images, the spatial coherence (the share in connected groups of at least three patches) and the region recall (planted instances containing a candidate).
+\textbf{Scenarios.} (i) Synthetic stained-tissue images ($4480\times4480$ px; tubule-like rings, glomerulus-like discs, vessels, stain variation, planted anomalies and artifacts; 8 development and 16 held-out images, the latter with three anomaly types not used in development), each with the handcrafted and the DINOv2 embedding. (ii) Lattices simulated with MyUncle's kinetic Monte Carlo (unmodified core; $48\times48$ sites, snapshots at steps 20, 40, 60, damaged sites as ground truth), with the rotor and rotor + $D$ embeddings; the development preset is chiral scaffold, the test presets are superconducting scaffold, polymer photodegradation, liquid crystal and magnetic storage decay, which are model parameter sets, not fitted to measurements. (iii) A controlled generator of embedding lattices ($32\times32$ sites, 16 dimensions, smooth background domains, 3\% anomalous sites of fixed separability, 10 images per cohort, 5 cohorts) in which only the anomaly changes: scattered single sites, $3\times3$ and $6\times6$ blocks, bars of 8 sites, irregular 12-site clusters, and $3\times3$ blocks on domain boundaries; each anomaly has its own direction; the separability was calibrated beforehand on the unsmoothed score only. Development and test scenarios use disjoint seeds, and the test images and lattices are new.
 
-\textbf{Simulated lattices.} MyUncle's kinetic Monte Carlo (unmodified core) was run from a damaged start; snapshots at steps 20, 40 and 60 of $48\times48$ sites were analyzed as images whose sites are patches. The damaged sites (sites that lost their coupling) are the ground truth. The development set is one preset (damaged share 10\%; four runs); the held-out set is three other presets (damaged share 30\%, 26\% and 8\%; four runs each). The presets are model parameter sets that MyUncle labels with application names (here polymer photodegradation, liquid crystal and magnetic storage decay); they are not fitted to measurements.
+\textbf{Protocol.} The rarity score is computed once per scenario (the same for every rule). Rule parameters (rule, window 3/5/7, $\vartheta$, $\alpha$, $\lambda$; 460 distinct configurations) were selected on the ten development scenarios by $F=\tfrac12\overline{\mathrm{AP}}+\tfrac12\min\mathrm{AP}$ (average precision against the ground truth, lower-tail across scenarios). The table of all configurations was computed exhaustively, so a search can be compared exactly with the optimum: each GaaR strategy and plain random search ran 100 times with a budget of 40 evaluations. The champions and an untuned similarity-weighted rule were then evaluated once on the ten independent test scenarios; 95\% intervals are paired bootstrap intervals that resample the independent units (images; simulation runs of three snapshots) with the same draws for every rule. Selecting rule parameters uses development labels; the rules themselves are label-free.
 
-\textbf{Synthetic images.} No real image was available. Synthetic stained-tissue images ($4480\times4480$ px) with tubule-like rings, glomerulus-like discs, vessels, stain variation, planted anomalies and artifacts imitate what the method measures. A development set (8 images, 3.1\% of patches anomalous) and a held-out set (16 images, three anomaly types never used in development, 0.8\% anomalous, stain shifts) were written by the author of the method, which limits what they can show.
+\section{Results}
+\subsection{A fixed window can destroy the signal}
+On the independent test scenarios (Table~\ref{tab:ap}) the fixed $3\times3$ mean lowered the average precision of scattered single-site anomalies from 0.37 to 0.03, of 8-site bars from 0.39 to 0.05 and of the simulated lattices (rotor embedding) from 0.56 to 0.32; the region recall of scattered anomalies at the top 3\% fell from 0.38 to 0.03 and that of bars from 0.58 to 0.07. The loss shrank as the anomalies became compact, and the mean helped only the DINOv2 embeddings of the synthetic images (0.11 to 0.50), whose unsmoothed score is noisy. Averaged in the lower-tail fitness $F$, the fixed mean (0.11) was below no smoothing (0.23) at the test (paired difference $-$0.12 [$-$0.19, $-$0.07]).
 
-\section{Results}\label{sec:res}
-\subsection{Simulated lattices}
+\subsection{Similarity-weighted aggregation}
+Weighting neighbors by embedding similarity removed most of that loss (Table~\ref{tab:ap}). The untuned $3\times3$ rule reached $F=$ 0.32, +0.21 [+0.14, +0.30] above the fixed mean and +0.09 [+0.04, +0.19] above no smoothing (paired 95\% intervals). It kept the region recall of scattered anomalies at 0.44 and of bars at 0.60, lowered the false regions per image from 2.16 (no smoothing, averaged over the controlled shapes) to 0.57, and raised the DINOv2 image AP to 0.75. It did not help the handcrafted-feature images (0.17, against 0.18 without smoothing), and on the rotor-only lattices it stayed slightly below no smoothing (0.51 against 0.56). The one-sided rule matched no smoothing (+0.00 [+-0.00, +0.01] in $F$).
+
+\subsection{Order gates and the von Mises--Fisher information}
+The development-selected order gates did not beat ordinary similarity: the gate on compatibility reached $F=$ 0.30, the gates on the resultant length and on $H_\chi$ 0.31, against 0.32 for the untuned similarity-weighted rule ($-$0.02 [$-$0.04, +-0.00] and $-$0.02 [$-$0.03, +-0.00], paired intervals). The last two gave the same scores to within 0.01 in every scenario, as expected from the monotone relation of $H_\chi$ and $R_i$ (the small differences come from the numerical inversion of $A_d$). The $d$-dimensional entropy extension is therefore reported as a formal result; it did not improve detection in these experiments.
+
 \begin{table}[t]
-\caption{Simulated MyUncle lattices, damaged sites as ground truth. Held-out presets: AUROC and AP with the rotor embedding (columns 2, 3) and the rotor + $D$ embedding (4, 5); AP on the development preset (6, 7).}
-\label{tab:sim}
+\caption{Development: the best configuration of every rule family and its development fitness $F$ (460 distinct configurations in all).}
+\label{tab:dev}
 \centering\footnotesize\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lcccccc}
+\begin{tabular}{lcl}
 \toprule
-Method & AUROC & AP & AUROC & AP & AP$_\mathrm{dev}$ & AP$_\mathrm{dev}$\\
+Rule family & $F_\mathrm{dev}$ & Selected parameters\\
 \midrule
-MyUncleVision (frozen, smoothed) & 0.65 & 0.36 & 0.77 & 0.49 & 0.13 & 0.28 \\
-Isolation forest & 0.72 & 0.59 & 0.75 & 0.50 & 0.45 & 0.36 \\
-\quad + smoothing & 0.65 & 0.36 & 0.76 & 0.49 & 0.13 & 0.27 \\
-Mahalanobis distance & 0.76 & 0.63 & 0.76 & 0.44 & 0.48 & 0.23 \\
-\quad + smoothing & 0.71 & 0.40 & 0.75 & 0.47 & 0.16 & 0.26 \\
-Nearest-neighbor distance & 0.72 & 0.56 & 0.72 & 0.38 & 0.42 & 0.20 \\
-\quad + smoothing & 0.65 & 0.36 & 0.75 & 0.47 & 0.13 & 0.25 \\
-Local disorder $D$ alone & 0.63 & 0.32 & 0.58 & 0.26 & 0.12 & 0.10 \\
+No smoothing & 0.30 & - \\
+Fixed mean & 0.18 & window 3, $\lambda=0.50$ \\
+Similarity-weighted & 0.41 & window 3, $\lambda=0.25$ \\
+One-sided & 0.31 & window 3, $\lambda=0.25$ \\
+Order gate, compatibility & 0.41 & window 3, $\vartheta=0.2$, $\alpha=5$, $\lambda=0.50$ \\
+Order gate, $R_i$ & 0.39 & window 3, $\vartheta=0.2$, $\alpha=2$, $\lambda=0.50$ \\
+Order gate, $H_\chi$ & 0.39 & window 3, $\vartheta=0.2$, $\alpha=2$, $\lambda=0.50$ \\
 \bottomrule
 \end{tabular}
 \end{table}
-Figure~\ref{fig:maps} shows one simulated run. With the rotor alone, the frozen score was no better than smoothed isolation forest or nearest-neighbor distance (held-out AP 0.36, AUROC 0.65) and clearly below the unsmoothed baselines (Mahalanobis AP 0.63, isolation forest 0.59; Table~\ref{tab:sim}). Smoothing lowered the AP of every baseline on both sets (isolation forest 0.59 to 0.36 on the held-out set): the damaged sites are scattered, not compact regions that a $3\times3$ window preserves. Adding the local disorder as a feature raised the AP of the frozen score on both sets (development 0.13 to 0.28, held-out 0.36 to 0.49); on the held-out presets it was then within 0.02 of the best AP, tied with smoothed isolation forest, while on the development preset an unsmoothed isolation forest was clearly better (0.36 against 0.28). The disorder map alone ranked the damaged sites poorly (held-out AP 0.26), so the gain comes from combining it with the state of the site. Intervals (95\%, resampling whole runs) are in the result files; they overlap for methods whose averages are close. The damaged share of three of the four parameter sets (about 10, 30 and 26\%; the fourth is 8\%) is near or above the largest prevalence scale of the rarity score (10\%), a limit of the frozen settings that this testbed exposes.
+\subsection{GaaR against random search}
+\begin{table*}[t]
+\caption{Independent test scenarios: average precision of aggregation rules. Columns: synthetic images with handcrafted features (Hand.) and DINOv2 (DINO); MyUncle lattices with the rotor (Rot.) and rotor + $D$ (Rot.+$D$) embedding; controlled generator with scattered sites (Scat.), $3\times3$ blocks (Blk3), $6\times6$ blocks (Blk6), bars (Bar), irregular clusters (Irr.) and boundary blocks (Bnd.). The last column is the lower-tail fitness $F$ with its 95\% interval.}
+\label{tab:ap}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccccccccccc}
+\toprule
+Rule & Hand. & DINO & Rot. & Rot.+$D$ & Scat. & Blk3 & Blk6 & Bar & Irr. & Bnd. & $F$ [95\% interval]\\
+\midrule
+No smoothing & 0.18 & 0.11 & 0.56 & 0.43 & 0.37 & 0.34 & 0.38 & 0.39 & 0.39 & 0.34 & 0.23 [0.18, 0.31] \\
+Fixed $3\times3$ mean (frozen) & 0.04 & 0.50 & 0.32 & 0.46 & 0.03 & 0.10 & 0.25 & 0.05 & 0.08 & 0.08 & 0.11 [0.10, 0.14] \\
+Similarity-weighted $3\times3$ (untuned) & 0.17 & 0.75 & 0.51 & 0.47 & 0.47 & 0.44 & 0.47 & 0.50 & 0.48 & 0.45 & 0.32 [0.24, 0.43] \\
+GaaR / random-search champion & 0.17 & 0.64 & 0.52 & 0.47 & 0.47 & 0.43 & 0.46 & 0.49 & 0.47 & 0.44 & 0.31 [0.24, 0.42] \\
+One-sided (dev-selected) & 0.18 & 0.11 & 0.57 & 0.43 & 0.34 & 0.34 & 0.37 & 0.40 & 0.39 & 0.34 & 0.23 [0.18, 0.31] \\
+Order gate, compatibility (dev) & 0.18 & 0.44 & 0.57 & 0.48 & 0.45 & 0.41 & 0.43 & 0.47 & 0.45 & 0.42 & 0.30 [0.22, 0.40] \\
+Order gate, $R_i$ or $H_\chi$ (dev) & 0.18 & 0.48 & 0.54 & 0.46 & 0.45 & 0.41 & 0.43 & 0.47 & 0.46 & 0.42 & 0.31 [0.22, 0.41] \\
+\bottomrule
+\end{tabular}
+\end{table*}
+Table~\ref{tab:dev} lists the best development configuration of every family. Among the 460 distinct configurations the frozen fixed mean ranked 455th on the development fitness (0.13; optimum 0.41). With 40 evaluations, random search found a configuration in the top 5\% in 94\% of the runs, the GaaR strategies in 70\% (greedy), 81\% (restart) and 80\% (population), and in the top 1\% in 67\% against 53\%, 58\% and 59\%: GaaR was not better than random search here, because many configurations of the similarity-weighted family are nearly equivalent. The champions of the restart strategy and of random search were the same configuration (similarity-weighted, window 3, persistence 0.5; $F=$ 0.31), no better than the untuned rule. An earlier search of the scoring configuration itself (smoothing, axes, PCA dimension, rarity scale; 360 configurations; repository) gave a gain on fresh scenarios of +0.08 with a 95\% interval of [$-$0.05, +0.17], which includes zero.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.62\textwidth]{fig_bridge_maps.png}
-\caption{A MyUncle simulation analyzed with MyUncleVision (chiral scaffold preset, $32\times32$ sites). Rows: rotor angle, local disorder $D$, order information $H_\chi$ ($d=2$) and novelty of the frozen score; columns: steps 0, 15, 30, 45 and 60. Novelty is a percentile rank relative to the snapshots shown and has not been validated against known defect locations.}
+\includegraphics[width=0.9\textwidth]{fig_rules.png}
+\caption{Average precision on the ten independent test scenarios with 95\% intervals (resampling images or simulation runs).}
+\label{fig:rules}
+\end{figure*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{fig_bridge_maps.png}
+\caption{A MyUncle simulation analyzed with MyUncleVision (chiral scaffold preset, $32\times32$ sites). Rows: rotor angle, local disorder $D$, order information $H_\chi$ ($d=2$) and the earlier frozen novelty score (rarity, fixed $3	imes3$ mean); columns: steps 0, 15, 30, 45 and 60.}
 \label{fig:maps}
-\end{figure*}
-
-\subsection{Synthetic images}
-An earlier default (three-axis OR at one rarity scale, no smoothing) had an AUROC of 0.90 with handcrafted features and 0.22 with DINOv2, below chance: the planted states covered 3.1\% of the patches, more than the 1\% scale, and the DINOv2 embeddings of the planted regions are more homogeneous than normal ones, so the disorder and contact axes point the wrong way. Judging rarity at several scales fixed the appearance axis. On the development images, smoothing raised the spatial coherence of the frozen score from 0.42 to 0.91 (handcrafted) and from 0.30 to 0.87 (DINOv2), and smoothing raised the coherence of every baseline in all four cases; but a smoothed Mahalanobis baseline scored higher in AP than the frozen score (0.62 and 0.90 against 0.47 and 0.74, handcrafted and DINOv2).
-
-\begin{table*}[t]
-\caption{Held-out synthetic images (settings frozen beforehand, evaluated once): AUROC, AP, spatial coherence (coh.) and region recall (rec.), handcrafted features (left) and DINOv2 (right).}
-\label{tab:img}
-\centering\footnotesize\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lcccccccc}
-\toprule
-Method & AUROC & AP & coh. & rec. & AUROC & AP & coh. & rec.\\
-\midrule
-MyUncleVision (frozen, smoothed) & 0.80 & 0.04 & 0.89 & 0.29 & 0.99 & 0.59 & 0.65 & 1.00 \\
-Appearance, multi-scale, unsmoothed & 0.98 & 0.17 & 0.31 & 0.86 & 0.95 & 0.15 & 0.20 & 0.86 \\
-Three-axis OR, smoothed & 0.97 & 0.26 & 0.84 & 0.86 & 0.93 & 0.15 & 0.66 & 0.71 \\
-Isolation forest, smoothed & 0.93 & 0.12 & 0.58 & 0.71 & 0.98 & 0.25 & 0.55 & 1.00 \\
-Mahalanobis distance & 0.96 & 0.13 & 0.21 & 0.71 & 0.93 & 0.17 & 0.25 & 0.71 \\
-\quad + smoothing & 0.93 & 0.11 & 0.59 & 0.86 & 0.99 & 0.35 & 0.58 & 1.00 \\
-Nearest-neighbor distance & 0.96 & 0.14 & 0.28 & 0.57 & 0.43 & 0.01 & 0.03 & 0.14 \\
-\quad + smoothing & 0.91 & 0.12 & 0.64 & 0.71 & 0.62 & 0.04 & 0.42 & 0.29 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-On the held-out images with DINOv2 the frozen score was the best of all methods in AP (0.59, AUROC 0.99, coherence 0.65, region recall 1.00), ahead of smoothed Mahalanobis (0.35) and of the unsmoothed multi-scale appearance (0.15; Table~\ref{tab:img}). With handcrafted features it did badly (AP 0.04, region recall 0.29) although its AUROC was 0.80 and its coherence 0.89: the anomalies are small (about five patches), and a $3\times3$ window mixes each with normal neighbors and dilutes the ranks. The choice to smooth, made on the development images, therefore did not generalize across embeddings. The lattice axes behaved as on the development images: with smoothing they raised the AP with handcrafted features (0.26 against 0.04) and lowered it with DINOv2 (0.15 against 0.59), so they are diagnostics, not part of the default score. A coarser patch size was tolerated with DINOv2 and not with handcrafted features, and changing the smoothing or the axes changed the flagged set almost completely: these are design choices, not noise.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.78\textwidth]{fig_heldout_example.png}
-\caption{One held-out synthetic image (DINOv2): planted anomalies (green), planted artifact (red), the unsmoothed multi-scale appearance score, the frozen score and the smoothed Mahalanobis score on the patch lattice.}
-\label{fig:ex}
-\end{figure*}
-
-\subsection{Configuration search with GaaR}
-The frozen configuration is one choice for all data, and the results above show it is not best for every embedding. GaaR (Goal-Aware Adaptive Regulation; \citealp{GaaR2026}), an evolutionary search framework by the same author, was used to select a configuration of the score from 360 candidates: smoothing type and window (none, mean $3,5,7$, Gaussian $5,7$, median $3,5$), five sets of axis weights, the PCA dimension ($8,16,32$) and the largest rarity scale (2, 5, 10\%). This is supervised hyperparameter selection on labeled development scenarios, not label-free adaptation: the chosen configuration is fixed afterwards. The fitness is a lower-tail average precision, $F=\tfrac12\overline{\mathrm{AP}}+\tfrac12\min\mathrm{AP}$, over four development scenarios (the development images with each embedding and the development lattices with each of their two embeddings). All 360 configurations were evaluated once on these scenarios, so any search can be compared exactly with the optimum; each strategy of GaaR and plain random search then ran 100 times with a budget of 40 evaluations. The champions were evaluated once on fresh test scenarios that no search saw: 16 new synthetic images (new seeds, the held-out anomaly types) and 48 new lattice states, including a preset not used before (superconducting scaffold).
-
-\begin{table*}[t]
-\caption{Fresh test scenarios: average precision of the frozen configuration, of no smoothing and of the champions found on the development scenarios (development fitness $F$ in column 2; test AP for handcrafted-feature images, DINOv2 images, and lattices with the rotor and the rotor + $D$ embedding in columns 3--6; test fitness with a 95\% interval in column 7, and its paired difference from the default in column 8; intervals resample the 16 images and the 16 simulation runs of each scenario).}
-\label{tab:gaar}
-\centering\footnotesize\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lcccccll}
-\toprule
-Configuration & $F_\mathrm{dev}$ & Img. hand. & Img. DINOv2 & Lat. rotor & Lat. rotor+$D$ & $F_\mathrm{test}$ [95\% interval] & Difference from default [95\% interval]\\
-\midrule
-Frozen default & 0.26 & 0.04 & 0.50 & 0.32 & 0.46 & 0.18 [0.15, 0.39] & - \\
-No smoothing & 0.28 & 0.18 & 0.11 & 0.56 & 0.43 & 0.21 [0.15, 0.31] & +0.030 [$-$0.16, +0.08] \\
-GaaR restart / population champion & 0.35 & 0.17 & 0.41 & 0.41 & 0.45 & 0.26 [0.17, 0.42] & +0.080 [$-$0.05, +0.17] \\
-GaaR greedy / random-search champion & 0.33 & 0.24 & 0.12 & 0.41 & 0.44 & 0.21 [0.14, 0.33] & +0.030 [$-$0.17, +0.10] \\
-Exhaustive development optimum & 0.35 & 0.11 & 0.58 & 0.41 & 0.43 & 0.25 [0.18, 0.45] & +0.065 [$-$0.03, +0.19] \\
-\bottomrule
-\end{tabular}
-\end{table*}
-The default configuration ranked 64th of 360 on the development fitness (0.26; optimum 0.35). With 40 evaluations, the greedy and restart strategies found a configuration in the top 1\% in 59\% and 60\% of the runs and random search in 25\% (population: 46\%), whereas at the top 5\% level random search did as well or better (87\% against 71\%, 72\% and 85\%). On the test scenarios (Table~\ref{tab:gaar}) the champion of the restart and population strategies raised the test fitness from 0.18 (default) to 0.26, mainly by lifting the worst scenario (handcrafted-feature images, AP 0.04 to 0.17), while the AP with DINOv2 fell from 0.50 to 0.41. The paired 95\% interval of this gain (+0.080) is [$-$0.05, +0.17] and the champion was better than the default in 89\% of the resamples, so with 16 independent units per scenario it cannot be distinguished from zero. The champion of the greedy strategy and of random search (the same configuration here) reached 0.21, and the exhaustive development optimum 0.25: every development-optimized configuration beat the default, but their order did not follow the development fitness. The gain is therefore due to the selected configuration (a smaller PCA dimension and the disorder axis at weight 0.5, with $3\times3$ mean smoothing) and not to the search algorithm; each strategy contributed one champion, four scenarios are few, and the test data come from the same generators as the development data.
-
-A label-free alternative was explored. Moran's I of the unsmoothed rarity score (spatial autocorrelation of the score field) was below 0.02 in exactly the two lattice scenarios, one development and one test, in which smoothing lost most of the AP, and above 0.1 in the other six. A rule that smooths only above 0.05 would have avoided the largest loss in both, but it would not have helped the handcrafted-feature test images (eight scenarios, one threshold, exploratory).
-
-\subsection{Smoothing against anomaly morphology}
-The results above leave open when smoothing helps. A controlled study on an independent generator varied only the spatial size of the anomalies. Each of 50 lattices ($32\times32$ sites, 16-dimensional embeddings) has smooth background domains and 3\% anomalous sites with a fixed separability (a shift of 10 noise standard deviations, calibrated beforehand on the unsmoothed score only); the anomalies are $b\times b$ blocks, $b=1$ being scattered single sites and $b=6$ compact regions, and each block has its own direction, so no recurring state exists. Without smoothing the average precision was between 0.43 and 0.49 across sizes; the frozen $3\times3$ mean lowered it to 0.03 at $b=1$ and 0.31 at $b=6$ (Table~\ref{tab:morph}). Smoothing hurt at every size, the loss shrinking as the anomalies grew, and a $5\times5$ mean was worse than the $3\times3$ mean at every size (paired 95\% intervals of all these differences exclude zero). The champion of the GaaR search was better than the frozen configuration for $b\le3$ and not distinguishable from it for $b\ge4$, but it stayed below no smoothing at every size: configuration selection on the development scenarios, in which smoothing helped the DINOv2 images, mitigated the loss without removing it.
-
-\begin{table}[t]
-\caption{Average precision against anomaly block size $b$ (independent embedding-lattice generator; 3\% anomalous sites, fixed separability).}
-\label{tab:morph}
-\centering\footnotesize\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lccccc}
-\toprule
-Configuration & $b=1$ & 2 & 3 & 4 & 6 \\
-\midrule
-No smoothing & 0.44 & 0.43 & 0.45 & 0.49 & 0.43 \\
-Frozen ($3\times3$ mean) & 0.03 & 0.06 & 0.11 & 0.21 & 0.31 \\
-$5\times5$ mean & 0.03 & 0.04 & 0.04 & 0.07 & 0.16 \\
-GaaR restart champion & 0.05 & 0.14 & 0.21 & 0.26 & 0.29 \\
-Exhaustive development optimum & 0.04 & 0.09 & 0.13 & 0.20 & 0.25 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\end{figure}
 
 \section{Limitations and future work}
-The lattices and the images are simulated and were written by the author of the method (the simulation is MyUncle's, with an easy kind of anomaly, and its parameter sets are not fitted to measurements); nothing here shows that the method finds anything in an experimental system. The held-out sets were used once but are of the same family as the development sets, four runs per parameter set are few, the two embeddings disagree on whether smoothing helps, and a single Gaussian model scored higher than the frozen score on the development data. The configuration search is supervised, each strategy contributed one champion to the test comparison, and the test scenarios share their generators with the development data; the independent generator of Section 5.4 is still synthetic, and real images or a public data set are needed to judge the gain. Novelty is not a defect: a rare state may be a rare preparation, an instrument or a known feature that is merely uncommon. Planned: validation on experimental micrographs of ordered materials with independently established defects and on public histology, with settings, baselines and endpoints frozen and published before an independent set is analyzed once, blinded expert review, bootstrap intervals over images, a second synthetic generator, other spatial filters, and fitting the MyUncle parameter sets to measured data. If no advantage over the baselines appears, that result will be reported.
+The lattices and the images are simulated and were written by the author of the method (the simulation is MyUncle's and its parameter sets are not fitted to measurements; the controlled generator has diverse, separable anomalies and Gaussian noise); nothing here shows that the method finds anything in an experimental system. Development and test data come from the same generator families, 16 to 50 independent units per test scenario are few, the rule parameters are selected with labels, and the handcrafted-feature images are not helped by any rule. Novelty is not a defect: a rare state may be a rare preparation or a known feature that is merely uncommon. The comparison of the rarity score itself with other detectors (isolation forest, local outlier factor, nearest-neighbor and Mahalanobis distance) was made under the earlier fixed smoothing and is in the repository: a smoothed Mahalanobis baseline scored higher than the rarity score on the development images, so the score is not claimed to be the best detector, and the contribution concerns the aggregation step. Planned: validation on a public data set and on experimental micrographs with independently established defects, blinded expert review, more units per scenario, other filters of the bilateral and non-local-means families as baselines, and a label-free choice between smoothing and no smoothing (the autocorrelation of the unsmoothed score is a candidate; in a first look it separated the two lattice scenarios in which the fixed mean destroyed the signal from the rest, with eight scenarios and one threshold, which is a hypothesis, not a rule).
 
 \section{Conclusions}
-The local disorder and von Mises--Fisher order information of MyUncle generalize to lattices of unit vectors in $d$ dimensions and equal MyUncle's at $d=2$. A label-free score built on them was tested on simulated lattices and on synthetic images with frozen settings and four baselines. The results are mixed: smoothing helped only with the DINOv2 embeddings of the synthetic images, whose unsmoothed score is noisy, and hurt on simulated lattices and in a controlled study on an independent generator, least for compact anomalies; adding the local disorder as a feature helped on the simulated lattices, and a simple Mahalanobis baseline was a strong competitor. A supervised configuration search with GaaR improved the lower-tail average precision on fresh test scenarios, but the paired interval of the gain included zero and plain random search also beat the default, so any gain belongs to the selected configuration. All evidence is simulated; experimental validation is the next step.
+A fixed smoothing window can destroy an anomaly signal, depending on the size, shape and scatter of the anomalies and on the embedding. Aggregation weighted by embedding similarity, with a label-free scale, was a robust replacement on independent test scenarios (paired intervals exclude zero). Gates based on local order and on the von Mises--Fisher information, the $d$-dimensional extension of MyUncle's entropy quantities, did not improve on ordinary similarity, and an evolutionary search over rule configurations did not beat random search. All evidence is simulated; experimental validation is the next step.
 
 \section*{Declarations}
 \small
-\textbf{Funding:} no external funding. \textbf{Competing interests:} the author declares no competing interests. \textbf{CRediT:} Leon Sandler, sole author: conceptualization, methodology, software, validation, formal analysis, investigation, visualization, writing -- original draft, writing -- review and editing. \textbf{Data and code availability:} code, tests, benchmarks and results are open at \url{https://github.com/sandlerleon/MyUncleVision} (MIT license) and archived at \url{https://doi.org/10.5281/zenodo.24066260} (all versions); MyUncle is vendored unmodified (\url{https://doi.org/10.5281/zenodo.21223570}). No experimental, patient or tissue data were used. \textbf{Generative AI:} during the preparation of this work the author used Claude (Anthropic) to assist with writing and testing the code, running the analyses and drafting the text and figures; the author reviewed and edited the content and takes full responsibility for it.
+\textbf{Funding:} no external funding. \textbf{Competing interests:} the author declares no competing interests. \textbf{CRediT:} Leon Sandler, sole author: conceptualization, methodology, software, validation, formal analysis, investigation, visualization, writing -- original draft, writing -- review and editing. \textbf{Data and code availability:} code, tests, benchmarks, search tables, seeds and results are open at \url{https://github.com/sandlerleon/MyUncleVision} (MIT license; vendored MyUncle and GaaR cores unmodified, GaaR commit 4021e64) and archived at \url{https://doi.org/10.5281/zenodo.24066260} (all versions). No experimental, patient or tissue data were used. \textbf{Generative AI:} during the preparation of this work the author used Claude (Anthropic) to assist with writing and testing the code, running the analyses and drafting the text and figures; the author reviewed and edited the content and takes full responsibility for it.
 \normalsize
 
 \begin{thebibliography}{}
@@ -200,6 +148,7 @@ The local disorder and von Mises--Fisher order information of MyUncle generalize
 \bibitem[{Ruifrok and Johnston(2001)}]{Ruifrok2001} Ruifrok, A.C., Johnston, D.A., 2001. Quantification of histochemical staining by color deconvolution. Anal. Quant. Cytol. Histol. 23, 291--299.
 \bibitem[{Sandler(2026a)}]{MyUncle2026} Sandler, L., 2026a. MyUncle: a compact maintenance-lattice framework (software). Zenodo. \url{https://doi.org/10.5281/zenodo.21223570}.
 \bibitem[{Sandler(2026c)}]{GaaR2026} Sandler, L., 2026c. GaaR: goal-aware adaptive regulation, evolutionary search on consumer hardware (software). GitHub, commit 4021e64. \url{https://github.com/sandlerleon/GaaR}.
+\bibitem[{Sandler(2026d)}]{Sandler2026d} Sandler, L., 2026d. Hybrid physics-diagnostic estimation of liquid loading for wet-gas flowmeter correction: a model-based uncertainty framework. Zenodo. \url{https://doi.org/10.5281/zenodo.24036377}.
 \bibitem[{Sandler(2026b)}]{MyUncleVision2026} Sandler, L., 2026b. MyUncleVision: a lattice-based framework for unsupervised anomaly discovery in images (software). Zenodo. \url{https://doi.org/10.5281/zenodo.24066260}.
 \bibitem[{Schlegl et~al.(2019)}]{Schlegl2019} Schlegl, T., Seeb{\"o}ck, P., Waldstein, S.M., Langs, G., Schmidt-Erfurth, U., 2019. f-AnoGAN: fast unsupervised anomaly detection with generative adversarial networks. Med. Image Anal. 54, 30--44. \url{https://doi.org/10.1016/j.media.2019.01.010}.
 \end{thebibliography}

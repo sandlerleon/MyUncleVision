@@ -1,117 +1,110 @@
 # -*- coding: utf-8 -*-
 """Pattern Recognition Letters version (LaTeX, elsarticle; prletter.sty is loaded when present): fills prl_template.tex.in with numbers from results/*.json.
     python docs/build/build_prl_tex.py      -> docs/prl/main.tex (+ figures), compiled with pdflatex when available
-The guards of build_documents.py run on import, so every qualitative sentence is checked against the results."""
+Every qualitative sentence of the results section is guarded by an assert on the result files."""
+import json
 import os
 import re
 import shutil
 import subprocess
-import sys
 
-sys.argv = ["build_prl_tex.py", "--skip-herox"]
+import numpy as np
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-import build_documents as bd                                   # noqa: E402
-
-n, pc, met = bd.n, bd.pc, bd.met
-FROZEN, MAHA, MAHA_S, T3, ORIG = bd.FROZEN, bd.MAHA, bd.MAHA_S, bd.T3, bd.ORIG
-BD, BH, DD, DH, BRD = bd.BD, bd.BH, bd.DD, bd.DH, bd.BRD
-bm = bd._bm
+RES = os.path.join(HERE, "..", "..", "results")
 OUT = os.path.join(HERE, "..", "prl")
 os.makedirs(OUT, exist_ok=True)
-for f in ("fig_bridge.png", "fig_heldout_example.png", "fig_bridge_maps.png"):
+for f in ("fig_bridge.png", "fig_bridge_maps.png"):
     shutil.copy(os.path.join(HERE, "..", "figures", f), os.path.join(OUT, f))
+J = lambda name: json.load(open(os.path.join(RES, name)))
+OT, OS, OG = J("og_test.json"), J("og_search.json"), J("og_grid_dev.json")
+GT = J("gaar_test.json")
+R = OT["results"]
+BT = OT["bootstrap"]
+n2 = lambda x: "%.2f" % x
+pc = lambda x: "%d\\%%" % round(100 * x)
+sg = lambda x: ("$-$%.2f" % -x) if x < -0.0049 else ("+%.2f" % x)
+cif = lambda c: "[%s, %s]" % (sg(c[0]), sg(c[1]))
+dif = lambda d, c: "%s %s" % (sg(d), cif(c))
 
-import json
-RES = os.path.join(HERE, "..", "..", "results")
-GS = json.load(open(os.path.join(RES, "gaar_search_comparison.json")))
-GT = json.load(open(os.path.join(RES, "gaar_test.json")))
-GL = json.load(open(os.path.join(RES, "gaar_labelfree.json")))
-TF = lambda name: GT["test"][name]["fitness"]
-DEF, NOS, OPT = "frozen default", "no smoothing", "exhaustive dev optimum"
-RST, GRD, RND = "GaaR restart (seed 0, budget 40)", "GaaR greedy (seed 0, budget 40)", "GaaR random (seed 0, budget 40)"
-assert TF(RST) > TF(DEF) and TF(RND) > TF(DEF) and TF(GRD) > TF(DEF) and TF(OPT) > TF(DEF), "text says every development-optimized configuration beat the default on the test scenarios"
-assert TF(RST) > TF(OPT) > TF(RND), "text says the test ordering did not follow the development fitness"
-assert GT["dev"][OPT]["fitness"] > GT["dev"][RST]["fitness"] > GT["dev"][RND]["fitness"], "development order"
-assert GT["test"][RST]["aps"][1] < GT["test"][DEF]["aps"][1], "text says the DINOv2 test AP fell"
-assert GT["test"][RST]["aps"][0] > GT["test"][DEF]["aps"][0], "text says the handcrafted test AP rose"
-st = GS["strategies"]
-assert st["greedy"]["hit_top1pct"] > 2 * st["random"]["hit_top1pct"] and st["restart"]["hit_top1pct"] > 2 * st["random"]["hit_top1pct"], "text says greedy/restart reach the top 1% more than twice as often as random"
-assert st["random"]["hit_top5pct"] >= st["population"]["hit_top5pct"] > st["restart"]["hit_top5pct"] >= st["greedy"]["hit_top5pct"], "text says random matched or beat GaaR at the top 5% level"
-mor = {r["scenario"]: r["moran"] for r in GL["rows"]}
-eff = {r["scenario"]: r["effect"] for r in GL["rows"]}
-bad = [k for k in eff if eff[k] < -0.2]
-assert sorted(bad) == ["sim-dev-rotor", "sim-test-rotor"] and all(mor[k] < 0.02 for k in bad) and all(mor[k] > 0.1 for k in mor if k not in bad), "text says Moran's I separates exactly the two scenarios where smoothing destroyed the signal"
-assert eff["images-test-handcrafted"] < -0.1 and mor["images-test-handcrafted"] > 0.05, "text says the rule would not help the handcrafted test images"
-BS_ = chr(92)
-MS = json.load(open(os.path.join(RES, "morphology_study.json")))
-BT = GT["bootstrap"]
-_sg = lambda x: ("$-$%.3f" % -x) if x < 0 else ("+%.3f" % x)
-_ci = lambda a: "[%s, %s]" % (_sg(a[0]) if False else ("$-$%.2f" % -a[0] if a[0] < 0 else "%.2f" % a[0]), ("$-$%.2f" % -a[1] if a[1] < 0 else "%.2f" % a[1]))
-_dci = lambda a: "[%s, %s]" % (("$-$%.2f" % -a[0] if a[0] < 0 else "+%.2f" % a[0]), ("$-$%.2f" % -a[1] if a[1] < 0 else "+%.2f" % a[1]))
-_d = lambda nm: GT["test"][nm]["fitness"] - GT["test"][DEF]["fitness"]
-_row = lambda name, lab: [lab, n(GT["dev"][name]["fitness"])] + [n(x) for x in GT["test"][name]["aps"]] + ["%s %s" % (n(GT["test"][name]["fitness"]), _ci(BT[name]["fitness_ci"])), "-" if name == DEF else "%s %s" % (_sg(_d(name)), _dci(BT[name]["diff_vs_default_ci"]))]
-TABGAAR = (" " + BS_ + BS_ + "\n").join(" & ".join(_row(nm, lab)) for nm, lab in ((DEF, "Frozen default"), (NOS, "No smoothing"), (RST, "GaaR restart / population champion"), (GRD, "GaaR greedy / random-search champion"), (OPT, "Exhaustive development optimum"))) + " " + BS_ + BS_
-# guards for the confidence intervals and the controlled morphology study
-assert BT[RST]["diff_vs_default_ci"][0] < 0 < BT[RST]["diff_vs_default_ci"][1], "text says the paired interval of the champion's gain includes zero"
-assert BT["frozen default"]["fitness_ci"][0] < GT["test"][DEF]["fitness"]
-_m = MS["results"]
-_sz = [str(x) for x in MS["sizes"]]
-_ap = lambda cfg, b: _m[b][cfg]["ap"]
-assert all(_m[b]["no smoothing"]["diff_vs_frozen_ci"][0] > 0 for b in _sz), "text says no smoothing beat the frozen configuration at every anomaly size"
-assert all(_ap("frozen (mean 3)", a) < _ap("frozen (mean 3)", b) for a, b in zip(_sz, _sz[1:])), "text says the loss from smoothing shrank as the anomalies grew"
-assert all(_m[b]["mean 5"]["diff_vs_frozen_ci"][1] < 0 for b in _sz), "text says the 5 x 5 mean was worse than the 3 x 3 mean at every size"
-assert all(_m[b]["GaaR restart champion"]["diff_vs_frozen_ci"][0] > 0 for b in ("1", "2", "3")) and all(_m[b]["GaaR restart champion"]["diff_vs_frozen_ci"][0] < 0 < _m[b]["GaaR restart champion"]["diff_vs_frozen_ci"][1] for b in ("6",)), "text says the champion beat the frozen configuration for small anomalies only"
-assert all(_ap("GaaR restart champion", b) < _ap("no smoothing", b) for b in _sz), "text says the champion stayed below no smoothing at every size"
-MORPH_ROWS = " " + BS_ + BS_ + "\n"
-MORPH_ROWS = MORPH_ROWS.join(" & ".join([lab] + ["%.2f" % _ap(cfg, b) for b in _sz]) for cfg, lab in (("no smoothing", "No smoothing"), ("frozen (mean 3)", "Frozen ($3" + BS_ + "times3$ mean)"), ("mean 5", "$5" + BS_ + "times5$ mean"), ("GaaR restart champion", "GaaR restart champion"), ("exhaustive development optimum", "Exhaustive development optimum"))) + " " + BS_ + BS_
+NONE, MEAN, SIMW = "none", "frozen (mean 3)", "similarity-weighted (3), untuned"
+ONE, OGC, OGV, OGD, GAR, GAR_R = "best onesided (dev)", "best og_cos (dev)", "best og_vmf (dev)", "best og_disorder (dev)", "GaaR restart champion", "GaaR random-search champion"
+SC = dict(H="images-test-handcrafted", D="images-test-dinov2_vits14", R="sim-test-rotor", RD="sim-test-rotor_D", SC="morph-test-scattered", B3="morph-test-block3", B6="morph-test-block6", BAR="morph-test-bar8", IRR="morph-test-irregular12", BND="morph-test-boundary3")
+ap = lambda c, k: R[c][SC[k]]["ap"]
+F = lambda c: R[c]["_fitness"]
+rec = lambda c, k: R[c][SC[k]]["region_recall"]
+morph = [SC[k] for k in ("SC", "B3", "B6", "BAR", "IRR", "BND")]
+fr = lambda c: float(np.mean([R[c][s]["false_regions_per_image"] for s in morph]))
+diff = lambda c, ref: (F(c) - F(ref), BT[c]["diff_vs_" + ref.split()[0]]["ci"])
+
+# ---- guards: qualitative claims made in the text
+assert all(ap(MEAN, k) < ap(NONE, k) for k in ("SC", "BAR", "R")), "text: the fixed mean lowered AP for scattered, bar and rotor-lattice scenarios"
+assert ap(MEAN, "D") > ap(NONE, "D"), "text: the mean helped the DINOv2 images"
+assert rec(MEAN, "SC") < rec(NONE, "SC") and rec(MEAN, "BAR") < rec(NONE, "BAR")
+assert diff(MEAN, NONE)[1][1] < 0 and F(MEAN) < F(NONE), "text: the fixed mean was below no smoothing in F"
+assert diff(SIMW, MEAN)[1][0] > 0 and diff(SIMW, NONE)[1][0] > 0, "text: the untuned similarity-weighted rule beat the fixed mean and no smoothing with paired intervals above zero"
+assert rec(SIMW, "SC") > rec(MEAN, "SC") and rec(SIMW, "BAR") > rec(MEAN, "BAR") and fr(SIMW) < fr(NONE)
+assert ap(SIMW, "D") > ap(MEAN, "D") and ap(SIMW, "H") <= ap(NONE, "H") + 0.01 and ap(SIMW, "R") < ap(NONE, "R")
+assert BT[ONE]["diff_vs_none"]["ci"][0] < 0 < BT[ONE]["diff_vs_none"]["ci"][1], "text: the one-sided rule matched no smoothing"
+assert F(OGC) < F(SIMW) and F(OGV) < F(SIMW) and np.allclose([R[OGV][s]["ap"] for s in SC.values()], [R[OGD][s]["ap"] for s in SC.values()], atol=0.01), "text: gates did not beat similarity; vMF and disorder gates coincide"
+_st = OS["strategies"]
+assert all(_st["random"]["hit_top5pct"] > _st[k]["hit_top5pct"] and _st["random"]["hit_top1pct"] > _st[k]["hit_top1pct"] for k in ("greedy", "restart", "population")), "text: random search was better at the top-5% and top-1% hit rates"
+assert OT["candidates"][GAR] == OT["candidates"][GAR_R] and F(GAR) < F(SIMW) + 0.01
+_old = GT["test"]["GaaR restart (seed 0, budget 40)"]["fitness"] - GT["test"]["frozen default"]["fitness"]
+_oci = GT["bootstrap"]["GaaR restart (seed 0, budget 40)"]["diff_vs_default_ci"]
+assert _oci[0] < 0 < _oci[1]
+
+rows = [(NONE, "No smoothing"), (MEAN, "Fixed $3\\times3$ mean (frozen)"), (SIMW, "Similarity-weighted $3\\times3$ (untuned)"), (GAR, "GaaR / random-search champion"), (ONE, "One-sided (dev-selected)"), (OGC, "Order gate, compatibility (dev)"), (OGV, "Order gate, $R_i$ or $H_\\chi$ (dev)")]
+tabap = (" \\\\\n").join(" & ".join([lab] + [n2(ap(c, k)) for k in ("H", "D", "R", "RD", "SC", "B3", "B6", "BAR", "IRR", "BND")] + ["%s [%s, %s]" % (n2(F(c)), n2(BT[c]["fitness_ci"][0]), n2(BT[c]["fitness_ci"][1]))]) for c, lab in rows) + " \\\\"
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+_names = OT["scenarios"]
+_lab = ["images\nhand.", "images\nDINOv2", "lattice\nrotor", "lattice\nrotor+D", "scattered", "blocks 3", "blocks 6", "bars 8", "irregular", "boundary"]
+_series = [(NONE, "no smoothing", "#8c8c8c"), (MEAN, "fixed 3x3 mean", "#c0392b"), (SIMW, "similarity-weighted 3x3", "#2c7fb8"), (OGC, "order gate (dev-selected)", "#e08e0b")]
+fig, ax = plt.subplots(figsize=(7.2, 2.5))
+w = 0.2
+for j, (c, lab, col) in enumerate(_series):
+    xs = np.arange(len(_names)) + (j - 1.5) * w
+    y = [R[c][nm]["ap"] for nm in _names]
+    lo = [R[c][nm]["ap"] - BT[c]["ap_ci"][k][0] for k, nm in enumerate(_names)]
+    hi = [BT[c]["ap_ci"][k][1] - R[c][nm]["ap"] for k, nm in enumerate(_names)]
+    ax.bar(xs, y, w, color=col, label=lab, yerr=[np.maximum(lo, 0), np.maximum(hi, 0)], error_kw=dict(lw=0.6, capsize=1))
+ax.set_xticks(range(len(_names)))
+ax.set_xticklabels(_lab, fontsize=6.5)
+ax.set_ylabel("average precision", fontsize=8)
+ax.tick_params(axis="y", labelsize=7)
+ax.legend(fontsize=6.5, ncol=4, loc="upper center", frameon=False, bbox_to_anchor=(0.5, 1.18))
+fig.tight_layout()
+fig.savefig(os.path.join(OUT, "fig_rules.png"), dpi=200)
+plt.close(fig)
+_fam = OS["family_champions"]
+_famlab = [("none", "No smoothing"), ("mean", "Fixed mean"), ("simw", "Similarity-weighted"), ("onesided", "One-sided"), ("og_cos", "Order gate, compatibility"), ("og_disorder", "Order gate, $R_i$"), ("og_vmf", r"Order gate, $H_\chi$")]
+_par = lambda g: ("window %d" % g["window"] if g["rule"] != "none" else "-") + ((r", $\vartheta=%.1f$, $\alpha=%d$" % (g["theta"], g["alpha"])) if g["rule"].startswith("og_") or g["rule"] == "onesided_gate" else "") + ((r", $\lambda=%.2f$" % g["lam"]) if g["rule"] != "none" and g["lam"] > 0 else "")
+tabdev = (" \\\\\n").join(" & ".join([lab, n2(_fam[r]["dev_fitness"]), _par(_fam[r]["config"])]) for r, lab in _famlab) + " \\\\"
 ABSTRACT = (
-    "Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. "
-    "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in $d$ dimensions (von Mises--Fisher distribution); they equal MyUncle's at $d=2$. "
-    "On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with four baselines, with settings frozen before the held-out data. "
-    "Smoothing the score over the lattice raised spatial coherence on synthetic images and, with DINOv2 embeddings, average precision, but it lowered average precision on simulated MyUncle lattices; in a controlled study on an independent generator it hurt at every anomaly size, least for compact anomalies. "
-    "A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from %s to %s, but the paired interval of the difference included zero and random search also beat the default, so any gain belongs to the selected configuration, not to the search. "
-    "All evidence is simulated; code and results are open." % (n(TF(DEF)), n(TF(RST))))
+    "Anomaly scores on lattices of embeddings, such as the patches of an image, are often smoothed over a fixed spatial window. "
+    "On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed $3\\times3$ mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. "
+    "Aggregation weighted by the cosine similarity of the embeddings of neighboring sites, with a label-free scale, preserved scattered, bar-shaped, irregular and boundary anomalies: on independent test scenarios it raised the lower-tail average precision from %s (fixed mean) and %s (no smoothing) to %s, with paired 95\\%% intervals above zero. "
+    "Gates based on local order and on the von Mises--Fisher information of the neighborhood, a $d$-dimensional extension of MyUncle's entropy quantities, did not beat ordinary similarity; rank gates on that information coincide with gates on the resultant length. "
+    "A GaaR search over %d rule configurations did not beat random search. All evidence is simulated; code and results are open." % (n2(F(MEAN)), n2(F(NONE)), n2(F(SIMW)), OS["n_unique"]))
 assert len(ABSTRACT.split()) <= 200, len(ABSTRACT.split())
 
-tex = lambda s: s.replace("&", r"\&").replace("%", r"\%")
-pf = BRD[("held", "rotor")]["damaged_fraction_by_preset"]
-sim_rows = [(FROZEN, "MyUncleVision (frozen, smoothed)"), ("Isolation Forest", "Isolation forest"), ("Isolation Forest, lattice-smoothed (rank)", "\\quad + smoothing"), ("Mahalanobis distance", "Mahalanobis distance"),
-            (MAHA_S, "\\quad + smoothing"), ("kNN distance, k = 10", "Nearest-neighbor distance"), ("kNN distance, k = 10, lattice-smoothed (rank)", "\\quad + smoothing"), ("local disorder D alone", "Local disorder $D$ alone")]
-tabsim = " \\\\\n".join(" & ".join([lab] + [n(bm("held", e, m, k)) for e in ("rotor", "rotor_D") for k in ("auroc", "average_precision")] + [n(bm("dev", e, m)) for e in ("rotor", "rotor_D")]) for m, lab in sim_rows) + " \\\\"
-img_rows = [(FROZEN, "MyUncleVision (frozen, smoothed)"), ("appearance, multi-scale", "Appearance, multi-scale, unsmoothed"), (T3, "Three-axis OR, smoothed"), ("Isolation Forest, lattice-smoothed (rank)", "Isolation forest, smoothed"),
-            ("Mahalanobis distance", "Mahalanobis distance"), (MAHA_S, "\\quad + smoothing"), ("kNN distance, k = 10", "Nearest-neighbor distance"), ("kNN distance, k = 10, lattice-smoothed (rank)", "\\quad + smoothing")]
-keys = ("auroc", "average_precision", "spatial_coherence", "region_recall")
-tabimg = " \\\\\n".join(" & ".join([lab] + [n(met(R, m, k)) for R in (BH, BD) for k in keys]) for m, lab in img_rows) + " \\\\"
-
 V = dict(
-    ABSTRACT=ABSTRACT, TABSIM=tabsim, TABIMG=tabimg, TABGAAR=TABGAAR, MORPH_ROWS=MORPH_ROWS,
-    M_B=str(MS["images_per_cohort"] * MS["cohorts"]), M_F1="%.2f" % _ap("frozen (mean 3)", "1"), M_F6="%.2f" % _ap("frozen (mean 3)", "6"), M_NMIN="%.2f" % min(_ap("no smoothing", b) for b in _sz), M_NMAX="%.2f" % max(_ap("no smoothing", b) for b in _sz),
-    G_DCI=_dci(BT[RST]["diff_vs_default_ci"]), G_DIFF=_sg(_d(RST)), G_PB=pc(BT[RST]["share_better_than_default"]),
-    G_RANK=str(int(round(GS["default_rank_fraction"] * GS["n_configs"])) + 1), G_NC=str(GS["n_configs"]), G_BUDGET=str(GS["budget"]), G_REP=str(GS["repeats"]), G_DEFDEV=n(GS["default_fitness"]), G_OPTDEV=n(GS["optimum"]),
-    G_G1=pc(st["greedy"]["hit_top1pct"]), G_R1=pc(st["restart"]["hit_top1pct"]), G_P1=pc(st["population"]["hit_top1pct"]), G_N1=pc(st["random"]["hit_top1pct"]),
-    G_G5=pc(st["greedy"]["hit_top5pct"]), G_R5=pc(st["restart"]["hit_top5pct"]), G_P5=pc(st["population"]["hit_top5pct"]), G_N5=pc(st["random"]["hit_top5pct"]),
-    G_MB_R=n(st["restart"]["median_best"]), G_MB_N=n(st["random"]["median_best"]),
-    G_DEF_F=n(TF(DEF)), G_RST_F=n(TF(RST)), G_GRD_F=n(TF(GRD)), G_OPT_F=n(TF(OPT)), G_NOS_F=n(TF(NOS)),
-    G_DEF_HC=n(GT["test"][DEF]["aps"][0]), G_RST_HC=n(GT["test"][RST]["aps"][0]), G_DEF_D=n(GT["test"][DEF]["aps"][1]), G_RST_D=n(GT["test"][RST]["aps"][1]),
-    DEVPREV=pc(BRD[("dev", "rotor")]["prevalence_all"]),
-    HELDPREV="%s, %s and %s" % (pc(pf["polymer_photodegradation"]), pc(pf["liquid_crystal"]), pc(pf["magnetic_storage_decay"])),
-    DEVIMGPREV=pc(DH["anomalous_patch_share"], 1), HELDIMGPREV=pc(BD["anomalous_patch_share"], 1),
-    S_AP=n(bm("held", "rotor", FROZEN)), S_AUROC=n(bm("held", "rotor", FROZEN, "auroc")), S_MAHA=n(bm("held", "rotor", "Mahalanobis distance")), S_IF=n(bm("held", "rotor", "Isolation Forest")),
-    S_IFSM=n(bm("held", "rotor", "Isolation Forest, lattice-smoothed (rank)")), S_DEV_R=n(bm("dev", "rotor", FROZEN)), S_DEV_RD=n(bm("dev", "rotor_D", FROZEN)), S_HELD_RD=n(bm("held", "rotor_D", FROZEN)),
-    S_DEV_IF=n(bm("dev", "rotor_D", "Isolation Forest")), S_DALONE=n(bm("held", "rotor_D", "local disorder D alone")),
-    OLD_HC=n(met(DH, ORIG, "auroc")), OLD_DINO=n(met(DD, ORIG, "auroc")),
-    COH0_HC=n(met(DH, "appearance, multi-scale", "spatial_coherence")), COH1_HC=n(met(DH, FROZEN, "spatial_coherence")),
-    COH0_D=n(met(DD, "appearance, multi-scale", "spatial_coherence")), COH1_D=n(met(DD, FROZEN, "spatial_coherence")),
-    DEV_MS_HC=n(met(DH, MAHA_S, "average_precision")), DEV_MS_D=n(met(DD, MAHA_S, "average_precision")), DEV_F_HC=n(met(DH, FROZEN, "average_precision")), DEV_F_D=n(met(DD, FROZEN, "average_precision")),
-    H_AP_D=n(met(BD, FROZEN, "average_precision")), H_AUROC_D=n(met(BD, FROZEN, "auroc")), H_COH_D=n(met(BD, FROZEN, "spatial_coherence")), H_REC_D=n(met(BD, FROZEN, "region_recall")),
-    H_MS_D=n(met(BD, MAHA_S, "average_precision")), H_U_D=n(met(BD, "appearance, multi-scale", "average_precision")),
-    H_AP_HC=n(met(BH, FROZEN, "average_precision")), H_REC_HC=n(met(BH, FROZEN, "region_recall")), H_AUROC_HC=n(met(BH, FROZEN, "auroc")), H_COH_HC=n(met(BH, FROZEN, "spatial_coherence")),
-    H_T3_HC=n(met(BH, T3, "average_precision")), H_T3_D=n(met(BD, T3, "average_precision")),
+    ABSTRACT=ABSTRACT, TABAP=tabap, TABDEV=tabdev, OG_REP=str(OS["repeats"]), OG_BUDGET=str(OS["budget"]), OG_N=str(OS["n_unique"]), OG_FRANK=str(OS["frozen_rank"]), OG_FF=n2(OS["frozen_fitness"]), OG_OPT=n2(OS["optimum"]),
+    OG_RN5=pc(_st["random"]["hit_top5pct"]), OG_G5=pc(_st["greedy"]["hit_top5pct"]), OG_R5=pc(_st["restart"]["hit_top5pct"]), OG_P5=pc(_st["population"]["hit_top5pct"]),
+    OG_RN1=pc(_st["random"]["hit_top1pct"]), OG_G1=pc(_st["greedy"]["hit_top1pct"]), OG_R1=pc(_st["restart"]["hit_top1pct"]), OG_P1=pc(_st["population"]["hit_top1pct"]),
+    T_NONE_SC=n2(ap(NONE, "SC")), T_MEAN_SC=n2(ap(MEAN, "SC")), T_NONE_BAR=n2(ap(NONE, "BAR")), T_MEAN_BAR=n2(ap(MEAN, "BAR")), T_NONE_ROT=n2(ap(NONE, "R")), T_MEAN_ROT=n2(ap(MEAN, "R")),
+    R_NONE_SC=n2(rec(NONE, "SC")), R_MEAN_SC=n2(rec(MEAN, "SC")), R_NONE_BAR=n2(rec(NONE, "BAR")), R_MEAN_BAR=n2(rec(MEAN, "BAR")), T_NONE_D=n2(ap(NONE, "D")), T_MEAN_D=n2(ap(MEAN, "D")),
+    F_MEAN=n2(F(MEAN)), F_NONE=n2(F(NONE)), F_SIMW=n2(F(SIMW)), F_OGCOS=n2(F(OGC)), F_OGVMF=n2(F(OGV)), F_GAAR=n2(F(GAR)),
+    D_MEAN_NONE=dif(*diff(MEAN, NONE)), D_SIMW_MEAN=dif(*diff(SIMW, MEAN)), D_SIMW_NONE=dif(*diff(SIMW, NONE)), D_ONE_NONE=dif(*diff(ONE, NONE)), D_OGCOS_SIMW=dif(*diff(OGC, SIMW)), D_OGVMF_SIMW=dif(*diff(OGV, SIMW)),
+    R_SIMW_SC=n2(rec(SIMW, "SC")), R_SIMW_BAR=n2(rec(SIMW, "BAR")), FR_NONE=n2(fr(NONE)), FR_SIMW=n2(fr(SIMW)), T_SIMW_D=n2(ap(SIMW, "D")), T_SIMW_H=n2(ap(SIMW, "H")), T_NONE_H=n2(ap(NONE, "H")), T_SIMW_ROT=n2(ap(SIMW, "R")),
+    OLD_DIFF=sg(_old), OLD_CI=cif(_oci), TEST_UNITS="16 to 50",
 )
 s = open(os.path.join(HERE, "prl_template.tex.in"), encoding="utf-8").read()
 for k, v in V.items():
-    s = s.replace("@%s@" % k, v.replace("%", r"\%") if k not in ("ABSTRACT", "TABSIM", "TABIMG") else v.replace("%", r"\%"))
+    s = s.replace("@%s@" % k, v)
 left = re.findall(r"@[A-Z_0-9]+@", s)
 assert not left, left
 open(os.path.join(OUT, "main.tex"), "w", encoding="utf-8").write(s)

@@ -410,6 +410,30 @@ def test_morphology_generator_holds_prevalence_and_separability_fixed():
     assert lab >= 1 and m6.sum() % 36 == 0                                   # whole 6 x 6 blocks
 
 
+def test_aggregation_rules_and_the_monotone_vmf_gate():
+    from myuncle_vision import gating as G, og_study as O
+    rng = np.random.default_rng(0)
+    H = W = 12
+    U = rng.normal(size=(H, W, 6))
+    U /= np.linalg.norm(U, axis=-1, keepdims=True)
+    r = rng.random((H, W))
+    valid = np.ones((H, W), bool)
+    assert np.allclose(G.apply_rule(r, U, valid, "none"), r)
+    same = np.tile(U[0, 0], (H, W, 1))                                                     # identical embeddings: similarity weights are all 1
+    assert np.allclose(G.apply_rule(r, same, valid, "simw", 3, tau=0.5), G.apply_rule(r, same, valid, "mean", 3), equal_nan=True)
+    one = G.apply_rule(r, U, valid, "onesided", 3, tau=0.5)
+    assert np.all(one >= r - 1e-12)                                                        # the one-sided rule never removes evidence
+    a = G.apply_rule(r, U, valid, "og_disorder", 3, 0.5, 5.0, 0.5)
+    b = G.apply_rule(r, U, valid, "og_vmf", 3, 0.5, 5.0, 0.5)
+    assert np.allclose(a, b, atol=1e-6)                                                    # H_chi is monotone in R: the rank gates coincide
+    g = G.apply_rule(r, U, valid, "og_cos", 3, 0.5, 5.0, 0.5)
+    assert np.isfinite(g).all() and g.min() >= min(r.min(), 0) - 1e-9
+    res = G.cohort_apply([dict(r=r, U=U, valid=valid)], "simw", 3, lam=0.5, tau=0.5)[0]
+    assert np.isfinite(res).all()                                                          # persistence variant runs
+    assert O.canonical(dict(rule="mean", window=3, theta=0.4, alpha=5.0, lam=0.0)) == O.canonical(dict(rule="mean", window=3, theta=0.8, alpha=2.0, lam=0.0))
+    assert len({json.dumps(O.canonical(c), sort_keys=True) for c in O.all_configs()}) == 460
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

@@ -1,17 +1,17 @@
 PRLETTERS-D-26-02906 - edit submission (Editorial Manager) - values to enter
 
 TITLE (sentence case, no abbreviations):
-Order and entropy of lattices of unit vectors in d dimensions: label-free discovery of unusual local organization in simulated lattices and synthetic images
+When does spatial smoothing help anomaly scoring on lattices of embeddings? Fixed windows, similarity-weighted aggregation and order gates
 
-ABSTRACT (193 words, limit 200):
-Averaged order parameters say how ordered a lattice of orientational states is, not where its organization is unusual. We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in d dimensions (von Mises-Fisher distribution); they equal MyUncle's at d=2. On this basis we build a label-free score that judges how rare the state of a site is at several prevalence scales and smooths it over the lattice, and compare it with four baselines, with settings frozen before the held-out data. Smoothing the score over the lattice raised spatial coherence on synthetic images and, with DINOv2 embeddings, average precision, but it lowered average precision on simulated MyUncle lattices; in a controlled study on an independent generator it hurt at every anomaly size, least for compact anomalies. A supervised search over 360 configurations with GaaR, an evolutionary search framework, raised the lower-tail average precision on fresh test scenarios from 0.18 to 0.26, but the paired interval of the difference included zero and random search also beat the default, so any gain belongs to the selected configuration, not to the search. All evidence is simulated; code and results are open.
+ABSTRACT (170 words, limit 200):
+Anomaly scores on lattices of embeddings, such as the patches of an image, are often smoothed over a fixed spatial window. On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed 3x3 mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. Aggregation weighted by the cosine similarity of the embeddings of neighboring sites, with a label-free scale, preserved scattered, bar-shaped, irregular and boundary anomalies: on independent test scenarios it raised the lower-tail average precision from 0.11 (fixed mean) and 0.23 (no smoothing) to 0.32, with paired 95% intervals above zero. Gates based on local order and on the von Mises-Fisher information of the neighborhood, a d-dimensional extension of MyUncle's entropy quantities, did not beat ordinary similarity; rank gates on that information coincide with gates on the resultant length. A GaaR search over 460 rule configurations did not beat random search. All evidence is simulated; code and results are open.
 
 KEYWORDS:
-lattice models; von Mises-Fisher distribution; orientational order; entropy; unsupervised anomaly detection; spatial smoothing
+anomaly detection; spatial aggregation; embedding lattices; von Mises-Fisher distribution; orientational order; configuration search
 
 HIGHLIGHTS (3-5, <=85 characters each):
-- MyUncle order and entropy extend to unit vectors in d dimensions
-- Label-free score: state rarity at several scales, smoothed over the lattice
-- Settings frozen on development data; held-out data evaluated once
-- Controlled study: smoothing hurt at every anomaly size, least for compact ones
-- GaaR configuration search: gain not significant on fresh tests, search not decisive
+- A fixed smoothing window can destroy anomaly signals, depending on their shape
+- Similarity-weighted aggregation beat fixed windows and no smoothing on fresh tests
+- Order and von Mises-Fisher gates did not beat plain embedding similarity
+- GaaR rule search was not better than random search at equal budget
+- d-dimensional MyUncle entropy extension verified; it does not drive detection
