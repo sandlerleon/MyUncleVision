@@ -18,7 +18,7 @@ python -m myuncle_vision run --input images/ --output out/ --mpp 0.5 --patch-px 
 ```
 Images are searched recursively (SVS, NDPI, TIFF, PNG, JPEG). If an image carries no resolution, `--mpp` is assumed (recorded as `mpp_assumed` in `images_used.csv`); for ordinary photographs `--mpp` only sets the patch size in "micrometres", so choose `--patch-px` and `--mpp` such that a patch covers the scale of structure you care about.
 
-Useful options: `--encoder dinov2|handcrafted`, `--encoder-module file.py:function --encoder-dim N` (your own model), `--scorer knn|mahalanobis`, `--weights 1,0,0` (appearance only, the frozen default; `0.4,0.4,0.2` adds the lattice axes), `--rarity 0.01`, `--q`, `--max-patches N`, `--hash-files`, `--data-source "..."`, `--seed`, `--no-figures`, `--scenarios` (exploratory).
+Useful options: `--encoder dinov2|handcrafted`, `--encoder-module file.py:function --encoder-dim N` (your own model), `--scorer knn|mahalanobis`, `--aggregation mean|simw|two_channel` (`two_channel` is recommended: similarity-weighted rarity or the directional local order, chosen per cohort; see [TWO_CHANNEL.md](TWO_CHANNEL.md); `mean` is the earlier frozen default), `--weights 1,0,0` (appearance only, the frozen default; `0.4,0.4,0.2` adds the lattice axes), `--rarity 0.01`, `--q`, `--max-patches N`, `--hash-files`, `--data-source "..."`, `--seed`, `--no-figures`, `--scenarios` (exploratory).
 
 ## 3. From Python
 

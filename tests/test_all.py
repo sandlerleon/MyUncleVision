@@ -479,6 +479,58 @@ def test_label_free_survival_predictor_separates_compact_from_scattered_candidat
     assert E.label_free_survival(comp, valid, 0.04, 3.0, 3) > E.label_free_survival(spik, valid, 0.04, 3.0, 3)
 
 
+def test_directional_disorder_ignores_domain_walls_and_sees_disorder():
+    from myuncle_vision import local_geometry as LG, two_channel as T
+    U = np.zeros((12, 12, 3))
+    U[:, :6], U[:, 6:] = (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)                    # two ordered domains with a wall between them
+    valid = np.ones((12, 12), bool)
+    dmin, dmean = T.directional_disorder(U, valid, 1)
+    assert np.nanmax(dmin) < 1e-12                                           # a wall is ordered on at least one side: the directional disorder is zero everywhere
+    assert np.nanmax(LG.disorder_map(U, valid)) > 0.2 and np.nanmax(dmean) > 0.05      # the isotropic disorder and the quadrant mean fire at the wall
+    rng = np.random.default_rng(0)
+    V = U.copy()
+    blk = rng.normal(size=(4, 4, 3))
+    V[4:8, 1:5] = blk / np.linalg.norm(blk, axis=-1, keepdims=True)           # a disorganized block inside the first domain
+    d2 = T.directional_disorder(V, valid, 1)[0]
+    assert np.nanmin(d2[5:7, 2:4]) > 0.05 and np.nanmax(d2[:, 8:]) < 1e-12   # disordered in every direction inside the block, zero far from it
+    hole = valid.copy()
+    hole[0, 0] = False
+    d3 = T.directional_disorder(U, hole, 1)[0]
+    assert np.isnan(d3[0, 0]) and np.isfinite(d3[1, 1])                      # quadrants with a missing site do not count; other quadrants still do
+    assert abs(T.tail_index([rng.normal(size=(300, 300))]) - T.T_GAUSS) < 0.05          # a Gaussian bulk without anomalies has the Gaussian tail index
+    assert abs(float(np.max(T.cohort_rank([rng.random((5, 5))])[0])) - 1.0) < 1e-12
+
+
+def test_two_channel_selection_on_arrangement_and_feature_anomalies():
+    """rearranged regions keep the distribution of the embeddings: the rarity is at chance and the order channel finds them; with feature outliers the rarity channel is kept (cohort-level, label-free)"""
+    from sklearn.metrics import average_precision_score
+    from myuncle_vision import gaar_opt as GO, morphology as M
+
+    def run(make, aggregation):
+        slides, masks = [], []
+        for i in range(6):
+            X, m = make(7000 + i)
+            slides.append(M._slide("t%d" % i, X))
+            masks.append(np.asarray(m).reshape(-1) > 0)
+        _, summ = cohort.analyse(slides, GO.to_config(dict(GO.DEFAULT, smooth="none"), n_states=6, ref_per_slide=300, ref_max=1800, aggregation=aggregation))
+        y = np.concatenate(masks)
+        return summ, float(average_precision_score(y, np.nan_to_num(np.concatenate([s.extra["novelty"] for s in slides]), nan=0.0))), float(y.mean()), slides
+
+    arr = lambda sd: M.make_lattice_smooth(sd, block=6)
+    out = lambda sd: M.make_lattice(sd, shape="block", block=3, **M.GEN)
+    s0, ap0, prev, _ = run(arr, "simw")
+    assert s0["aggregation"] == "simw" and ap0 < 2.5 * prev                  # the rarity channel is near chance on rearranged regions
+    s1, ap1, _, sl = run(arr, "two_channel")
+    assert s1["two_channel"]["channel"] == "B" and s1["two_channel"]["tail_B"] > s1["two_channel"]["tail_A"] and ap1 > 0.6 and ap1 > 5 * ap0
+    assert sl[0].extra["channel_A"].shape == sl[0].extra["channel_B"].shape == (32 * 32,)
+    s2, ap2, _, _ = run(out, "two_channel")
+    s3, ap3, _, _ = run(out, "simw")
+    assert s2["two_channel"]["channel"] == "A" and abs(ap2 - ap3) < 1e-9       # feature outliers: channel A is kept, the score is the similarity-weighted rarity
+    X, kind = M.make_lattice_mixed(3, out_shape="block", out_block=3, shift=2.0)
+    assert set(np.unique(kind)) == {0, 1, 2} and X.shape == (32, 32, 16)
+    assert np.allclose(np.sort(X[kind == 2].ravel()), np.sort(M.make_lattice_mixed(3, out_shape="block", out_block=3, shift=2.0)[0][kind == 2].ravel()))   # seeded
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

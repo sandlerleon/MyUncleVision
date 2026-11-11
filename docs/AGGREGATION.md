@@ -1,5 +1,7 @@
 # Spatial aggregation of anomaly scores on embedding lattices
 
+This page concerns the rarity channel (channel A). Anomalies of arrangement, which no aggregation of the rarity can see, are the subject of [TWO_CHANNEL.md](TWO_CHANNEL.md).
+
 `myuncle_vision/gating.py` has the rules, `myuncle_vision/og_study.py` the protocol, `myuncle_vision/morphology.py` the independent generator. Everything after the rarity score is label-free; only the *selection* of the rule parameters uses development labels.
 
 | Rule | Definition |

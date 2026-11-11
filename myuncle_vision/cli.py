@@ -29,6 +29,8 @@ def main(argv=None):
     r.add_argument("--seed", type=int, default=0)
     r.add_argument("--weights", default="1,0,0", help="novelty axis weights: appearance,disorder,contacts (default 1,0,0: appearance only, the frozen setting; 0.4,0.4,0.2 adds the lattice axes)")
     r.add_argument("--scorer", default="knn", choices=["knn", "mahalanobis"], help="appearance scorer: multi-scale nearest-neighbour rarity (default) or Mahalanobis distance; both are lattice-smoothed")
+    r.add_argument("--aggregation", default="mean", choices=["mean", "simw", "two_channel"],
+                   help="spatial aggregation of the score: mean (fixed 3 x 3 window, frozen default), simw (similarity-weighted) or two_channel (rarity or directional local order, selected per cohort)")
     r.add_argument("--rarity", type=float, default=0.01, help="rarity scale: fraction of the reference set used as k; a state is only 'rare' if it covers less than this share of the cohort")
     r.add_argument("--no-figures", action="store_true")
     r.add_argument("--scenarios", action="store_true", help="EXPLORATORY: add the MyUncle scenario analysis per slide (a modelling analogy, not validated)")
@@ -56,7 +58,7 @@ def main(argv=None):
             assert a.encoder_dim > 0, "--encoder-dim is required with --encoder-module"
             enc = load_encoder_module(a.encoder_module, a.encoder_dim)
         extra = {"data_source": a.data_source} if a.data_source else {}
-        cfg = RunConfig(patch_px=a.patch_px, **extra, encoder=a.encoder, device=a.device, mpp=a.mpp, max_patches=a.max_patches, q=a.q, seed=a.seed, weights=tuple(float(x) for x in a.weights.split(",")), rarity_fraction=a.rarity, scorer=a.scorer, figures=not a.no_figures, progression=a.scenarios, hash_files=a.hash_files)
+        cfg = RunConfig(patch_px=a.patch_px, **extra, encoder=a.encoder, device=a.device, mpp=a.mpp, max_patches=a.max_patches, q=a.q, seed=a.seed, weights=tuple(float(x) for x in a.weights.split(",")), rarity_fraction=a.rarity, scorer=a.scorer, aggregation=a.aggregation, figures=not a.no_figures, progression=a.scenarios, hash_files=a.hash_files)
         run(a.input, a.output, cfg, encoder=enc)
     elif a.cmd == "rarity-sweep":
         from .validate import rarity_sweep

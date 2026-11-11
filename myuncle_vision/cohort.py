@@ -64,6 +64,8 @@ class Config:
     smooth_window: int = 3                    # lattice smoothing window (1 = none); 3 is the frozen default
     smooth_type: str = "mean"                  # 'mean' (frozen default), 'gaussian' or 'median'
     smooth: bool = True                       # 3 x 3 lattice smoothing of the novelty score: spatially coherent regions are boosted, isolated patches suppressed
+    aggregation: str = "mean"                 # 'mean': the fixed window above (the frozen default of the earlier versions); 'simw': similarity-weighted aggregation; 'two_channel': similarity-weighted
+                                              # rarity (channel A) or the directional local disorder (channel B), selected per cohort by a label-free tail index (two_channel.py)
     seed: int = 0
 
 
@@ -282,4 +284,10 @@ def analyse(slides, cfg=None, space=None):
         nov[~s.ok] = np.nan
         s.extra["novelty_raw"] = nov
         s.extra["novelty"] = smooth_lattice(s, nov, cfg.smooth_window, cfg.smooth_type) if cfg.smooth else nov
-    return space, dict(K=K, d=d, adjacency=A.tolist(), pair_prob=P.tolist(), n_reference=int(len(ref["U"])), weights=w.tolist())
+    summary = dict(K=K, d=d, adjacency=A.tolist(), pair_prob=P.tolist(), n_reference=int(len(ref["U"])), weights=w.tolist(), aggregation=cfg.aggregation)
+    if cfg.aggregation != "mean":
+        if cfg.aggregation not in ("simw", "two_channel"):
+            raise ValueError("aggregation must be 'mean', 'simw' or 'two_channel'")
+        from .two_channel import aggregate_slides
+        summary["two_channel"] = aggregate_slides(slides, cfg.aggregation, cfg.smooth_window if cfg.smooth_window > 1 else 3)
+    return space, summary

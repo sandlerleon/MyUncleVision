@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "MyUncleVision: a lattice-based framework for unsupervised anomaly discovery in images (computer-vision companion of MyUncle)"
-abstract: "A Python framework for label-free discovery of unusual local organization in images and in lattices of embeddings: patch embeddings on a lattice, appearance rarity at several prevalence scales, lattice smoothing, ranked and explained regions; MyUncle order and entropy definitions generalized to d dimensions, with a bridge to MyUncle simulations. Evaluated on synthetic images and simulated lattices only."
-version: "0.9.0"
-date-released: "2026-11-08"
+abstract: "A Python framework for label-free discovery of unusual local organization in images and in lattices of embeddings: patch embeddings on a lattice, appearance rarity at several prevalence scales with similarity-weighted aggregation, a second channel based on the directional local disorder for anomalies of arrangement with a label-free choice of the channel, ranked and explained regions; MyUncle order and entropy definitions generalized to d dimensions, with a bridge to MyUncle simulations. Evaluated on synthetic images and simulated lattices only."
+version: "1.0.0"
+date-released: "2026-11-11"
 license: MIT
 repository-code: "https://github.com/sandlerleon/MyUncleVision"
 doi: "10.5281/zenodo.24066260"

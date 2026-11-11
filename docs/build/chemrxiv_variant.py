@@ -3,8 +3,8 @@
 Executed by build_documents.py (--variant chemrxiv) with the block list B, the results and the helper functions in scope.  No evidence is added or removed and no claim goes beyond the results:
 no micrograph of a real material and no real tissue image was analysed, which the text says.  Whether ChemRxiv's moderators accept the scope is their decision."""
 
-CHEM_TITLE = "Order and entropy of lattices of unit vectors in d dimensions: label-free discovery of unusual local organization in simulated maintenance lattices and synthetic images"
-CHEM_KEYWORDS = "Keywords: lattice models; statistical mechanics; von Mises-Fisher distribution; orientational order; entropy; unsupervised anomaly detection; microscopy image analysis; open-source software"
+CHEM_TITLE = "Rarity and local order on lattices of unit vectors in d dimensions: two complementary label-free channels for unusual local organization in simulated maintenance lattices and synthetic images"
+CHEM_KEYWORDS = "Keywords: lattice models; statistical mechanics; von Mises-Fisher distribution; orientational order; entropy; spatial arrangement; unsupervised anomaly detection; microscopy image analysis; open-source software"
 
 import json as _json
 _GS = _json.load(open(os.path.join(RES, "gaar_search_comparison.json")))
@@ -49,7 +49,7 @@ _SCN = dict(H="images-test-handcrafted", D="images-test-dinov2_vits14", R="sim-t
 _ap = lambda c, k: _R[c][_SCN[k]]["ap"]
 _F = lambda c: _R[c]["_fitness"]
 _rec = lambda c, k: _R[c][_SCN[k]]["region_recall"]
-_sg = lambda x: ("-%.2f" % -x) if x < -0.0049 else ("+%.2f" % x)
+_sg = lambda x: ("-%.2f" % -x) if x <= -0.005 else (("+%.2f" % x) if x >= 0.005 else "0.00")
 _ci2 = lambda c: "[%s, %s]" % (_sg(c[0]), _sg(c[1]))
 _dd2 = lambda c, ref: "%s %s" % (_sg(_F(c) - _F(ref)), _ci2(_BTO[c]["diff_vs_" + ref.split()[0]]["ci"]))
 assert all(_ap(_MEAN, k) < _ap(_NONE, k) for k in ("SC", "BAR", "R")) and _ap(_MEAN, "D") > _ap(_NONE, "D")
@@ -60,23 +60,100 @@ _so = _OS["strategies"]
 assert all(_so["random"]["hit_top5pct"] > _so[k]["hit_top5pct"] and _so["random"]["hit_top1pct"] > _so[k]["hit_top1pct"] for k in ("greedy", "restart", "population"))
 _pcx = lambda x: "%d%%" % round(100 * x)
 
+_TC = _json.load(open(os.path.join(RES, "two_channel.json")))
+_TD = _json.load(open(os.path.join(RES, "two_channel_dev.json")))
+_G1 = _json.load(open(os.path.join(RES, "og_geometry_first_attempt.json")))
+_RAR, _M3, _CA, _CB = "rarity", "rarity, fixed 3x3 mean", "rarity, similarity-weighted (channel A)", "directional disorder (channel B)"
+_DISO, _CNB, _MAN = "isotropic local disorder D", "center-to-neighbor distance", "local manifold inconsistency (m=2)"
+_FUS, _FCNB, _FD = "fusion select: A + directional disorder", "fusion select: A + center-to-neighbor distance", "fusion select: A + isotropic disorder D"
+_ZMAX, _RMAX = "fusion zmax: A + directional disorder", "fusion rankmax: A + directional disorder"
+_TWS = ["fusion tailw p=%d: A + directional disorder" % _p for _p in (1, 2, 4)]
+_tsn = _TC["scenarios"]
+_tix = lambda key: [k for k, nm in enumerate(_tsn) if key in nm][0]
+_tap = lambda c, key: _TC["ap"][c][_tix(key)]
+_iarr = [k for k, nm in enumerate(_tsn) if nm.startswith("arr-")]
+_imix = [k for k, nm in enumerate(_tsn) if nm.startswith("mixed-")]
+_iten = [k for k in range(len(_tsn)) if k not in _iarr and k not in _imix]
+_gm = lambda c, idx: sum(_TC["ap"][c][k] for k in idx) / len(idx)
+_TFt, _TBt = _TC["fitness"], _TC["bootstrap"]
+_cip = lambda c: "[%.2f, %.2f]" % (c[0], c[1])
+_ttail = lambda key, scs: sum(x[key] for sc in scs for x in _TC["tails"][_tix(sc)]) / sum(len(_TC["tails"][_tix(sc)]) for sc in scs)
+_blk = ("morph-test-block3", "morph-test-block6", "morph-test-boundary3")
+_feat = [x["channel"] for k in _iten for x in _TC["tails"][k]]
+_rear = [x["channel"] for k in _iarr + _imix for x in _TC["tails"][k]]
+_ty = _TC["typed"]
+_m1, _m2 = "mixed-test-block3", "mixed-test-scattered"
+_g1b, _g1a = _G1["best_dev_config"], "similarity-weighted rarity"
+assert _TC["selected_on_dev"] == _FUS and len(_tsn) == 15 and len(_iten) == 10
+assert _gm(_RAR, _iarr) < 0.08 and _gm(_CA, _iarr) < 0.08 and _gm(_CB, _iarr) > 0.8 and _TBt[_CB]["diff_arr_vs_A"]["ci"][0] > 0.7
+assert abs(_gm(_CNB, _iarr) - _gm(_CB, _iarr)) < 0.02 and _gm(_DISO, _iarr) < _gm(_CB, _iarr) - 0.2 and _gm(_MAN, _iarr) < _gm(_CB, _iarr) - 0.2
+assert _tap(_CB, "scattered") > 0.5 and _tap(_CB, "bar8") > 0.5 and _tap(_CB, "block3") < 0.05 and _tap(_CB, "block6") < 0.05
+assert _ttail("B", _blk) < 5 < 15 < _ttail("B_cnb", _blk) and _ttail("B_D", _blk) > 15
+assert _TBt[_FUS]["diff_vs_A"]["ci"][0] > 0 and _TBt[_FUS]["diff_vs_rarity"]["ci"][0] > 0 and _TBt[_FUS]["diff_old_vs_A"]["ci"][0] > -0.01
+assert all(c == "B" for c in _rear) and _feat.count("B") == 1 and _TC["ap"]["fusion select0: A + directional disorder"] == _TC["ap"][_FUS]
+assert _TBt[_FUS]["diff_vs_select_cnb"]["ci"][0] > 0 and _TBt[_FUS]["diff_vs_select_D"]["ci"][0] > 0
+assert max(_TFt[_ZMAX], _TFt[_RMAX], *[_TFt[t] for t in _TWS]) < _TFt[_FUS] and _tap(_ZMAX, "dinov2") < 0.05
+assert all(_ty[m][_CB]["rearranged"] > 0.5 and _ty[m][_RAR]["outliers"] > 0.4 and _ty[m][_CB]["outliers"] < 0.1 and _ty[m][_RAR]["rearranged"] < 0.1 for m in (_m1, _m2)) and _ty[_m2][_CA]["outliers"] < _ty[_m2][_RAR]["outliers"] - 0.2
+assert _G1["dev"]["fitness"][_g1b] > _G1["dev"]["fitness"][_g1a] and _G1["test"]["fitness"][_g1b] < _G1["test"]["fitness"][_g1a]
+_tcrow = lambda c, lab: [lab, "%.2f" % _gm(c, _iten), "%.2f" % _gm(c, _iarr), "%.2f" % _gm(c, _imix), "%.2f %s" % (_TFt[c], _cip(_TBt[c]["fitness_ci"]))]
+_twr = n(min(_TFt[t] for t in _TWS)) if n(min(_TFt[t] for t in _TWS)) == n(max(_TFt[t] for t in _TWS)) else "%s to %s" % (n(min(_TFt[t] for t in _TWS)), n(max(_TFt[t] for t in _TWS)))
+assert _tap(_MAN, "scattered") > 0.95 and max(_tap(_MAN, k) for k in ("block3", "block6", "bar8", "irregular12", "boundary3")) < 0.1
+CHEM_TC = [
+    ("h2", "4.10 Arrangement anomalies: local order as a second channel"),
+    ("p", "A rarity score, however it is aggregated, sees only what is at a site. An anomaly that consists of ordinary elements in the wrong arrangement, a contextual anomaly [@Chandola2009] or, in industrial inspection, a logical anomaly [@Bergmann2022], leaves the distribution of the embeddings unchanged. "
+          "To test this, the generator was given a spatially correlated background (a smooth random field) in which the embeddings of a region are permuted among its sites, so that every embedding keeps its value and only the arrangement is destroyed (6 x 6 and 8 x 8 blocks and irregular 24-site clusters; 7% of the sites), and mixed cohorts with rearranged 6 x 6 blocks (3.5%) together with feature outliers that leave the subspace of the normal sites (3 x 3 blocks or scattered sites, 1.5%). "
+          "Development and test versions use disjoint seeds; the separability of the outliers was calibrated beforehand on the unsmoothed rarity only."),
+    ("p", "The isotropic disorder D_i of Section 2.3 is large wherever neighboring vectors differ, which includes every wall between two ordered domains. The directional disorder B_i is the minimum, over the four 2 x 2 quadrant windows that contain site i, of one minus the length of the mean unit vector of the quadrant. A wall is ordered on at least one side, so one quadrant lies inside one domain and B_i stays near zero, while a disorganized region is disordered in every direction; taking the minimum over sub-windows is the idea of the edge-preserving filter of Kuwahara et al. [@Kuwahara1976], applied to the order parameter instead of the variance. "
+          "Two channels result: channel A, the similarity-weighted rarity of Section 4.8, and channel B, the directional disorder. They have different units and are compared through a label-free tail index: the raw score of a channel (the nearest-neighbor distance at k = 1% for channel A, B_i for channel B) is standardized over the cohort with the median and the median absolute deviation [@Rousseeuw1993], and the tail index T is the 97th percentile of the result (1.88 for a Gaussian bulk without anomalies). "
+          "The fused detector uses channel B for a cohort when T_B > T_A and T_B > 2 x 1.88, and channel A otherwise: one choice per cohort, without labels. It was chosen among seven fusion rules (the unguarded selection, the site-wise maximum of the standardized scores, the maximum of the cohort ranks, and maxima of the ranks weighted by T^p, p = 1, 2, 4) on fifteen development scenarios and evaluated once on fifteen test scenarios."),
+    ("table", "Table 9. Two channels on the fifteen test scenarios: mean average precision over the ten scenarios of Table 7, the three arrangement scenarios and the two mixed scenarios, and the lower-tail fitness F over all fifteen with its 95% interval.",
+     ["Detector", "Ten scenarios of Table 7", "Arrangement", "Mixed", "F [95% interval]"],
+     [_tcrow(_RAR, "Rarity, no smoothing"), _tcrow(_M3, "Rarity, fixed 3 x 3 mean"), _tcrow(_CA, "Channel A (similarity-weighted rarity)"), _tcrow(_DISO, "Isotropic disorder D"), _tcrow(_MAN, "Local manifold statistic"),
+      _tcrow(_CNB, "Distance to the 8 neighbors"), _tcrow(_CB, "Channel B (directional disorder)"), _tcrow(_FUS, "Channel chosen by tail index")],
+     [2.5, 1.2, 0.9, 0.7, 1.3], True, 12),
+    ("p", "On the three test scenarios with rearranged regions the rarity was at chance: its average precision was %s at a prevalence of 0.06 to 0.07, and similarity weighting did not change that (%s). The directional disorder reached %s (95%% interval %s; paired gain over channel A %s; Table 9). "
+          "The simple distance of a site to its eight neighbors was equally good (%s), the isotropic disorder D reached %s and a local manifold statistic (the distance of a site from the plane spanned by the two leading principal directions of its 5 x 5 neighborhood) %s. The directional form is thus not a better detector of rearranged regions than a simple baseline; the difference lies in what else the statistics respond to. "
+          "In the feature-outlier scenarios, whose background has walls between domains, channel B alone found thin anomalies (scattered sites %s, bars %s) and ignored compact blocks (%s and %s), whose interior is ordered; its tail index there was %.1f, against %.0f for the neighbor distance and %.0f for the isotropic disorder, which respond to every wall. On the images and on the MyUncle lattices channel B alone was weak (%s, %s, %s and %s)."
+          % (n(_gm(_RAR, _iarr)), n(_gm(_CA, _iarr)), n(_gm(_CB, _iarr)), _cip(_TBt[_CB]["mean_arr_ci"]), _ci2(_TBt[_CB]["diff_arr_vs_A"]["ci"]), n(_gm(_CNB, _iarr)), n(_gm(_DISO, _iarr)), n(_gm(_MAN, _iarr)),
+             n(_tap(_CB, "scattered")), n(_tap(_CB, "bar8")), n(_tap(_CB, "block3")), n(_tap(_CB, "block6")), _ttail("B", _blk), _ttail("B_cnb", _blk), _ttail("B_D", _blk),
+             n(_tap(_CB, "handcrafted")), n(_tap(_CB, "dinov2")), n(_tap(_CB, "sim-test-rotor")), n(_tap(_CB, "rotor_D")))),
+    ("p", "On the development scenarios the cohort-level selection had the highest fitness of the seven fusion rules (F = %s, against %s for channel A). On the fifteen test scenarios it reached F = %s (95%% interval %s), against %s for channel A, %s for the unsmoothed rarity and %s for the fixed mean; the paired gain over channel A was %s %s and over the unsmoothed rarity %s %s. "
+          "The gain came from the scenarios with rearranged regions, and nothing was lost on the ten earlier scenarios (mean AP %s against %s; paired difference %s). The tail index chose channel A in %d of the %d test cohorts that contain only feature anomalies (the exception was one cohort of bars, where both channels work) and channel B in all %d cohorts with rearranged regions; the requirement T_B > 2 x 1.88 was never the deciding condition. "
+          "The directional form mattered for the choice: with the neighbor distance in place of B_i the selection reached F = %s (paired difference to the directional version %s %s), because the walls of the block scenarios gave it a heavy tail and it was chosen wrongly there, and with the isotropic disorder F = %s (%s %s). "
+          "The site-wise rules were below the selection: the maximum of the standardized scores %s (it failed on the DINOv2 images, AP %s), the maximum of the ranks %s, and the tail-weighted maxima %s."
+          % (n(_TD["fitness"][_FUS]), n(_TD["fitness"][_CA]), n(_TFt[_FUS]), _cip(_TBt[_FUS]["fitness_ci"]), n(_TFt[_CA]), n(_TFt[_RAR]), n(_TFt[_M3]),
+             _sg(_TFt[_FUS] - _TFt[_CA]), _ci2(_TBt[_FUS]["diff_vs_A"]["ci"]), _sg(_TFt[_FUS] - _TFt[_RAR]), _ci2(_TBt[_FUS]["diff_vs_rarity"]["ci"]),
+             n(_gm(_FUS, _iten)), n(_gm(_CA, _iten)), _ci2(_TBt[_FUS]["diff_old_vs_A"]["ci"]), _feat.count("A"), len(_feat), len(_rear),
+             n(_TFt[_FCNB]), _sg(_TFt[_FUS] - _TFt[_FCNB]), _ci2(_TBt[_FUS]["diff_vs_select_cnb"]["ci"]), n(_TFt[_FD]), _sg(_TFt[_FUS] - _TFt[_FD]), _ci2(_TBt[_FUS]["diff_vs_select_D"]["ci"]),
+             n(_TFt[_ZMAX]), n(_tap(_ZMAX, "dinov2")), n(_TFt[_RMAX]), _twr)),
+    ("fig", "fig_channels.png", "Fig. @F:channels@. The two channels on one test lattice that contains both kinds of anomaly (mixed scenario, seed 121). (a) Feature outliers and a rearranged block; (b) channel A, the rarity; (c) channel B, the directional disorder; (d) the top 3% of each channel. Rarity marks the feature outliers and is blind to the rearranged block; the directional disorder marks the rearranged block and is blind to the compact outliers.", 6.4),
+    ("p", "Three limits were measured. First, a cohort-level choice follows one channel. In the mixed cohorts it chose channel B and reached an AP of %s and %s over both kinds of anomaly (channel A: %s and %s), but taken by kind, the rearranged sites were found by channel B (%s and %s) and the feature outliers only by the rarity (%s and %s unsmoothed; channel B %s and %s): when both kinds occur together, the two maps must be read side by side (Fig. @F:channels@). "
+          "Second, in the smooth background of the mixed cohorts similarity weighting lowered the AP of scattered feature outliers from %s to %s, because coherent patches of mildly rare normal sites are reinforced; channel A is not uniformly better than the unsmoothed rarity. "
+          "Third, a first attempt, fixed blends of the ranks of channel A and of the isotropic disorder, had been selected on thirteen of the development scenarios (F = %.3f against %.3f) and did not beat channel A on the corresponding test scenarios (%.3f against %.3f); the directional statistic and the tail index were designed after that, so thirteen of the fifteen test scenarios had been used once before. "
+          "The local manifold statistic detected scattered single outliers almost perfectly (AP %s) but none of the other outlier shapes (at most %s), and it was weaker than the neighbor distance on rearranged regions, which is why it is not used as a channel."
+          % (n(_tap(_FUS, _m1)), n(_tap(_FUS, _m2)), n(_tap(_CA, _m1)), n(_tap(_CA, _m2)), n(_ty[_m1][_CB]["rearranged"]), n(_ty[_m2][_CB]["rearranged"]), n(_ty[_m1][_RAR]["outliers"]), n(_ty[_m2][_RAR]["outliers"]),
+             n(_ty[_m1][_CB]["outliers"]), n(_ty[_m2][_CB]["outliers"]), n(_ty[_m2][_RAR]["outliers"]), n(_ty[_m2][_CA]["outliers"]),
+             _G1["dev"]["fitness"][_g1b], _G1["dev"]["fitness"][_g1a], _G1["test"]["fitness"][_g1b], _G1["test"]["fitness"][_g1a], n(_tap(_MAN, "scattered")), n(max(_tap(_MAN, k) for k in ("block3", "block6", "bar8", "irregular12", "boundary3"))))),
+]
+
 CHEM_ABSTRACT = (
     "Averaged order parameters say how ordered a lattice of orientational states is, but not where its organization is unusual. "
-    "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in d dimensions with the von Mises-Fisher distribution; both equal MyUncle's at d = 2 (tested against the unmodified code). "
-    "On this basis we build a label-free rarity score for the sites of a lattice and ask when smoothing it spatially helps. "
-    "On lattices simulated with MyUncle (parameter sets labeled polymer photodegradation, liquid crystal and magnetic storage decay), on synthetic stained-tissue images and on a controlled generator that varies only the size and shape of the anomalies, a fixed 3 x 3 mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. "
-    "Aggregation weighted by the similarity of the embeddings of neighboring sites preserved those anomalies: on independent test scenarios it raised the lower-tail average precision from %s (fixed mean) and %s (no smoothing) to %s, with paired 95%% intervals above zero. "
-    "Gates based on local order and on the von Mises-Fisher information did not beat ordinary similarity, and a GaaR search over %d rule configurations did not beat random search. "
-    "All evidence is simulated; validation on experimental micrographs is future work. Code and results are open." % (n(_F(_MEAN)), n(_F(_NONE)), n(_F(_SIMW)), _OS["n_unique"]))
+    "We extend the local order and entropy quantities of the MyUncle maintenance-lattice model to unit vectors in d dimensions with the von Mises-Fisher distribution (equal to MyUncle's at d = 2, tested against the unmodified code) "
+    "and show, on simulated data, that two complementary label-free channels are needed to find unusual sites. "
+    "Channel A is the rarity of a site, aggregated with weights given by the similarity of neighboring embeddings: on simulated lattices, synthetic images and a controlled generator it preserved scattered and bar-shaped anomalies that a fixed 3 x 3 mean destroyed (lower-tail average precision %s against %s on ten independent test scenarios, paired 95%% interval above zero). "
+    "Channel B is a directional form of MyUncle's local disorder, the minimum of the disorder over the four quadrants of a site. It detects arrangement anomalies, the same embeddings in the wrong places: there the rarity stayed at chance (average precision %s) and channel B reached %s. "
+    "A label-free tail index chooses the channel per cohort; on fifteen independent test scenarios this raised the lower-tail average precision from %s to %s (paired 95%% interval of the gain %s to %s) without loss on the scenarios with feature anomalies only. "
+    "Order gates and a GaaR search over %d rule configurations did not help, and cohorts with both kinds of anomaly need both maps. All evidence is simulated; code and results are open."
+    % (n(_F(_SIMW)), n(_F(_MEAN)), n(_gm(_RAR, _iarr)), n(_gm(_CB, _iarr)), n(_TFt[_CA]), n(_TFt[_FUS]), _sg(_TBt[_FUS]["diff_vs_A"]["ci"][0]), _sg(_TBt[_FUS]["diff_vs_A"]["ci"][1]), _OS["n_unique"]))
 
 CHEM_INTRO = [
     ("p", "Lattice systems whose sites carry an orientation or a state vector, such as liquid-crystal textures, degrading polymer films, magnetic media and self-assembled layers, are commonly summarized by averaged order parameters. These say how ordered a system is, not where something unusual is. "
           "Finding unusual local organization without labels, and saying how unusual it is in the language of order and entropy, is the problem addressed here. Unsupervised anomaly detection has been developed in other fields: in astronomy for large surveys [@Baron2017;@Lochner2021], and in medical imaging mostly as detection of deviation from a healthy appearance with generative models [@Schlegl2019]."),
     ("p", "MyUncle [@MyUncle2026] is a simulation framework for a maintenance lattice: rotors on a square lattice whose order is eroded by a state-dependent flux and restored by repair, with an order-entropy bridge that links the length of the neighbors' mean unit vector to a von Mises entropy. "
-          "This paper makes six contributions. (1) It extends the local order and entropy quantities from the plane to unit vectors in d dimensions (the von Mises-Fisher distribution) and verifies that they equal MyUncle's at d = 2 against the unmodified code. "
+          "This paper makes seven contributions. (1) It extends the local order and entropy quantities from the plane to unit vectors in d dimensions (the von Mises-Fisher distribution) and verifies that they equal MyUncle's at d = 2 against the unmodified code. "
           "(2) It builds a label-free score that judges the rarity of the state of a site at several prevalence scales and smooths it over the lattice. "
           "(3) It tests the score, with frozen settings and baselines, first on lattices simulated with MyUncle's kinetic Monte Carlo (damaged sites as ground truth; one development and three held-out model parameter sets) and second on synthetic stained-tissue images, where the lattice sites are image patches described by an embedding; the results are mixed and are reported as such. "
-          "(4) It studies a supervised configuration search with GaaR [@GaaR2026] on fresh test scenarios that no search saw. (5) It tests, on independent scenarios with paired intervals, aggregation of the scores weighted by embedding similarity and gates on local order and on the von Mises-Fisher information (Section 4.8), which preserved scattered and bar-shaped anomalies that a fixed window destroys, while the entropy gate added nothing. (6) It provides an open, containerized pipeline for all of it, archived with the vendored MyUncle core [@MyUncleVision2026]. All evidence is computational and simulated: no micrograph of a real material and no real tissue image was analysed, and the application to experimental data is stated as future work (Section 5)."),
+          "(4) It studies a supervised configuration search with GaaR [@GaaR2026] on fresh test scenarios that no search saw. (5) It tests, on independent scenarios with paired intervals, aggregation of the scores weighted by embedding similarity and gates on local order and on the von Mises-Fisher information (Section 4.8), which preserved scattered and bar-shaped anomalies that a fixed window destroys, while the entropy gate added nothing. (6) It shows that anomalies of arrangement, to which a rarity score is blind, are detected by a directional form of the local disorder, and that a label-free tail index chooses between the two channels per cohort (Section 4.10). (7) It provides an open, containerized pipeline for all of it, archived with the vendored MyUncle core [@MyUncleVision2026]. All evidence is computational and simulated: no micrograph of a real material and no real tissue image was analysed, and the application to experimental data is stated as future work (Section 5)."),
 ]
 
 
@@ -150,7 +227,7 @@ _thv = sum(r["theta"] for r in _SV["rows"]) / len(_SV["rows"])
 _kv = 9 * (_thv - _SV["r_n"]) / (_SV["r_a"] - _SV["r_n"])
 assert _SV["spearman_all"]["rho"] > 0.7 and _SV["spearman_test"]["rho"] > 0.7 and _kv > 8 and _SV["by_shape"]["scattered"]["phi"] == 0 and _SV["by_shape"]["bar8"]["phi"] == 0
 CHEM_SURV = [
-    ("h2", "4.5b Contrast survival of the fixed window"),
+    ("h2", "4.9 Contrast survival of the fixed window"),
     ("p", "A simple model explains why the fixed mean fails. Let anomalous sites have the mean rarity rank r_a and normal sites r_n (calibrated on the development cohorts: %s and %s; the ranks saturate near 1 because the highest of five scales counts). After the w x w mean, a site with k anomalous among its n window sites scores (k r_a + (n - k) r_n)/n, and it stays in the top 3%% of the cohort (threshold theta read from the smoothed scores, label-free, %s on average) only if k >= k* = n (theta - r_n)/(r_a - r_n); here k* is about %.1f of 9 sites, so practically the whole window must be anomalous. "
           "The fixed mean therefore preserves only the interior of an anomaly and erases anomalies thinner than the window; for a square block of side b the surviving share is ((b - w + 1)/b)^2, and for scattered sites and bars it is zero. The predicted share of surviving anomalous sites, computed from the true masks, correlated with the measured average precision of the fixed mean over the %d cohorts of the controlled generator (Spearman rho = %s; test cohorts only %s; 5 x 5 window %s). "
           "The model is explanatory (r_a and r_n were calibrated with labels on the development cohorts and it describes the fixed mean only); it also explains why similarity weighting works, since neighbors with dissimilar embeddings receive small weights."
@@ -187,9 +264,11 @@ CHEM_DISCUSSION = [
     ("p", "What the evaluation supports. The order and entropy definitions are MyUncle's, verified at d = 2, and extend to unit vectors in d dimensions with the von Mises-Fisher distribution. The lattice smoothing gives spatially coherent candidate regions for any scorer when the anomalies form regions, "
           "and it is harmful when they do not: on the simulated lattices the damaged sites are scattered and smoothing lowered the average precision of every baseline, whereas on the synthetic images it raised the spatial coherence of every scorer. The multi-scale rarity removes the dependence on a prevalence chosen in advance, and a supervised search with GaaR improved the lower-tail average precision on fresh test scenarios, although random search also beat the default and the gain therefore belongs to the selected configuration, "
           "although the damaged share of three of the four parameter sets (about 10%, 30% and 26%; the fourth is 8%) is near or above the largest prevalence scale of the rarity score (10% of the reference set), a limit of the frozen settings that the simulated testbed exposes."),
+    ("p", "Local order turned out to be useful as a channel of its own rather than as a gate on the rarity: regions in which ordinary embeddings are rearranged are invisible to the rarity and are found by the directional disorder, and a label-free tail index chose the appropriate channel in the test cohorts (Section 4.10). "
+          "The simple distance of a site to its neighbors finds such regions equally well; the directional form matters because it does not respond to walls between ordered domains, which is what lets the two channels be told apart without labels."),
     ("p", "What it does not support. The lattices and the images are simulated, written by the author of the method (the simulation is MyUncle's, with an easy kind of anomaly, a site that lost its coupling, and with model parameter sets that carry application names but are not fitted to measurements); nothing here shows that the method finds anything in an experimental material or in tissue, or that what it finds is meaningful. "
           "The held-out sets were used once but are of the same family as the development sets, and four simulation runs per parameter set are few. The two embeddings of the images disagree on whether smoothing helps and on whether the lattice axes help, and a single Gaussian model scored higher than the frozen score on the development cohort. "
-          "Novelty is not a defect: a rare state may be a rare sample preparation, an instrument, a staining or imaging batch, or a known feature that is merely uncommon in the set. The image embedding is trained on natural images and may group patches by stain or sharpness, and quality control flagged only part of the planted artifact patches in the development runs (42%)."),
+          "A permutation is an idealized arrangement anomaly that changes nothing but the arrangement, the choice of the channel is made per cohort and cannot serve a cohort that contains both kinds of anomaly, and channel B needs a background that is locally ordered. Novelty is not a defect: a rare state may be a rare sample preparation, an instrument, a staining or imaging batch, or a known feature that is merely uncommon in the set. The image embedding is trained on natural images and may group patches by stain or sharpness, and quality control flagged only part of the planted artifact patches in the development runs (42%)."),
     ("p", "Improvements: neighborhoods larger than four sites, a calibrated null for the novelty score, smoothing of the raw score instead of its rank, an embedding trained on micrographs of the system at hand, and active expert feedback in the manner of anomaly detection systems for astronomy [@Lochner2021]. "
           "Computing: the encoder dominates; an image of ten thousand patches takes about ten minutes on one CPU core and minutes on a GPU, and the pipeline offers a patch budget per image and a resumable cache."),
 ]
@@ -197,19 +276,21 @@ CHEM_DISCUSSION = [
 CHEM_CONCLUSION = [
     ("p", "The local disorder and the von Mises-Fisher order information of MyUncle generalize to lattices of unit vectors in d dimensions and equal MyUncle's at d = 2. A label-free score built on them, rarity of the state of a site at several prevalence scales smoothed over the lattice, was tested on lattices simulated with MyUncle and on synthetic stained-tissue images, with frozen settings and four baselines. "
           "The results are mixed: smoothing helped only with the DINOv2 embeddings of the synthetic images, whose unsmoothed score is noisy, and hurt on simulated lattices and in a controlled study on an independent generator, least for compact anomalies; adding the local disorder as a feature helped on the simulated lattices, the frozen score was competitive but not uniformly best, and a simple Mahalanobis baseline was a strong competitor. "
-          "A supervised search of the scoring configuration with GaaR gave a gain whose paired interval included zero. Similarity-weighted aggregation of the scores raised the lower-tail average precision on independent test scenarios above both the fixed window and no smoothing (paired intervals above zero), gates on local order and on the von Mises-Fisher information did not beat ordinary similarity, and a GaaR search over rule configurations was not better than random search. All evidence is simulated; validation on experimental micrographs and on histology, with expert review, is the planned next step (Section 5)."),
+          "A supervised search of the scoring configuration with GaaR gave a gain whose paired interval included zero. Similarity-weighted aggregation of the scores raised the lower-tail average precision on independent test scenarios above both the fixed window and no smoothing (paired intervals above zero), gates on local order and on the von Mises-Fisher information did not beat ordinary similarity, and a GaaR search over rule configurations was not better than random search. Rarity and local order are complementary channels: the directional local disorder found regions of rearranged embeddings to which the rarity was blind, and a label-free tail index that chooses the channel per cohort raised the lower-tail average precision over fifteen independent test scenarios without loss on the scenarios that contain only feature anomalies; cohorts with both kinds of anomaly still need both maps. All evidence is simulated; validation on experimental micrographs and on histology, with expert review, is the planned next step (Section 5)."),
 ]
 
 
 def chemrxiv_blocks(B):
     """return the ChemRxiv block list derived from the journal block list B"""
-    def find(kind, prefix, start=0):
-        for i in range(start, len(B)):
-            if B[i][0] == kind and isinstance(B[i][1], str) and B[i][1].startswith(prefix):
-                return i
-        raise KeyError(prefix)
-
     out = list(B)
+
+    def find(kind, prefix, start=0):
+        """index in the CURRENT block list (every replacement below changes its length, so positions must not be taken from the original list)"""
+        hits = [i for i in range(start, len(out)) if out[i][0] == kind and isinstance(out[i][1], str) and out[i][1].startswith(prefix)]
+        if len(hits) != 1:
+            raise KeyError("%s: %d matches" % (prefix, len(hits)))
+        return hits[0]
+
     # title, abstract, keywords
     out[find("title", "MyUncleVision")] = ("title", CHEM_TITLE)
     out[find("p0", "Unsupervised discovery in whole-slide")] = ("p0", CHEM_ABSTRACT)
@@ -234,7 +315,7 @@ def chemrxiv_blocks(B):
     sub("p", "The development set was one preset", "The presets are model parameter sets that MyUncle labels with application names; they are not fitted to measurements of any material. The development set was one preset")
     # future work, discussion, conclusions
     i, j = find("h1", "5. Future work"), find("h1", "6. Discussion")
-    out[i:j] = CHEM_GAAR + CHEM_SURV + CHEM_OG + CHEM_OG2 + CHEM_FUTURE
+    out[i:j] = CHEM_GAAR + CHEM_OG + CHEM_OG2 + CHEM_SURV + CHEM_TC + CHEM_FUTURE
     i, j = find("p", "What the evaluation supports."), find("h1", "7. Conclusions")
     out[i:j] = CHEM_DISCUSSION
     i = find("p", "MyUncleVision turns a whole-slide image")
@@ -245,4 +326,11 @@ def chemrxiv_blocks(B):
     out[k + 1:k + 1] = [("p", "Fig. @F:maps@ shows one simulated run (preset chiral scaffold, 32 x 32 sites, snapshots 15 steps apart): the rotor angle, the local disorder D, the order information H_chi and the novelty score of the frozen method. Novelty is a percentile rank relative to the snapshots analysed together, so it marks where a state is unusual among the snapshots shown; it has not been validated against known defect locations."),
                         ("fig", "fig_bridge_maps.png", "Fig. @F:maps@. A MyUncle simulation analysed with MyUncleVision (command python -m myuncle_vision bridge, preset chiral scaffold, 32 x 32 sites, seed 0). Rows: rotor angle, local disorder D, order information H_chi (von Mises-Fisher, d = 2) and novelty of the frozen method; columns: snapshots at steps 0, 15, 30, 45 and 60.", 6.4)]
     out.insert(ia + 1, ("small", "Under consideration at Pattern Recognition Letters (submission PRLETTERS-D-26-02906)"))
+    heads = [x[1] for x in out if x[0] in ("h1", "h2")]
+    order = ["4.6 Configuration search with GaaR", "4.7 Smoothing against anomaly morphology", "4.8 Spatial aggregation rules and an independent test", "4.9 Contrast survival of the fixed window",
+             "4.10 Arrangement anomalies: local order as a second channel", "5. Future work: validation on experimental micrographs and histology"]
+    pos = [heads.index(h) for h in order]
+    assert pos == sorted(pos) and pos[-1] - pos[0] == len(order) - 1, "section order"
+    k6, k7 = find("h1", "6. Discussion"), find("h1", "7. Conclusions")
+    assert out[k6 + 1][1].startswith("What the evaluation supports.") and out[k7 + 1][1].startswith("The local disorder and the von Mises-Fisher"), "discussion and conclusions in place"
     return out

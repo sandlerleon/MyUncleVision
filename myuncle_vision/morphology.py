@@ -83,6 +83,40 @@ def make_lattice(seed, n=32, d=16, prevalence=0.03, block=1, shift=3.0, domains=
     return X, mask
 
 
+ARR_SHAPES = [("arr-block6", "block", 6), ("arr-block8", "block", 8), ("arr-irregular24", "irregular", 24)]
+
+
+def make_lattice_smooth(seed, n=32, d=16, corr=3.0, noise=0.2, scale=1.5, prevalence=0.07, block=6, shape="block"):
+    """embedding lattice with a spatially correlated background (a smooth random field of correlation length `corr` plus a little iid noise) and REARRANGEMENT anomalies: in each anomalous region the
+    embeddings of the region are randomly permuted among its sites, so every embedding keeps its value (the marginal distribution is unchanged) and only the spatial arrangement is destroyed.
+    Returns the embeddings (n, n, d) and the boolean anomaly mask."""
+    from scipy.ndimage import gaussian_filter
+    rng = np.random.default_rng(seed)
+    f = gaussian_filter(rng.normal(size=(n, n, d)), sigma=(corr, corr, 0), mode="wrap")
+    f = (f - f.mean((0, 1))) / f.std((0, 1))
+    X = scale * f + rng.normal(0, noise, (n, n, d))
+    area = {"block": block * block, "bar": block, "irregular": block}[shape]
+    k = max(1, int(round(prevalence * n * n / area)))
+    mask = np.zeros((n, n), bool)
+    dom = np.zeros((n, n), int)
+    placed, tries = 0, 0
+    while placed < k and tries < 20000:
+        tries += 1
+        px = _pixels(rng, shape, block, n, dom)
+        ys, xs = [p_[0] for p_ in px], [p_[1] for p_ in px]
+        if min(ys) < 0 or min(xs) < 0 or max(ys) >= n or max(xs) >= n:
+            continue
+        if mask[max(0, min(ys) - 1):max(ys) + 2, max(0, min(xs) - 1):max(xs) + 2].any():
+            continue
+        idx = np.array(px)
+        perm = rng.permutation(len(idx))
+        vals = X[idx[:, 0], idx[:, 1]].copy()
+        X[idx[:, 0], idx[:, 1]] = vals[perm]
+        mask[idx[:, 0], idx[:, 1]] = True
+        placed += 1
+    return X, mask
+
+
 def _slide(name, X):
     n = X.shape[0]
     rr, cc = np.divmod(np.arange(n * n), n)
@@ -139,3 +173,43 @@ if __name__ == "__main__":
     ap_.add_argument("--cohorts", type=int, default=5)
     a = ap_.parse_args()
     study(a.out, cohorts=a.cohorts)
+
+
+def make_lattice_mixed(seed, n=32, d=16, corr=3.0, noise=0.2, scale=1.5, prev_arr=0.035, block=6, prev_out=0.015, out_shape="block", out_block=3, shift=3.0, d_field=8):
+    """a lattice with BOTH kinds of anomaly on the spatially correlated background of make_lattice_smooth: rearranged regions (blocks of side `block`, share prev_arr of the sites) and feature outliers
+    (shape out_shape, size out_block, share prev_out).  The smooth field occupies the first d_field dimensions (the normal sites lie near a d_field-dimensional subspace, plus iid noise in all d
+    dimensions) and every outlier is shifted along its own random direction of the complementary dimensions, so that it leaves the subspace of the normal sites.  Returns the embeddings and an integer map: 0 normal, 1 feature outlier, 2 rearranged."""
+    from scipy.ndimage import gaussian_filter
+    rng = np.random.default_rng(seed)
+    f = gaussian_filter(rng.normal(size=(n, n, d)), sigma=(corr, corr, 0), mode="wrap")
+    f = (f - f.mean((0, 1))) / f.std((0, 1))
+    f[..., d_field:] = 0.0
+    X = scale * f + rng.normal(0, noise, (n, n, d))
+    kind = np.zeros((n, n), int)
+    dom = np.zeros((n, n), int)
+
+    def place(shape, size, prevalence, label):
+        area = {"block": size * size, "bar": size, "irregular": size}[shape]
+        k = max(1, int(round(prevalence * n * n / area)))
+        placed, tries = 0, 0
+        while placed < k and tries < 20000:
+            tries += 1
+            px = _pixels(rng, shape, size, n, dom)
+            ys, xs = [p_[0] for p_ in px], [p_[1] for p_ in px]
+            if min(ys) < 0 or min(xs) < 0 or max(ys) >= n or max(xs) >= n:
+                continue
+            if (kind[max(0, min(ys) - 1):max(ys) + 2, max(0, min(xs) - 1):max(xs) + 2] > 0).any():
+                continue
+            idx = np.array(px)
+            if label == 2:
+                X[idx[:, 0], idx[:, 1]] = X[idx[:, 0], idx[:, 1]].copy()[rng.permutation(len(idx))]
+            else:
+                u = np.zeros(d)
+                u[d_field:] = rng.normal(0, 1, d - d_field)
+                u /= np.linalg.norm(u)
+                X[idx[:, 0], idx[:, 1]] += shift * u
+            kind[idx[:, 0], idx[:, 1]] = label
+            placed += 1
+    place("block", block, prev_arr, 2)
+    place(out_shape, out_block, prev_out, 1)
+    return X, kind

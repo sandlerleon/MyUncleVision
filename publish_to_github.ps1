@@ -1,4 +1,4 @@
-# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v0.9.0 (earlier releases are created if missing).
+# Publishes MyUncleVision to GitHub (public) and attaches the manuscript PDF to release v1.0.0 (earlier releases are created if missing).
 # Run from PowerShell:   powershell -ExecutionPolicy Bypass -File "C:\Users\Leon\Downloads\MyUncleVision_work\repo\MyUncleVision\publish_to_github.ps1"
 # Needs: git and the GitHub CLI (gh), logged in as sandlerleon (gh auth status).
 # NOTE: the repository is public. The HeroX pack (docs/herox) is a DRAFT that stays in the repo only as an example application.
@@ -58,6 +58,8 @@ git push origin v0.8.0 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.8.0) failed" }
 git push origin v0.9.0 --force
 if ($LASTEXITCODE -ne 0) { throw "git push (tag v0.9.0) failed" }
+git push origin v1.0.0 --force
+if ($LASTEXITCODE -ne 0) { throw "git push (tag v1.0.0) failed" }
 if (-not (Test-Gh @("release", "view", "v0.2.1", "--repo", $Repo))) {
     gh release create v0.2.1 --repo $Repo --title "v0.2.1" --notes "v0.2.1: reusable framework for any image collection: Python API, own encoders, demo command, docs/USAGE.md; HeroX material in docs/herox. Synthetic evaluation only."
 }
@@ -110,6 +112,11 @@ if (-not (Test-Gh @("release", "view", "v0.8.0", "--repo", $Repo))) {
 if (-not (Test-Gh @("release", "view", "v0.9.0", "--repo", $Repo))) {
     gh release create v0.9.0 "docs\prl\main.pdf" --repo $Repo --title "v0.9.0" `
         --notes "v0.9.0: label-free contrast-survival predictor (interior of the candidate set of the unsmoothed rarity): Spearman 0.56 with the measured AP of the fixed mean over 60 cohorts (test 0.51; 0.65 with the label-based survival); it tracks the fixed mean only, the fixed mean never beat no smoothing and similarity weighting beat both in all 60 cohorts. Letter, ChemRxiv version and docs updated. Evidence is synthetic and simulated only. Zenodo (all versions): software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256."
+    if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
+}
+if (-not (Test-Gh @("release", "view", "v1.0.0", "--repo", $Repo))) {
+    gh release create v1.0.0 "docs\prl\main.pdf" --repo $Repo --title "v1.0.0" `
+        --notes "v1.0.0: two label-free channels. Rarity (similarity-weighted) finds what is unusual; the directional local disorder (minimum of MyUncle's local disorder over the four quadrants of a site) finds ordinary embeddings in the wrong arrangement, to which rarity is blind (average precision 0.06 against 0.86 on independent test scenarios). A label-free tail index chooses the channel per cohort: lower-tail average precision 0.36 against 0.20 for the rarity channel on fifteen independent test scenarios (paired 95% interval of the gain +0.10 to +0.25), no loss on the scenarios with feature anomalies only. New pipeline option --aggregation two_channel (docs/TWO_CHANNEL.md). Limits: cohorts with both kinds of anomaly need both maps; a first fusion attempt failed on the test scenarios and is reported. Letter retitled 'Rarity and local order: two complementary label-free channels for anomaly detection on lattices of embeddings'; ChemRxiv-framed version rebuilt (its section order was wrong in v0.4.0 to v0.9.0 and is fixed). Evidence is synthetic and simulated only. Zenodo (all versions): software 10.5281/zenodo.24066260, manuscript 10.5281/zenodo.24066256."
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 }
 git rev-parse HEAD

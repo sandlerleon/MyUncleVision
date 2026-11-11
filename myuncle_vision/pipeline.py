@@ -34,6 +34,7 @@ class RunConfig:
     weights: tuple = (1.0, 0.0, 0.0)  # novelty axis weights: appearance, state-wise disorder, contact rarity (frozen default: appearance only; see results/frozen_settings.json)
     scorer: str = "knn"               # appearance scorer: knn (multi-scale nearest-neighbour rarity) or mahalanobis
     rarity_fraction: float = 0.01     # scale at which appearance rarity is judged (fraction of the reference set)
+    aggregation: str = "mean"         # mean (fixed 3 x 3 window, the frozen default) | simw (similarity-weighted) | two_channel (rarity or directional local order, selected per cohort)
     progression: bool = False        # EXPLORATORY MyUncle scenario analysis (opt-in, --scenarios): a modelling analogy, not evidence about disease progression
     figures: bool = True
     hash_files: bool = False         # SHA-256 of every input file (slow for TB-scale input)
@@ -123,8 +124,10 @@ def run(input_dir, output_dir, cfg=None, log=print, encoder=None):
     slides = [s for s in slides if s.ok.sum() >= 5]
     if not slides:
         raise SystemExit("no slide had enough analysable tissue")
-    ccfg = cohort.Config(n_components=cfg.n_components, n_states=cfg.n_states, seed=cfg.seed, weights=tuple(cfg.weights), rarity_fraction=cfg.rarity_fraction, scorer=cfg.scorer)
+    ccfg = cohort.Config(n_components=cfg.n_components, n_states=cfg.n_states, seed=cfg.seed, weights=tuple(cfg.weights), rarity_fraction=cfg.rarity_fraction, scorer=cfg.scorer, aggregation=cfg.aggregation)
     space, csum = cohort.analyse(slides, ccfg)
+    if "two_channel" in csum:
+        log("[cohort] aggregation %s: channel %s (tail index A %s, B %s)" % (cfg.aggregation, csum["two_channel"].get("channel"), csum["two_channel"].get("tail_A"), csum["two_channel"].get("tail_B")))
     thr, regions = discover.candidates(slides, cfg.q, cfg.min_region)
     findings = discover.cluster_regions(regions, len(slides), cfg.link_threshold)
     ref = explain.cohort_reference(slides)

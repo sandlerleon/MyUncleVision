@@ -14,7 +14,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "..", "..", "results")
 OUT = os.path.join(HERE, "..", "prl")
 os.makedirs(OUT, exist_ok=True)
-for f in ("fig_bridge.png", "fig_bridge_maps.png"):
+for f in ("fig_bridge.png", "fig_bridge_maps.png", "fig_channels.png"):
     shutil.copy(os.path.join(HERE, "..", "figures", f), os.path.join(OUT, f))
 J = lambda name: json.load(open(os.path.join(RES, name)))
 OT, OS, OG = J("og_test.json"), J("og_search.json"), J("og_grid_dev.json")
@@ -22,11 +22,12 @@ GT = J("gaar_test.json")
 NG, CG = J("og_ngh.json"), J("og_closure.json")
 SV, SV5 = J("og_survival.json"), J("og_survival_w5.json")
 LF = J("og_lfsurv.json")
+TC, TD, G1 = J("two_channel.json"), J("two_channel_dev.json"), J("og_geometry_first_attempt.json")
 R = OT["results"]
 BT = OT["bootstrap"]
 n2 = lambda x: "%.2f" % x
 pc = lambda x: "%d\\%%" % round(100 * x)
-sg = lambda x: ("$-$%.2f" % -x) if x < -0.0049 else ("+%.2f" % x)
+sg = lambda x: ("$-$%.2f" % -x) if x <= -0.005 else (("+%.2f" % x) if x >= 0.005 else "0.00")
 cif = lambda c: "[%s, %s]" % (sg(c[0]), sg(c[1]))
 dif = lambda d, c: "%s %s" % (sg(d), cif(c))
 
@@ -110,20 +111,80 @@ ax.legend(fontsize=6.5, ncol=4, loc="upper center", frameon=False, bbox_to_ancho
 fig.tight_layout()
 fig.savefig(os.path.join(OUT, "fig_rules.png"), dpi=200)
 plt.close(fig)
-_fam = OS["family_champions"]
-_famlab = [("none", "No smoothing"), ("mean", "Fixed mean"), ("simw", "Similarity-weighted"), ("onesided", "One-sided"), ("og_cos", "Order gate, compatibility"), ("og_disorder", "Order gate, $R_i$"), ("og_vmf", r"Order gate, $H_\chi$")]
-_par = lambda g: ("window %d" % g["window"] if g["rule"] != "none" else "-") + ((r", $\vartheta=%.1f$, $\alpha=%d$" % (g["theta"], g["alpha"])) if g["rule"].startswith("og_") or g["rule"] == "onesided_gate" else "") + ((r", $\lambda=%.2f$" % g["lam"]) if g["rule"] != "none" and g["lam"] > 0 else "")
-tabdev = (" \\\\\n").join(" & ".join([lab, n2(_fam[r]["dev_fitness"]), _par(_fam[r]["config"])]) for r, lab in _famlab) + " \\\\"
+# ---- two channels (tc_study.py): values and guards
+RAR, MEAN3, CA, CB = "rarity", "rarity, fixed 3x3 mean", "rarity, similarity-weighted (channel A)", "directional disorder (channel B)"
+DISO, CNB, MAN = "isotropic local disorder D", "center-to-neighbor distance", "local manifold inconsistency (m=2)"
+FUS, FUS_CNB, FUS_D = "fusion select: A + directional disorder", "fusion select: A + center-to-neighbor distance", "fusion select: A + isotropic disorder D"
+ZMAX, RMAX = "fusion zmax: A + directional disorder", "fusion rankmax: A + directional disorder"
+TWS = ["fusion tailw p=%d: A + directional disorder" % p_ for p_ in (1, 2, 4)]
+_sn = TC["scenarios"]
+_ix = lambda key: [k for k, nm in enumerate(_sn) if key in nm][0]
+tap = lambda c, key: TC["ap"][c][_ix(key)]
+_arr = [k for k, nm in enumerate(_sn) if nm.startswith("arr-")]
+_mix = [k for k, nm in enumerate(_sn) if nm.startswith("mixed-")]
+_ten = [k for k in range(len(_sn)) if k not in _arr and k not in _mix]
+assert len(_sn) == 15 and len(_arr) == 3 and len(_mix) == 2 and len(_ten) == 10
+gm = lambda c, idx: float(np.mean([TC["ap"][c][k] for k in idx]))
+TF, TB = TC["fitness"], TC["bootstrap"]
+ci2 = lambda c: "[%s, %s]" % (n2(c[0]), n2(c[1]))
+_prev = 0.07
+assert TC["selected_on_dev"] == FUS and TD["fitness"][FUS] == max(v for k, v in TD["fitness"].items() if k.startswith("fusion") and k.endswith("A + directional disorder")), "text: the selection was the best fusion rule on the development scenarios"
+assert gm(RAR, _arr) < 0.08 and gm(CA, _arr) < 0.08, "text: the rarity is at chance on rearranged regions, with and without similarity weighting"
+assert gm(CB, _arr) > 0.8 and TB[CB]["diff_arr_vs_A"]["ci"][0] > 0.7, "text: the directional disorder finds rearranged regions"
+assert abs(gm(CNB, _arr) - gm(CB, _arr)) < 0.02 and gm(DISO, _arr) < gm(CB, _arr) - 0.2 and gm(MAN, _arr) < gm(CB, _arr) - 0.2, "text: the neighbor distance is equally good; D and the manifold statistic are below"
+assert tap(CB, "scattered") > 0.5 and tap(CB, "bar8") > 0.5 and tap(CB, "block3") < 0.05 and tap(CB, "block6") < 0.05, "text: channel B alone finds thin anomalies and ignores compact blocks"
+assert max(tap(CB, "handcrafted"), tap(CB, "dinov2")) < 0.05 and max(tap(CB, "sim-test-rotor"), tap(CB, "rotor_D")) < min(tap(CA, "sim-test-rotor"), tap(CA, "rotor_D")), "text: channel B alone is weak on images and MyUncle lattices"
+_tail = lambda key, scs: float(np.mean([x[key] for sc in scs for x in TC["tails"][_ix(sc)]]))
+_blk = ("morph-test-block3", "morph-test-block6", "morph-test-boundary3")
+assert _tail("B", _blk) < 5 < 15 < _tail("B_cnb", _blk) and _tail("B_D", _blk) > 15, "text: tail indices in the block scenarios"
+assert TB[FUS]["diff_vs_A"]["ci"][0] > 0 and TB[FUS]["diff_vs_rarity"]["ci"][0] > 0 and TF[FUS] > TF[CA] > TF[RAR] > TF[MEAN3], "text: the fused detector beat channel A and the rarity with paired intervals above zero"
+assert abs(gm(FUS, _ten) - gm(CA, _ten)) < 0.01 and TB[FUS]["diff_old_vs_A"]["ci"][0] > -0.01, "text: nothing was lost on the ten earlier scenarios"
+_feat = [x["channel"] for k in _ten for x in TC["tails"][k]]
+_rear = [x["channel"] for k in _arr + _mix for x in TC["tails"][k]]
+assert all(c == "B" for c in _rear) and _feat.count("B") == 1 and [x["channel"] for x in TC["tails"][_ix("bar8")]].count("B") == 1, "text: the channel choices"
+assert TC["ap"]["fusion select0: A + directional disorder"] == TC["ap"][FUS], "text: the guard was never the deciding condition"
+assert TB[FUS]["diff_vs_select_cnb"]["ci"][0] > 0 and TB[FUS]["diff_vs_select_D"]["ci"][0] > 0 and tap(FUS_CNB, "block3") < tap(FUS, "block3") - 0.1 and tap(FUS_CNB, "boundary3") < tap(FUS, "boundary3") - 0.1, "text: the directional form mattered for the choice"
+assert max(TF[ZMAX], TF[RMAX], *[TF[t] for t in TWS]) < TF[FUS] and tap(ZMAX, "dinov2") < 0.05, "text: the site-wise rules were below the selection"
+_ty = TC["typed"]
+_m1, _m2 = "mixed-test-block3", "mixed-test-scattered"
+assert all(tap(FUS, m) > tap(CA, m) for m in (_m1, _m2)) and all(_ty[m][CB]["rearranged"] > 0.5 and _ty[m][RAR]["outliers"] > 0.4 and _ty[m][CB]["outliers"] < 0.1 and _ty[m][RAR]["rearranged"] < 0.1 for m in (_m1, _m2)), "text: mixed cohorts by kind"
+assert _ty[_m2][CA]["outliers"] < _ty[_m2][RAR]["outliers"] - 0.2, "text: similarity weighting lowered the AP of scattered outliers in the smooth background"
+_g1b, _g1a = G1["best_dev_config"], "similarity-weighted rarity"
+assert _g1b.startswith("simw + disorder") and G1["dev"]["fitness"][_g1b] > G1["dev"]["fitness"][_g1a] and G1["test"]["fitness"][_g1b] < G1["test"]["fitness"][_g1a], "text: the first attempt did not beat channel A on the test"
+_dino = TC["tails"][_ix("dinov2")][0]
+assert _dino["A"] < 3 and _dino["B"] < 3
+_row = lambda c, lab, bold=False: " & ".join([lab, n2(gm(c, _ten)), n2(gm(c, _arr)), n2(gm(c, _mix)), "%s %s" % (n2(TF[c]), ci2(TB[c]["fitness_ci"]))])
+tabtc = (" \\\\\n").join([_row(RAR, "Rarity, no smoothing"), _row(MEAN3, "Rarity, fixed $3\\times3$ mean"), _row(CA, "Channel A (similarity-weighted rarity)"), _row(DISO, "Isotropic disorder $D$"),
+                          _row(MAN, "Local manifold statistic"), _row(CNB, "Distance to the 8 neighbors"), _row(CB, "Channel B (directional disorder)"), "\\midrule\n" + _row(FUS, "Channel chosen by tail index")]) + " \\\\"
+TCV = dict(
+    TABTC=tabtc, TC_ARR_R=n2(gm(RAR, _arr)), TC_PREV="0.06 to 0.07", TC_ARR_A=n2(gm(CA, _arr)), TC_ARR_B=n2(gm(CB, _arr)), TC_ARR_B_CI=ci2(TB[CB]["mean_arr_ci"]), TC_ARR_GAIN=cif(TB[CB]["diff_arr_vs_A"]["ci"]),
+    TC_ARR_CNB=n2(gm(CNB, _arr)), TC_ARR_D=n2(gm(DISO, _arr)), TC_ARR_MAN=n2(gm(MAN, _arr)), TC_B_SC=n2(tap(CB, "scattered")), TC_B_BAR=n2(tap(CB, "bar8")), TC_B_B3=n2(tap(CB, "block3")), TC_B_B6=n2(tap(CB, "block6")),
+    TC_TAIL_B_BLK="%.1f" % _tail("B", _blk), TC_TAIL_CNB_BLK="%.0f" % _tail("B_cnb", _blk), TC_TAIL_D_BLK="%.0f" % _tail("B_D", _blk),
+    TC_B_H=n2(tap(CB, "handcrafted")), TC_B_D=n2(tap(CB, "dinov2")), TC_B_R=n2(tap(CB, "sim-test-rotor")), TC_B_RD=n2(tap(CB, "rotor_D")),
+    TC_DEV_FUS=n2(TD["fitness"][FUS]), TC_DEV_A=n2(TD["fitness"][CA]), TC_F_FUS=n2(TF[FUS]), TC_F_FUS_CI=ci2(TB[FUS]["fitness_ci"]), TC_F_A=n2(TF[CA]), TC_F_R=n2(TF[RAR]), TC_F_M=n2(TF[MEAN3]),
+    TC_GAIN_A=dif(TF[FUS] - TF[CA], TB[FUS]["diff_vs_A"]["ci"]), TC_GAIN_R=dif(TF[FUS] - TF[RAR], TB[FUS]["diff_vs_rarity"]["ci"]), TC_GAIN_A_CI="%s to %s" % (sg(TB[FUS]["diff_vs_A"]["ci"][0]), sg(TB[FUS]["diff_vs_A"]["ci"][1])),
+    TC_OLD_FUS=n2(gm(FUS, _ten)), TC_OLD_A=n2(gm(CA, _ten)), TC_OLD_DIFF=cif(TB[FUS]["diff_old_vs_A"]["ci"]), TC_NA=str(_feat.count("A")), TC_NF=str(len(_feat)), TC_NB=str(len(_rear)),
+    TC_F_FCNB=n2(TF[FUS_CNB]), TC_D_FCNB=dif(TF[FUS] - TF[FUS_CNB], TB[FUS]["diff_vs_select_cnb"]["ci"]), TC_CNB_B3=n2(tap(FUS_CNB, "block3")), TC_CNB_BND=n2(tap(FUS_CNB, "boundary3")), TC_FUS_B3=n2(tap(FUS, "block3")),
+    TC_FUS_BND=n2(tap(FUS, "boundary3")), TC_F_FD=n2(TF[FUS_D]), TC_D_FD=dif(TF[FUS] - TF[FUS_D], TB[FUS]["diff_vs_select_D"]["ci"]), TC_F_ZMAX=n2(TF[ZMAX]), TC_ZMAX_D=n2(tap(ZMAX, "dinov2")), TC_F_RMAX=n2(TF[RMAX]),
+    TC_F_TW=n2(min(TF[t] for t in TWS)) if n2(min(TF[t] for t in TWS)) == n2(max(TF[t] for t in TWS)) else "%s to %s" % (n2(min(TF[t] for t in TWS)), n2(max(TF[t] for t in TWS))),
+    TC_MIX_FUS1=n2(tap(FUS, _m1)), TC_MIX_FUS2=n2(tap(FUS, _m2)), TC_MIX_A1=n2(tap(CA, _m1)), TC_MIX_A2=n2(tap(CA, _m2)), TC_MIX_B_ARR1=n2(_ty[_m1][CB]["rearranged"]), TC_MIX_B_ARR2=n2(_ty[_m2][CB]["rearranged"]),
+    TC_MIX_R_OUT1=n2(_ty[_m1][RAR]["outliers"]), TC_MIX_R_OUT2=n2(_ty[_m2][RAR]["outliers"]), TC_MIX_B_OUT1=n2(_ty[_m1][CB]["outliers"]), TC_MIX_B_OUT2=n2(_ty[_m2][CB]["outliers"]), TC_MIX_A_OUT2=n2(_ty[_m2][CA]["outliers"]),
+    G1_DEV_BLEND="%.3f" % G1["dev"]["fitness"][_g1b], G1_DEV_A="%.3f" % G1["dev"]["fitness"][_g1a], G1_TEST_BLEND="%.3f" % G1["test"]["fitness"][_g1b], G1_TEST_A="%.3f" % G1["test"]["fitness"][_g1a],
+    TC_TAIL_A_DINO="%.1f" % _dino["A"], TC_TAIL_B_DINO="%.1f" % _dino["B"],
+)
 ABSTRACT = (
-    "Anomaly scores on lattices of embeddings, such as the patches of an image, are often smoothed over a fixed spatial window. "
-    "On lattices simulated with MyUncle, on synthetic images and on a controlled generator that varies only the size and shape of the anomalies, a fixed $3\\times3$ mean destroyed the signal for scattered and bar-shaped anomalies and helped only with DINOv2 embeddings. "
-    "Aggregation weighted by the cosine similarity of the embeddings of neighboring sites, with a label-free scale, preserved scattered, bar-shaped, irregular and boundary anomalies: on independent test scenarios it raised the lower-tail average precision from %s (fixed mean) and %s (no smoothing) to %s, with paired 95\\%% intervals above zero. "
-    "Gates based on local order and on the von Mises--Fisher information of the neighborhood, a $d$-dimensional extension of MyUncle's entropy quantities, did not beat ordinary similarity; rank gates on that information coincide with gates on the resultant length. "
-    "A contrast-survival model, in which a fixed window keeps only the interior of an anomaly, predicted the loss (Spearman %s). A GaaR search over %d rule configurations did not beat random search. All evidence is simulated; code and results are open." % (n2(F(MEAN)), n2(F(NONE)), n2(F(SIMW)), n2(SV["spearman_all"]["rho"]), OS["n_unique"]))
+    "Anomaly scores on lattices of embeddings, such as image patches, usually measure how rare the embedding of a site is. We show on simulated data that rarity is one of two complementary label-free channels. "
+    "Channel A is the rarity aggregated with weights given by the similarity of neighboring embeddings; it preserved scattered and bar-shaped anomalies that a fixed $3\\times3$ mean destroyed "
+    "(lower-tail average precision %s against %s on ten independent test scenarios), and a contrast-survival model explains the loss. "
+    "Channel B is a directional form of the local disorder of the MyUncle lattice model, the minimum of the disorder over the four quadrants of a site. It detects arrangement anomalies, the same embeddings in the wrong places: "
+    "there the rarity stayed at chance (average precision %s) and channel B reached %s. A label-free tail index chooses the channel per cohort; on fifteen independent test scenarios this raised the lower-tail average precision "
+    "from %s to %s (paired 95\\%% interval of the gain %s to %s) without loss on the scenarios with feature anomalies only. "
+    "Order gates and an evolutionary configuration search did not help, and cohorts with both kinds of anomaly need both maps. Code and results are open."
+    % (n2(F(SIMW)), n2(F(MEAN)), n2(gm(RAR, _arr)), n2(gm(CB, _arr)), n2(TF[CA]), n2(TF[FUS]), sg(TB[FUS]["diff_vs_A"]["ci"][0]), sg(TB[FUS]["diff_vs_A"]["ci"][1])))
 assert len(ABSTRACT.split()) <= 200, len(ABSTRACT.split())
 
 V = dict(
-    ABSTRACT=ABSTRACT, TABAP=tabap, TABDEV=tabdev, OG_REP=str(OS["repeats"]), OG_BUDGET=str(OS["budget"]), OG_N=str(OS["n_unique"]), OG_FRANK=str(OS["frozen_rank"]), OG_FF=n2(OS["frozen_fitness"]), OG_OPT=n2(OS["optimum"]),
+    ABSTRACT=ABSTRACT, TABAP=tabap, OG_REP=str(OS["repeats"]), OG_BUDGET=str(OS["budget"]), OG_N=str(OS["n_unique"]), OG_FRANK=str(OS["frozen_rank"]), OG_FF=n2(OS["frozen_fitness"]), OG_OPT=n2(OS["optimum"]),
     OG_RN5=pc(_st["random"]["hit_top5pct"]), OG_G5=pc(_st["greedy"]["hit_top5pct"]), OG_R5=pc(_st["restart"]["hit_top5pct"]), OG_P5=pc(_st["population"]["hit_top5pct"]),
     OG_RN1=pc(_st["random"]["hit_top1pct"]), OG_G1=pc(_st["greedy"]["hit_top1pct"]), OG_R1=pc(_st["restart"]["hit_top1pct"]), OG_P1=pc(_st["population"]["hit_top1pct"]),
     T_NONE_SC=n2(ap(NONE, "SC")), T_MEAN_SC=n2(ap(MEAN, "SC")), T_NONE_BAR=n2(ap(NONE, "BAR")), T_MEAN_BAR=n2(ap(MEAN, "BAR")), T_NONE_ROT=n2(ap(NONE, "R")), T_MEAN_ROT=n2(ap(MEAN, "R")),
@@ -140,6 +201,7 @@ V = dict(
     LF_NONE=sg(LF["lf_vs_ap_none"]["rho"]), LF_SIMW=sg(LF["lf_vs_ap_simw"]["rho"]), LF_APN=n2(LF["mean_ap"]["none"]), LF_APM=n2(LF["mean_ap"]["mean"]), LF_APS=n2(LF["mean_ap"]["simw"]), LF_CH=n2(_choice), LF_APNT=n2(_apnt),
     OLD_DIFF=sg(_old), OLD_CI=cif(_oci), TEST_UNITS="16 to 50",
 )
+V.update(TCV)
 s = open(os.path.join(HERE, "prl_template.tex.in"), encoding="utf-8").read()
 for k, v in V.items():
     s = s.replace("@%s@" % k, v)

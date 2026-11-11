@@ -301,7 +301,7 @@ for b in B:
     for x in b[1:]:
         if isinstance(x, str):
             cit.scan(x)
-FIGNUM = {k: i + 1 for i, k in enumerate(["bridge", "pipe", "held", "ex", "maps"])}
+FIGNUM = {k: i + 1 for i, k in enumerate(["bridge", "pipe", "held", "ex", "maps", "channels"])}
 
 
 def resolve(s):
@@ -355,7 +355,11 @@ if __name__ == "__main__":
         exec(open(os.path.join(HERE, "chemrxiv_variant.py"), encoding="utf-8").read())
         B = chemrxiv_blocks(B)
         TITLE = CHEM_TITLE
-        LIB = dict(LIB, GaaR2026='L. Sandler, GaaR: goal-aware adaptive regulation, evolutionary search on consumer hardware, software, GitHub (2026), commit 4021e64. https://github.com/sandlerleon/GaaR', MyUncleVision2026='L. Sandler, MyUncleVision: a lattice-based framework for unsupervised anomaly discovery in images, software, Zenodo (2026). https://doi.org/10.5281/zenodo.24066260 (all versions; companion of MyUncle, https://doi.org/10.5281/zenodo.21223570)')
+        LIB = dict(LIB, GaaR2026='L. Sandler, GaaR: goal-aware adaptive regulation, evolutionary search on consumer hardware, software, GitHub (2026), commit 4021e64. https://github.com/sandlerleon/GaaR', MyUncleVision2026='L. Sandler, MyUncleVision: a lattice-based framework for unsupervised anomaly discovery in images, software, Zenodo (2026). https://doi.org/10.5281/zenodo.24066260 (all versions; companion of MyUncle, https://doi.org/10.5281/zenodo.21223570)',
+                   Chandola2009='V. Chandola, A. Banerjee, V. Kumar, Anomaly detection: a survey, ACM Comput. Surv. 41 (3) (2009) 15. https://doi.org/10.1145/1541880.1541882',
+                   Bergmann2022='P. Bergmann, K. Batzner, M. Fauser, D. Sattlegger, C. Steger, Beyond dents and scratches: logical constraints in unsupervised anomaly detection and localization, Int. J. Comput. Vis. 130 (2022) 947–969. https://doi.org/10.1007/s11263-022-01578-9',
+                   Kuwahara1976='M. Kuwahara, K. Hachimura, S. Eiho, M. Kinoshita, Processing of RI-angiocardiographic images, in: K. Preston, M. Onoe (Eds.), Digital Processing of Biomedical Images, Plenum Press, New York (1976) 187–202.',
+                   Rousseeuw1993='P.J. Rousseeuw, C. Croux, Alternatives to the median absolute deviation, J. Am. Stat. Assoc. 88 (1993) 1273–1283. https://doi.org/10.1080/01621459.1993.10476408')
         cit = E.Citations(LIB)
         for b in B:
             for x in b[1:]:
