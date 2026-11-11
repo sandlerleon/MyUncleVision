@@ -1,0 +1,637 @@
+{
+ "rows": [
+  {
+   "split": "dev",
+   "scenario": "images-dev-handcrafted",
+   "cohort": 0,
+   "retention": 0.234375,
+   "none": 0.4537039760666016,
+   "mean": 0.4744780904468464,
+   "simw": 0.42101845026447554
+  },
+  {
+   "split": "dev",
+   "scenario": "images-dev-dinov2_vits14",
+   "cohort": 0,
+   "retention": 0.2857142857142857,
+   "none": 0.2022309277171319,
+   "mean": 0.7365017119759729,
+   "simw": 0.7878969816475522
+  },
+  {
+   "split": "dev",
+   "scenario": "sim-dev-rotor",
+   "cohort": 0,
+   "retention": 0.09047619047619047,
+   "none": 0.4367732368026194,
+   "mean": 0.12493375025928571,
+   "simw": 0.2693948569797958
+  },
+  {
+   "split": "dev",
+   "scenario": "sim-dev-rotor_D",
+   "cohort": 0,
+   "retention": 0.3788564721663314,
+   "none": 0.3021778426812819,
+   "mean": 0.2832694888887952,
+   "simw": 0.27765937345796593
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-scattered",
+   "cohort": 0,
+   "retention": 0.29354838709677417,
+   "none": 0.4564788442419681,
+   "mean": 0.03378891111866598,
+   "simw": 0.5547185143386452
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-scattered",
+   "cohort": 1,
+   "retention": 0.2354838709677419,
+   "none": 0.50602570203918,
+   "mean": 0.038110784168460685,
+   "simw": 0.7030822527967205
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-scattered",
+   "cohort": 2,
+   "retention": 0.35342741935483873,
+   "none": 0.3627000603629673,
+   "mean": 0.03477373128928611,
+   "simw": 0.48402099674956867
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-scattered",
+   "cohort": 3,
+   "retention": 0.3016129032258065,
+   "none": 0.4662142475897673,
+   "mean": 0.03348595394888861,
+   "simw": 0.5609605795368663
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-scattered",
+   "cohort": 4,
+   "retention": 0.23921370967741934,
+   "none": 0.44252359540043984,
+   "mean": 0.036376756782047284,
+   "simw": 0.5474163033651794
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block3",
+   "cohort": 0,
+   "retention": 0.4580645161290322,
+   "none": 0.40162391548070536,
+   "mean": 0.08852469659288265,
+   "simw": 0.548743540634985
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block3",
+   "cohort": 1,
+   "retention": 0.408266129032258,
+   "none": 0.5276330854801443,
+   "mean": 0.16817555682147095,
+   "simw": 0.7321015643708564
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block3",
+   "cohort": 2,
+   "retention": 0.432258064516129,
+   "none": 0.43853721724905814,
+   "mean": 0.1200334777490161,
+   "simw": 0.5716648489688303
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block3",
+   "cohort": 3,
+   "retention": 0.4241935483870967,
+   "none": 0.499962071661069,
+   "mean": 0.11182605825911872,
+   "simw": 0.5842550384514366
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block3",
+   "cohort": 4,
+   "retention": 0.39082661290322585,
+   "none": 0.4252468038520953,
+   "mean": 0.10100867896843707,
+   "simw": 0.5252037276444217
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block6",
+   "cohort": 0,
+   "retention": 0.5139326735092865,
+   "none": 0.41530270066697317,
+   "mean": 0.24380578214301185,
+   "simw": 0.5299144189881602
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block6",
+   "cohort": 1,
+   "retention": 0.5436491935483871,
+   "none": 0.45725320509907713,
+   "mean": 0.40626041993485174,
+   "simw": 0.6585751471845863
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block6",
+   "cohort": 2,
+   "retention": 0.4387096774193548,
+   "none": 0.40049555496772615,
+   "mean": 0.2907059937473425,
+   "simw": 0.5428353930047379
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block6",
+   "cohort": 3,
+   "retention": 0.5064516129032257,
+   "none": 0.4348354918644809,
+   "mean": 0.2806525063070611,
+   "simw": 0.5137441971727409
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-block6",
+   "cohort": 4,
+   "retention": 0.4945564516129032,
+   "none": 0.47243453421292886,
+   "mean": 0.33535793707555756,
+   "simw": 0.5842908792737151
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-bar8",
+   "cohort": 0,
+   "retention": 0.3161290322580645,
+   "none": 0.44024002780317684,
+   "mean": 0.05422125460028823,
+   "simw": 0.584598345965016
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-bar8",
+   "cohort": 1,
+   "retention": 0.2741935483870968,
+   "none": 0.38648275849974323,
+   "mean": 0.04234878431744586,
+   "simw": 0.5716772643737034
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-bar8",
+   "cohort": 2,
+   "retention": 0.3377016129032258,
+   "none": 0.39398306356222,
+   "mean": 0.055361335915745276,
+   "simw": 0.5106481553427613
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-bar8",
+   "cohort": 3,
+   "retention": 0.30201612903225805,
+   "none": 0.46340390270112114,
+   "mean": 0.035125226816640064,
+   "simw": 0.5641824990782545
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-bar8",
+   "cohort": 4,
+   "retention": 0.3064516129032258,
+   "none": 0.42585565536329434,
+   "mean": 0.03296612527988852,
+   "simw": 0.5071013520027461
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-irregular12",
+   "cohort": 0,
+   "retention": 0.40645161290322573,
+   "none": 0.5202003412018038,
+   "mean": 0.08944335493298995,
+   "simw": 0.6345569877280535
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-irregular12",
+   "cohort": 1,
+   "retention": 0.4111895161290322,
+   "none": 0.5839269270369849,
+   "mean": 0.15338914498888012,
+   "simw": 0.7556515811581821
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-irregular12",
+   "cohort": 2,
+   "retention": 0.30645161290322587,
+   "none": 0.38899451095012333,
+   "mean": 0.07058620660756261,
+   "simw": 0.5240240388976146
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-irregular12",
+   "cohort": 3,
+   "retention": 0.3602822580645161,
+   "none": 0.4578159622056693,
+   "mean": 0.11036742518377299,
+   "simw": 0.5745057214946883
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-irregular12",
+   "cohort": 4,
+   "retention": 0.4032258064516129,
+   "none": 0.5556596283998932,
+   "mean": 0.11886969476464869,
+   "simw": 0.6315087059012672
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-boundary3",
+   "cohort": 0,
+   "retention": 0.4096774193548387,
+   "none": 0.3852613890887358,
+   "mean": 0.07577663967301818,
+   "simw": 0.48784590606624595
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-boundary3",
+   "cohort": 1,
+   "retention": 0.32903225806451614,
+   "none": 0.4742725518989421,
+   "mean": 0.11463463858976936,
+   "simw": 0.6924836826514984
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-boundary3",
+   "cohort": 2,
+   "retention": 0.3986895161290323,
+   "none": 0.3129595946758737,
+   "mean": 0.07080484275792868,
+   "simw": 0.4427319393376064
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-boundary3",
+   "cohort": 3,
+   "retention": 0.45574596774193543,
+   "none": 0.407668792129161,
+   "mean": 0.09343357853264131,
+   "simw": 0.5122885796021057
+  },
+  {
+   "split": "dev",
+   "scenario": "morph-dev-boundary3",
+   "cohort": 4,
+   "retention": 0.3709677419354839,
+   "none": 0.4061250062925049,
+   "mean": 0.08261392839986154,
+   "simw": 0.510721321440049
+  },
+  {
+   "split": "test",
+   "scenario": "images-test-handcrafted",
+   "cohort": 0,
+   "retention": 0.30691964285714285,
+   "none": 0.18265815085022868,
+   "mean": 0.038935544260042226,
+   "simw": 0.17139285925595438
+  },
+  {
+   "split": "test",
+   "scenario": "images-test-dinov2_vits14",
+   "cohort": 0,
+   "retention": 0.2064732142857143,
+   "none": 0.10764121168593936,
+   "mean": 0.5036728342143102,
+   "simw": 0.7531927898399283
+  },
+  {
+   "split": "test",
+   "scenario": "sim-test-rotor",
+   "cohort": 0,
+   "retention": 0.10684523809523809,
+   "none": 0.5639929149876053,
+   "mean": 0.31840355772590445,
+   "simw": 0.5058293781320198
+  },
+  {
+   "split": "test",
+   "scenario": "sim-test-rotor_D",
+   "cohort": 0,
+   "retention": 0.2767102615694165,
+   "none": 0.42554180694398946,
+   "mean": 0.4561906991545507,
+   "simw": 0.4736590123424645
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-scattered",
+   "cohort": 0,
+   "retention": 0.33427419354838717,
+   "none": 0.39177448813641425,
+   "mean": 0.032039973779415656,
+   "simw": 0.5199003913608646
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-scattered",
+   "cohort": 1,
+   "retention": 0.33639112903225804,
+   "none": 0.36282077679189045,
+   "mean": 0.03512349103552063,
+   "simw": 0.4676641589255758
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-scattered",
+   "cohort": 2,
+   "retention": 0.2645161290322581,
+   "none": 0.4790671801823559,
+   "mean": 0.030930834127176905,
+   "simw": 0.6206734608919023
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-scattered",
+   "cohort": 3,
+   "retention": 0.38387096774193546,
+   "none": 0.29260802722286966,
+   "mean": 0.03396367800820739,
+   "simw": 0.37908527141514553
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-scattered",
+   "cohort": 4,
+   "retention": 0.3726814516129032,
+   "none": 0.35373264260861287,
+   "mean": 0.033760582543028037,
+   "simw": 0.42728868358190764
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block3",
+   "cohort": 0,
+   "retention": 0.4501008064516128,
+   "none": 0.38473063513602956,
+   "mean": 0.13488864046556226,
+   "simw": 0.5252471624269854
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block3",
+   "cohort": 1,
+   "retention": 0.432258064516129,
+   "none": 0.34024313995033234,
+   "mean": 0.10034157240055928,
+   "simw": 0.4582709748742011
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block3",
+   "cohort": 2,
+   "retention": 0.3631048387096774,
+   "none": 0.3736368721469524,
+   "mean": 0.09517028908676887,
+   "simw": 0.49983473707859777
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block3",
+   "cohort": 3,
+   "retention": 0.5111895161290324,
+   "none": 0.27197030135112404,
+   "mean": 0.06495139248053719,
+   "simw": 0.34455661696543444
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block3",
+   "cohort": 4,
+   "retention": 0.5278225806451612,
+   "none": 0.3415886054417276,
+   "mean": 0.11759509430334615,
+   "simw": 0.4158867509582753
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block6",
+   "cohort": 0,
+   "retention": 0.5330645161290324,
+   "none": 0.51404629591477,
+   "mean": 0.4255753087464001,
+   "simw": 0.6580984766366064
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block6",
+   "cohort": 1,
+   "retention": 0.479133064516129,
+   "none": 0.37888628901754773,
+   "mean": 0.24138153106371968,
+   "simw": 0.46342223693280493
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block6",
+   "cohort": 2,
+   "retention": 0.4741935483870968,
+   "none": 0.38152411401467495,
+   "mean": 0.2828007561882527,
+   "simw": 0.4902256287620286
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block6",
+   "cohort": 3,
+   "retention": 0.5451612903225806,
+   "none": 0.33153566652848426,
+   "mean": 0.19625734072295736,
+   "simw": 0.40773263411895816
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-block6",
+   "cohort": 4,
+   "retention": 0.6184750733137829,
+   "none": 0.33167723291267937,
+   "mean": 0.2090973583928081,
+   "simw": 0.3661289062980881
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-bar8",
+   "cohort": 0,
+   "retention": 0.3258064516129032,
+   "none": 0.4240708308671881,
+   "mean": 0.04170785262358758,
+   "simw": 0.5591682318032557
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-bar8",
+   "cohort": 1,
+   "retention": 0.35806451612903223,
+   "none": 0.39070187688070745,
+   "mean": 0.06584305670888783,
+   "simw": 0.4781132862333616
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-bar8",
+   "cohort": 2,
+   "retention": 0.25161290322580643,
+   "none": 0.48067070888888114,
+   "mean": 0.04300353403558693,
+   "simw": 0.6170842236352299
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-bar8",
+   "cohort": 3,
+   "retention": 0.4022177419354839,
+   "none": 0.3042307105331314,
+   "mean": 0.04621434503933315,
+   "simw": 0.3979956367983379
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-bar8",
+   "cohort": 4,
+   "retention": 0.3806451612903226,
+   "none": 0.4083584500718265,
+   "mean": 0.04607600267878545,
+   "simw": 0.4692468915814984
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-irregular12",
+   "cohort": 0,
+   "retention": 0.3951612903225807,
+   "none": 0.4693182294525045,
+   "mean": 0.10345959721578524,
+   "simw": 0.5883716768056548
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-irregular12",
+   "cohort": 1,
+   "retention": 0.476008064516129,
+   "none": 0.3118857886664467,
+   "mean": 0.07352636744864466,
+   "simw": 0.3852479791851001
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-irregular12",
+   "cohort": 2,
+   "retention": 0.3529233870967742,
+   "none": 0.5114935509470414,
+   "mean": 0.09358456739107048,
+   "simw": 0.6333557819329081
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-irregular12",
+   "cohort": 3,
+   "retention": 0.4081653225806452,
+   "none": 0.3294393480973669,
+   "mean": 0.07969486858623333,
+   "simw": 0.3909303166395528
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-irregular12",
+   "cohort": 4,
+   "retention": 0.4064516129032258,
+   "none": 0.390562464098595,
+   "mean": 0.09202248145169434,
+   "simw": 0.45978245214841795
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-boundary3",
+   "cohort": 0,
+   "retention": 0.3854838709677419,
+   "none": 0.4515286617385087,
+   "mean": 0.0889410230153897,
+   "simw": 0.5936192126981423
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-boundary3",
+   "cohort": 1,
+   "retention": 0.4953629032258064,
+   "none": 0.2729486637884876,
+   "mean": 0.07192555995777544,
+   "simw": 0.33210695287605035
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-boundary3",
+   "cohort": 2,
+   "retention": 0.3548387096774194,
+   "none": 0.49228219129125417,
+   "mean": 0.11935005006171535,
+   "simw": 0.6529514974111921
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-boundary3",
+   "cohort": 3,
+   "retention": 0.4917338709677419,
+   "none": 0.2887803364848819,
+   "mean": 0.07135128317860909,
+   "simw": 0.37343873022795787
+  },
+  {
+   "split": "test",
+   "scenario": "morph-test-boundary3",
+   "cohort": 4,
+   "retention": 0.5096774193548386,
+   "none": 0.30582361874509506,
+   "mean": 0.07276835684509574,
+   "simw": 0.358491286973374
+  }
+ ],
+ "spearman_retention_vs_mean_effect": {
+  "rho": 0.4311221812062292,
+  "p": 0.00024228364359706083,
+  "n": 68
+ },
+ "threshold_from_dev": 0.544,
+ "test_mean_ap": {
+  "always_none": 0.3718168171287101,
+  "always_mean": 0.1311926301452136,
+  "always_simw": 0.47758806728669934,
+  "retention_choice": 0.36423275241325725,
+  "oracle": 0.38436624403279634,
+  "n_cohorts": 34
+ },
+ "dev_mean_ap": {
+  "always_none": 0.43250009191898425,
+  "always_mean": 0.15123566081876708,
+  "retention_choice": 0.43250009191898425,
+  "n_cohorts": 34
+ },
+ "share_chose_mean_test": 0.058823529411764705
+}

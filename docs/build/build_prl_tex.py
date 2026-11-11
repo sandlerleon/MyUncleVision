@@ -19,6 +19,7 @@ for f in ("fig_bridge.png", "fig_bridge_maps.png"):
 J = lambda name: json.load(open(os.path.join(RES, name)))
 OT, OS, OG = J("og_test.json"), J("og_search.json"), J("og_grid_dev.json")
 GT = J("gaar_test.json")
+NG, CG = J("og_ngh.json"), J("og_closure.json")
 R = OT["results"]
 BT = OT["bootstrap"]
 n2 = lambda x: "%.2f" % x
@@ -54,6 +55,13 @@ _old = GT["test"]["GaaR restart (seed 0, budget 40)"]["fitness"] - GT["test"]["f
 _oci = GT["bootstrap"]["GaaR restart (seed 0, budget 40)"]["diff_vs_default_ci"]
 assert _oci[0] < 0 < _oci[1]
 
+NGH = "nucleation-growth (dev-selected)"
+assert abs(NG["results"][NGH]["_fitness"] - NG["results"][NONE]["_fitness"]) < 0.01 and NG["bootstrap"][NGH]["diff_vs_none"]["ci"][0] < 0 < NG["bootstrap"][NGH]["diff_vs_none"]["ci"][1], "text: the nucleation-growth rule matched no smoothing"
+assert NG["bootstrap"][NGH]["diff_vs_similarity-weighted"]["ci"][1] < 0, "text: the nucleation-growth rule was below the similarity-weighted rule"
+assert CG["spearman_retention_vs_mean_effect"]["rho"] > 0.3 and CG["spearman_retention_vs_mean_effect"]["p"] < 0.01
+assert CG["test_mean_ap"]["retention_choice"] <= CG["test_mean_ap"]["always_none"] + 0.01 and CG["test_mean_ap"]["always_simw"] > CG["test_mean_ap"]["retention_choice"], "text: the retention-based choice did not beat no smoothing; similarity weighting made it unnecessary"
+_rng = lambda c: max(ap(c, k) for k in ("SC", "B3", "B6", "BAR", "IRR", "BND")) - min(ap(c, k) for k in ("SC", "B3", "B6", "BAR", "IRR", "BND"))
+assert _rng(MEAN) > 3 * _rng(SIMW) and _rng(SIMW) <= _rng(NONE) + 0.02, "text: shape ranges"
 rows = [(NONE, "No smoothing"), (MEAN, "Fixed $3\\times3$ mean (frozen)"), (SIMW, "Similarity-weighted $3\\times3$ (untuned)"), (GAR, "GaaR / random-search champion"), (ONE, "One-sided (dev-selected)"), (OGC, "Order gate, compatibility (dev)"), (OGV, "Order gate, $R_i$ or $H_\\chi$ (dev)")]
 tabap = (" \\\\\n").join(" & ".join([lab] + [n2(ap(c, k)) for k in ("H", "D", "R", "RD", "SC", "B3", "B6", "BAR", "IRR", "BND")] + ["%s [%s, %s]" % (n2(F(c)), n2(BT[c]["fitness_ci"][0]), n2(BT[c]["fitness_ci"][1]))]) for c, lab in rows) + " \\\\"
 
@@ -100,6 +108,10 @@ V = dict(
     F_MEAN=n2(F(MEAN)), F_NONE=n2(F(NONE)), F_SIMW=n2(F(SIMW)), F_OGCOS=n2(F(OGC)), F_OGVMF=n2(F(OGV)), F_GAAR=n2(F(GAR)),
     D_MEAN_NONE=dif(*diff(MEAN, NONE)), D_SIMW_MEAN=dif(*diff(SIMW, MEAN)), D_SIMW_NONE=dif(*diff(SIMW, NONE)), D_ONE_NONE=dif(*diff(ONE, NONE)), D_OGCOS_SIMW=dif(*diff(OGC, SIMW)), D_OGVMF_SIMW=dif(*diff(OGV, SIMW)),
     R_SIMW_SC=n2(rec(SIMW, "SC")), R_SIMW_BAR=n2(rec(SIMW, "BAR")), FR_NONE=n2(fr(NONE)), FR_SIMW=n2(fr(SIMW)), T_SIMW_D=n2(ap(SIMW, "D")), T_SIMW_H=n2(ap(SIMW, "H")), T_NONE_H=n2(ap(NONE, "H")), T_SIMW_ROT=n2(ap(SIMW, "R")),
+    F_NGH=n2(NG["results"][NGH]["_fitness"]), D_NGH_NONE=dif(NG["results"][NGH]["_fitness"] - NG["results"][NONE]["_fitness"], NG["bootstrap"][NGH]["diff_vs_none"]["ci"]), D_NGH_SIMW=dif(NG["results"][NGH]["_fitness"] - NG["results"][SIMW]["_fitness"], NG["bootstrap"][NGH]["diff_vs_similarity-weighted"]["ci"]),
+    N_COH=str(CG["spearman_retention_vs_mean_effect"]["n"]), CG_RHO=n2(CG["spearman_retention_vs_mean_effect"]["rho"]), CG_P="%.4f" % CG["spearman_retention_vs_mean_effect"]["p"], CG_SHARE=pc(CG["share_chose_mean_test"]),
+    CG_CHOICE=n2(CG["test_mean_ap"]["retention_choice"]), CG_NONE=n2(CG["test_mean_ap"]["always_none"]), CG_ORACLE=n2(CG["test_mean_ap"]["oracle"]), CG_SIMW=n2(CG["test_mean_ap"]["always_simw"]),
+    RG_NONE=n2(_rng(NONE)), RG_MEAN=n2(_rng(MEAN)), RG_SIMW=n2(_rng(SIMW)),
     OLD_DIFF=sg(_old), OLD_CI=cif(_oci), TEST_UNITS="16 to 50",
 )
 s = open(os.path.join(HERE, "prl_template.tex.in"), encoding="utf-8").read()

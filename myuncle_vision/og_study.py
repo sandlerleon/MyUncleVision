@@ -258,18 +258,8 @@ def run_search(grid_json, out, budget=40, repeats=100):
     return res
 
 
-def run_test(search_json, grid_json, out, B=300, seed=0):
-    sr = json.load(open(search_json))
-    test = load_cache("test")
-    cands = {"none": canonical(dict(DEFAULT_RULE, rule="none")), "frozen (mean 3)": canonical(DEFAULT_RULE)}
-    for r, d in sr["family_champions"].items():
-        if r not in ("none", "mean"):
-            cands["best %s (dev)" % r] = d["config"]
-    cands["best mean (dev)"] = sr["family_champions"]["mean"]["config"]
-    cands["similarity-weighted (3), untuned"] = canonical(dict(DEFAULT_RULE, rule="simw"))
-    cands["GaaR restart champion"] = canonical(sr["strategies"]["restart"]["champion_seed0"])
-    cands["GaaR random-search champion"] = canonical(sr["strategies"]["random"]["champion_seed0"])
-    cands["exhaustive development optimum"] = sr["optimum_config"]
+def evaluate_candidates(test, cands, B=300, seed=0):
+    """evaluate rule configurations on the test scenarios (AP, AUROC, region metrics) with paired bootstrap intervals over the independent units"""
     res = dict(candidates=cands, scenarios=[s["name"] for s in test], results={}, bootstrap={})
     per_unit = {}
     for name, g in cands.items():
@@ -306,6 +296,24 @@ def run_test(search_json, grid_json, out, B=300, seed=0):
             res["bootstrap"].setdefault(nm, {})["fitness_ci"] = ci(F[nm])
             res["bootstrap"][nm]["diff_vs_" + ref.split()[0]] = dict(ci=ci(d), share_better=float(np.mean(d > 0)))
             res["bootstrap"][nm]["ap_ci"] = [ci(AP[nm][k]) for k in range(len(test))]
+    return res
+
+
+
+
+def run_test(search_json, grid_json, out, B=300, seed=0):
+    sr = json.load(open(search_json))
+    test = load_cache("test")
+    cands = {"none": canonical(dict(DEFAULT_RULE, rule="none")), "frozen (mean 3)": canonical(DEFAULT_RULE)}
+    for r, d in sr["family_champions"].items():
+        if r not in ("none", "mean"):
+            cands["best %s (dev)" % r] = d["config"]
+    cands["best mean (dev)"] = sr["family_champions"]["mean"]["config"]
+    cands["similarity-weighted (3), untuned"] = canonical(dict(DEFAULT_RULE, rule="simw"))
+    cands["GaaR restart champion"] = canonical(sr["strategies"]["restart"]["champion_seed0"])
+    cands["GaaR random-search champion"] = canonical(sr["strategies"]["random"]["champion_seed0"])
+    cands["exhaustive development optimum"] = sr["optimum_config"]
+    res = evaluate_candidates(test, cands, B, seed)
     json.dump(res, open(out, "w"), indent=1)
     return res
 

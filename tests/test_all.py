@@ -434,6 +434,23 @@ def test_aggregation_rules_and_the_monotone_vmf_gate():
     assert len({json.dumps(O.canonical(c), sort_keys=True) for c in O.all_configs()}) == 460
 
 
+def test_nucleation_growth_rule_and_closure_gap():
+    from myuncle_vision import gating as G
+    rng = np.random.default_rng(1)
+    H = W = 14
+    U = rng.normal(size=(H, W, 5))
+    U /= np.linalg.norm(U, axis=-1, keepdims=True)
+    r = rng.random((H, W))
+    valid = np.ones((H, W), bool)
+    s = G.apply_rule(r, U, valid, "ngh", 3, 0.9, 1.0, 0.5)
+    assert np.all(s >= r - 1e-12) and np.any(s > r + 1e-9)                       # never lowers a score; raises some neighbors of seeds
+    seeds = r > 0.9
+    assert np.allclose(s[seeds], r[seeds]) or np.all(s[seeds] >= r[seeds] - 1e-12)  # seeds keep (at least) their score
+    iso = np.zeros((H, W)); iso[3, 3] = iso[9, 9] = iso[2, 11] = 1.0              # isolated spikes: the fixed mean removes them from the top set
+    comp = np.zeros((H, W)); comp[3:6, 3:6] = 1.0                                  # a compact region survives the mean
+    assert G.closure_gap(comp + 0.01 * rng.random((H, W)), valid, 3, 0.02) > G.closure_gap(iso + 0.01 * rng.random((H, W)), valid, 3, 0.02)
+
+
 def test_openslide_svs_backend_if_sample_present():
     """reads a real Aperio SVS when tests/data/*.svs exists (the public OpenSlide test file CMU-1-Small-Region.svs); skipped otherwise"""
     d = os.path.join(HERE, "data")

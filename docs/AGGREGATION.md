@@ -7,8 +7,9 @@
 | `none` | `s = r` |
 | `mean` | mean of `r` over a `w x w` window (the earlier frozen configuration for `w = 3`) |
 | `simw` | `s_i = sum_j c_ij r_j / sum_j c_ij`, `c_ij = exp(-(1 - u_i.u_j)/tau)`, `tau` = median of `1 - cos` over lattice-adjacent pairs of the cohort (an established edge-preserving filter, not claimed as new) |
-| `onesided` | `s_i = r_i + max(0, m_i - r_i)`, `m_i` = similarity-weighted mean over the neighbors (adapted from the asymmetric damping of the author's flowmeter paper, Zenodo 10.5281/zenodo.24036377) |
+| `onesided` | `s_i = r_i + max(0, m_i - r_i)`, `m_i` = similarity-weighted mean over the neighbors |
 | `og_cos`, `og_disorder`, `og_vmf` | `s_i = (1 - g_i) r_i + g_i s_i^sim`, `g_i = logistic(alpha (A_i - theta))`, `A_i` = cohort rank of the mean compatibility / the resultant length `R_i` / the von Mises-Fisher information `H_chi` of the neighbors |
+| `ngh` | nucleation and growth with hysteresis: seeds above a cohort-rank threshold keep their score; weaker sites next to a seed are raised to the seed's score times the compatibility, never lowered |
 | `onesided_gate` | the one-sided rule inside the compatibility gate |
 | persistence (`lam`) | multiplies `s` by `(1 - lam) + lam P_i`, `P_i` = share of windows 1, 3, 5, 7 at which the score exceeds its cohort top-3% threshold |
 
@@ -32,3 +33,9 @@ Scenarios: synthetic images (handcrafted and DINOv2 embeddings), MyUncle lattice
 * Order / von Mises-Fisher gates (`F` 0.30) did not beat ordinary similarity; the one-sided rule matched no smoothing.
 * GaaR was not better than random search on the rule table (top-5% hit rate 94% for random, 70-81% for GaaR strategies): many configurations of the similarity family are nearly equivalent.
 * No rule helped the handcrafted-feature images, and on rotor-only lattices similarity weighting stayed slightly below no smoothing.
+
+## Further experiments (`og_extra.py`)
+
+* Nucleation-and-growth rule (`ngh`): on the test scenarios `F` 0.228, equal to no smoothing, below similarity weighting.
+* Closure gap: retention of the top-3% sites under the fixed mean correlates with the effect of the fixed mean (Spearman 0.43, 68 cohorts), but a retention-based choice between the mean and no smoothing did not beat no smoothing; similarity weighting makes the choice unnecessary.
+* Range of AP over the six shapes: none 0.06, fixed mean 0.22, similarity-weighted 0.06.

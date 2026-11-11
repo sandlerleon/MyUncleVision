@@ -11,8 +11,9 @@ All rules use only the score r and the unit embeddings u (no labels):
     og_disorder    same gate with A_i = rank of the resultant length R_i = 1 - D_i of the neighbors (MyUncle's local order)
     og_vmf         same gate with A_i = rank of the von Mises-Fisher order information H_chi of the neighbors (the d-dimensional entropy quantity of the paper)
     onesided       s_i = r_i + max(0, m_i - r_i)  with m_i = simw over the neighbors only: neighbors can only add evidence, never remove it
-                   (the asymmetric damping idea of the author's flowmeter paper: a one-sided rule for a failure mode that has a sign)
+                   (an asymmetric rule, as used for a failure mode that has a sign)
     onesided_gate  the one-sided rule inside the og_cos gate
+    ngh            nucleation and growth with hysteresis: seeds (rank above a threshold) keep their score; weaker sites next to a seed are raised to gamma * compatibility * the seed's score, never lowered
 
 c_ij = exp(-(1 - u_i.u_j)/tau) with tau = the median of (1 - u_i.u_j) over lattice-adjacent pairs of the cohort (label-free).
 Persistence (optional, weight lam): P_i = share of the windows l in {1, 3, 5, 7} for which the rule's score at that window exceeds its cohort top-3% threshold,  S_i = s_i ((1 - lam) + lam P_i).
@@ -22,6 +23,7 @@ import numpy as np
 from . import lattice as lat
 
 RULES = ("none", "mean", "simw", "og_cos", "og_disorder", "og_vmf", "onesided", "onesided_gate")
+EXTRA_RULES = ("ngh",)          # nucleation-and-growth with hysteresis (evaluated separately, see og_extra.py)
 WINDOWS = (1, 3, 5, 7)
 
 
@@ -110,6 +112,38 @@ def _resultant(U, valid, window):
     return np.where(valid & (n > 0), R, np.nan)
 
 
+def _nucleation_growth(r, U, valid, window, tau, nuc, gamma):
+    """nucleation and growth with hysteresis: a site whose rarity r exceeds the nucleation threshold `nuc` (a cohort rank) is a seed and keeps its score; a weaker site next to a seed is raised to
+    gamma * (compatibility with the seed) * (the seed's score), never lowered (growth into compatible neighbors, the two-threshold logic of hysteresis thresholding, with the compatibility of the
+    embeddings as the growth probability).  s_i = max(r_i, gamma * max_j c_ij 1[r_j > nuc] r_j)."""
+    h = window // 2
+    best = np.zeros(r.shape)
+    vv = valid & np.isfinite(r)
+    rr = np.where(vv, r, 0.0)
+    seed = (rr > nuc) & vv
+    for dy in range(-h, h + 1):
+        for dx in range(-h, h + 1):
+            if dy == 0 and dx == 0:
+                continue
+            Us = _shift(U, dy, dx, 0.0)
+            rs = _shift(rr, dy, dx, 0.0)
+            ss = _shift(seed.astype(float), dy, dx, 0.0) > 0
+            c = np.exp(-(1.0 - np.sum(U * Us, axis=-1)) / tau)
+            best = np.maximum(best, c * rs * ss)
+    return np.maximum(rr, gamma * best)
+
+
+def closure_gap(r, valid, window=3, q=0.03):
+    """label-free diagnostic from the closure test of a mean-field reduction: aggregating a steep function (here the top-q exceedance) over a window flattens it when the neighborhood is heterogeneous.
+    Returns the share of the cohort's top-q sites (by r) that are still in the top-q after the fixed mean over the window ('retention'): near 1 when the high scores are spatially coherent, near 0 when they are isolated spikes."""
+    m = _mean_window(r, valid, window)
+    ok = valid & np.isfinite(r) & np.isfinite(m)
+    qr = np.quantile(r[ok], 1.0 - q)
+    qm = np.quantile(m[ok], 1.0 - q)
+    top = ok & (r >= qr)
+    return float(np.mean(m[top] >= qm)) if top.any() else float("nan")
+
+
 def apply_rule(r, U, valid, rule, window=3, theta=0.5, alpha=5.0, tau=0.5):
     """final score lattice s (NaN where r is NaN).  r: (H, W) rarity ranks; U: (H, W, d) unit embeddings; valid: (H, W) bool"""
     ok = valid & np.isfinite(r)
@@ -117,6 +151,8 @@ def apply_rule(r, U, valid, rule, window=3, theta=0.5, alpha=5.0, tau=0.5):
         return np.where(ok, r, np.nan)
     if rule == "mean":
         return np.where(ok, _mean_window(r, valid, window), np.nan)
+    if rule == "ngh":
+        return np.where(ok, _nucleation_growth(r, U, valid, window, tau, nuc=theta, gamma=alpha), np.nan)
     num_s, den_s, comp = _window_sums(r, U, valid, window, tau, include_self=True)
     simw = np.where(den_s > 0, num_s / np.maximum(den_s, 1e-12), np.nan)
     if rule == "simw":

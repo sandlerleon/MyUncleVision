@@ -40,6 +40,8 @@ assert sorted(_bad) == ["sim-dev-rotor", "sim-test-rotor"] and all(_mor[k] < 0.0
 
 _OT = _json.load(open(os.path.join(RES, "og_test.json")))
 _OS = _json.load(open(os.path.join(RES, "og_search.json")))
+_NG = _json.load(open(os.path.join(RES, "og_ngh.json")))
+_CG = _json.load(open(os.path.join(RES, "og_closure.json")))
 _R, _BTO = _OT["results"], _OT["bootstrap"]
 _NONE, _MEAN, _SIMW = "none", "frozen (mean 3)", "similarity-weighted (3), untuned"
 _ONE, _OGC, _OGV, _GAR = "best onesided (dev)", "best og_cos (dev)", "best og_vmf (dev)", "GaaR restart champion"
@@ -108,7 +110,7 @@ CHEM_GAAR = [
 
 CHEM_OG = [
     ("h2", "4.8 Spatial aggregation rules and an independent test"),
-    ("p", "Six aggregation rules turn the rarity score r into the final score s on the lattice (none; fixed w x w mean; similarity-weighted aggregation, which weights each neighbor by exp(-(1 - u_i . u_j)/tau) with tau the median of 1 - cos over lattice-adjacent pairs of the cohort, a label-free scale; a one-sided rule, which lets neighbors add evidence but never remove it, adapted from the asymmetric damping of the author's flowmeter paper; and gates on the compatibility, on the resultant length R_i and on the von Mises-Fisher information H_chi of the neighbors, with an optional persistence factor over the windows 1, 3, 5 and 7). "
+    ("p", "Six aggregation rules turn the rarity score r into the final score s on the lattice (none; fixed w x w mean; similarity-weighted aggregation, which weights each neighbor by exp(-(1 - u_i . u_j)/tau) with tau the median of 1 - cos over lattice-adjacent pairs of the cohort, a label-free scale; a one-sided rule, which lets neighbors add evidence but never remove it; a nucleation-and-growth rule with hysteresis, in which a site whose rarity exceeds a nucleation threshold seeds and weaker neighbors are raised to the seed's score weighted by their compatibility, never lowered; and gates on the compatibility, on the resultant length R_i and on the von Mises-Fisher information H_chi of the neighbors, with an optional persistence factor over the windows 1, 3, 5 and 7). "
           "Similarity-weighted filtering is an established kind of edge-preserving filter; no novelty is claimed for it. H_chi is a monotone function of R_i, so a gate on the rank of H_chi is the same as a gate on the rank of R_i. "
           "The rarity score is computed once per scenario; the rule parameters (460 distinct configurations) were selected on ten development scenarios (the four of Sections 4.1-4.6 and six shapes of the controlled generator: scattered sites, 3 x 3 and 6 x 6 blocks, bars of 8, irregular 12-site clusters and 3 x 3 blocks on domain boundaries) by F = 0.5 mean(AP) + 0.5 min(AP), and the champions were evaluated once on ten independent test scenarios (new seeds, new images and lattices, a MyUncle preset not used before). Selecting rule parameters uses development labels; the rules are label-free."),
     ("table", "Table 7. Independent test scenarios: average precision of aggregation rules (images with handcrafted features and with DINOv2; MyUncle lattices with the rotor and the rotor + D embedding; controlled generator with scattered sites, 3 x 3 blocks, 6 x 6 blocks, bars, irregular clusters and boundary blocks) and the lower-tail fitness F with its 95% interval.",
@@ -123,6 +125,20 @@ CHEM_OG = [
           % (n(_ap(_NONE, "SC")), n(_ap(_MEAN, "SC")), n(_ap(_NONE, "BAR")), n(_ap(_MEAN, "BAR")), n(_ap(_NONE, "R")), n(_ap(_MEAN, "R")), n(_ap(_NONE, "D")), n(_ap(_MEAN, "D")), n(_F(_MEAN)), n(_F(_NONE)), _dd2(_MEAN, _NONE),
              n(_F(_SIMW)), _dd2(_SIMW, _MEAN), _dd2(_SIMW, _NONE), n(_rec(_SIMW, "SC")), n(_rec(_MEAN, "SC")), n(_rec(_SIMW, "BAR")), n(_rec(_MEAN, "BAR")), n(_ap(_SIMW, "H")), n(_ap(_NONE, "H")),
              _dd2(_ONE, _NONE), n(_F(_OGC)), n(_F(_OGV)), _OS["n_unique"], _pcx(_so["random"]["hit_top5pct"]), _OS["repeats"], _OS["budget"], _pcx(_so["greedy"]["hit_top5pct"]), _pcx(_so["restart"]["hit_top5pct"]), _pcx(_so["population"]["hit_top5pct"]))),
+]
+
+_NGHK = "nucleation-growth (dev-selected)"
+_rng = lambda c: max(_ap(c, k) for k in ("SC", "B3", "B6", "BAR", "IRR", "BND")) - min(_ap(c, k) for k in ("SC", "B3", "B6", "BAR", "IRR", "BND"))
+assert abs(_NG["results"][_NGHK]["_fitness"] - _NG["results"][_NONE]["_fitness"]) < 0.01 and _NG["bootstrap"][_NGHK]["diff_vs_similarity-weighted"]["ci"][1] < 0
+assert _CG["spearman_retention_vs_mean_effect"]["rho"] > 0.3 and _CG["test_mean_ap"]["retention_choice"] <= _CG["test_mean_ap"]["always_none"] + 0.01
+assert _rng(_MEAN) > 3 * _rng(_SIMW)
+CHEM_OG2 = [
+    ("p", "Two further ideas were tested. The nucleation-and-growth rule, with its parameters selected on the development scenarios, reached F = %s on the test scenarios, the same as no smoothing (paired difference %s) and below the similarity-weighted rule (%s). "
+          "A label-free closure gap, motivated by the failure of mean-field closures that average a steep function over a heterogeneous neighborhood, is the share of the cohort's top 3%% sites that are still in the top 3%% after the fixed mean (the retention); it correlated with the effect of the fixed mean on the average precision over the %d development and test cohorts (Spearman rho = %s, p = %s), but a choice between the fixed mean and no smoothing based on it, fitted on the development cohorts, selected the mean for %s of the test cohorts and reached a mean AP of %s against %s for no smoothing (oracle choice %s) and %s for similarity weighting, which makes the choice unnecessary. "
+          "As a robustness criterion in the spirit of grid convergence, the range of the average precision over the six anomaly shapes was %s without smoothing, %s for the fixed mean and %s for the similarity-weighted rule."
+          % (n(_NG["results"][_NGHK]["_fitness"]), _sg(_NG["results"][_NGHK]["_fitness"] - _NG["results"][_NONE]["_fitness"]) + " " + _ci2(_NG["bootstrap"][_NGHK]["diff_vs_none"]["ci"]), _sg(_NG["results"][_NGHK]["_fitness"] - _NG["results"][_SIMW]["_fitness"]) + " " + _ci2(_NG["bootstrap"][_NGHK]["diff_vs_similarity-weighted"]["ci"]),
+             _CG["spearman_retention_vs_mean_effect"]["n"], n(_CG["spearman_retention_vs_mean_effect"]["rho"]), "%.4f" % _CG["spearman_retention_vs_mean_effect"]["p"], _pcx(_CG["share_chose_mean_test"]), n(_CG["test_mean_ap"]["retention_choice"]), n(_CG["test_mean_ap"]["always_none"]), n(_CG["test_mean_ap"]["oracle"]), n(_CG["test_mean_ap"]["always_simw"]),
+             n(_rng(_NONE)), n(_rng(_MEAN)), n(_rng(_SIMW)))),
 ]
 
 CHEM_FUTURE = [
@@ -195,7 +211,7 @@ def chemrxiv_blocks(B):
     sub("p", "The development set was one preset", "The presets are model parameter sets that MyUncle labels with application names; they are not fitted to measurements of any material. The development set was one preset")
     # future work, discussion, conclusions
     i, j = find("h1", "5. Future work"), find("h1", "6. Discussion")
-    out[i:j] = CHEM_GAAR + CHEM_OG + CHEM_FUTURE
+    out[i:j] = CHEM_GAAR + CHEM_OG + CHEM_OG2 + CHEM_FUTURE
     i, j = find("p", "What the evaluation supports."), find("h1", "7. Conclusions")
     out[i:j] = CHEM_DISCUSSION
     i = find("p", "MyUncleVision turns a whole-slide image")
