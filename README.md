@@ -1,16 +1,28 @@
 # MyUncleVision
 
-A reusable framework for **unsupervised anomaly discovery in images**: it cuts images into patches, puts the patch embeddings on a lattice, judges how rare each patch's appearance is at several prevalence scales, smooths the score over the lattice so that coherent regions stand out, and returns ranked, mapped, explained candidate regions with an audit trail.
+A reusable framework for **unsupervised anomaly discovery in images**: it cuts images into patches, puts the patch embeddings on a lattice, judges how rare each patch's appearance is at several prevalence scales, aggregates the score over the lattice, adds a second channel for anomalies of *arrangement* (ordinary embeddings in the wrong places, which no rarity score can see), and returns ranked, mapped, explained candidate regions with an audit trail.
 It is the computer-vision sister of [MyUncle](https://github.com/sandlerleon/MyUncle) (Sandler, doi:[10.5281/zenodo.21223570](https://doi.org/10.5281/zenodo.21223570)): the order and entropy definitions of MyUncle's maintenance lattice are generalized to d dimensions and reused here, and MyUncle is vendored **unmodified**.
 Whole-slide histopathology is the first application; nothing in the code is specific to any challenge, data set or tissue, and the same pipeline runs on any collection of images (SVS/TIFF/PNG/JPEG) with your own embedding model if you want one.
 
 Leon Sandler, Independent Researcher, sandler.leon@gmail.com, ORCID 0009-0007-4584-808X. MIT license (code); MyUncle is vendored under its own MIT license.
 Archived on Zenodo (all versions): software [10.5281/zenodo.24066260](https://doi.org/10.5281/zenodo.24066260), manuscript [10.5281/zenodo.24066256](https://doi.org/10.5281/zenodo.24066256).
 
-> **Status and honest limits (v0.2.x).** The framework runs end to end on SVS and on plain images, is covered by automated tests, was built and run in Docker, and is evaluated on **synthetic** images only (a development cohort and a held-out cohort with settings frozen beforehand:
-> `results/frozen_settings.json`, `results/bench_*.json`, `results/robustness_*.json`). Those images are not tissue and were written by the author of the method. **It has not been run on real histopathology yet**; that validation, with expert review, is the planned next step (see the paper's Section 5).
-> What the evaluation showed: lattice smoothing raised the spatial coherence of every scorer; the frozen score was the best method on the held-out cohort with DINOv2 and a poor one with handcrafted features; a smoothed Mahalanobis baseline scored higher on the development cohort;
-> the disorder and contact axes helped with handcrafted features and hurt with DINOv2 (so the default weights are 1,0,0). Everything the tool outputs about real data is a candidate for expert review, not a finding. Compare encoders and scorers on your data before trusting a ranking.
+## Latest results (v1.0.0, simulated evidence)
+
+**Rarity and local order are two complementary label-free channels** ([docs/TWO_CHANNEL.md](docs/TWO_CHANNEL.md); letter in `docs/prl/`):
+
+| Independent test (15 scenarios; one evaluation, rule chosen on development data) | Result |
+|---|---|
+| Rarity on regions of *rearranged* embeddings (average precision; prevalence 0.06 to 0.07) | **0.06**, which is chance |
+| Directional local disorder (channel B; minimum of MyUncle's local disorder over the four quadrants of a site) on the same regions | **0.86** |
+| Lower-tail score F = 0.5 mean AP + 0.5 min AP, rarity with similarity-weighted aggregation (channel A) | 0.20 |
+| The same with a label-free tail index choosing the channel per cohort (`--aggregation two_channel`) | **0.36** (paired 95% interval of the gain **+0.10 to +0.25**) |
+| Ten scenarios with feature anomalies only (mean AP, channel A against the fused detector) | 0.47 against 0.47: nothing lost |
+
+Earlier findings that led here (ten independent test scenarios, paired bootstrap intervals): a fixed 3 x 3 smoothing window can destroy scattered and bar-shaped anomalies (F 0.11 against 0.23 without smoothing); a contrast-survival model explains why (a fixed window keeps only the interior of an anomaly; Spearman 0.82 between predicted and measured AP over 60 cohorts); aggregation weighted by embedding similarity restored the signal (F 0.32). Gates on local order and on the von Mises-Fisher information, a nucleation-and-growth rule and a GaaR configuration search (not better than random search; gain +0.08, interval including zero) did **not** help and are reported as negatives.
+
+> **Honest limits.** (1) **All evidence is simulated**, from generators written by the author (images that are not tissue, MyUncle lattices, a controlled generator); the method has **not been run on real data**, and a permutation is an idealized arrangement anomaly. (2) A cohort that contains both kinds of anomaly needs **both maps** (`channel_A`, `channel_B`): the automatic choice is per cohort and misses the other kind. (3) The plain distance of a site to its neighbours detects rearranged regions equally well (0.86); the directional form matters because it ignores walls between ordered domains, which is what makes the channel choice work. (4) A first fusion attempt failed on the test scenarios (`results/og_geometry_first_attempt.json`), so 13 of the 15 test scenarios had been used once before the final rule was designed. (5) Similarity-weighted filtering is an established edge-preserving filter, not claimed as new, and it lowered the AP of scattered outliers in a smooth background. (6) The default `--aggregation` stays `mean` (the earlier frozen setting) so that old results stay reproducible; `two_channel` is the recommended setting for new data. Everything the tool outputs about real data is a candidate for expert review, not a finding. Compare encoders, scorers and aggregations on your data before trusting a ranking.
+> Earlier status (v0.2): the framework runs end to end on SVS and plain images, is covered by automated tests (31 now) and was built and run in Docker; the first synthetic cohorts showed that the frozen score was the best method on the held-out cohort with DINOv2 and a poor one with handcrafted features, and that a smoothed Mahalanobis baseline scored higher on the development cohort (`results/frozen_settings.json`, `results/bench_*.json`).
 
 ## Quick start
 
@@ -19,6 +31,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 python -m myuncle_vision demo                                    # four small synthetic slides, about 20 seconds with the handcrafted encoder: findings, heat maps, masks
 python -m myuncle_vision run --input images/ --output out/       # your images (recursive); DINOv2 by default when torch/timm are installed
+python -m myuncle_vision run --input images/ --output out/ --aggregation two_channel   # recommended: rarity or directional local order, chosen per cohort
 ```
 
 Docker (no manual step; DINOv2 weights are baked into the image):
@@ -42,7 +55,7 @@ Your own encoder on the command line: `--encoder-module path/to/file.py:function
 
 1. **Lattice.** Each image is cut into non-overlapping patches (default 224 px at 0.5 µm/px, set `--mpp` and `--patch-px` for your resolution); the patch grid is the lattice. Patches that fail QC (out of focus, pen ink, folds/debris, glass) are excluded everywhere (heuristics: tune them for new data).
 2. **Embeddings** of every patch (DINOv2 ViT-S/14, a handcrafted colour/texture encoder, or your own), centred, reduced by a cohort PCA (16 components) and normalized to the unit sphere.
-3. **Novelty score** (frozen default): appearance rarity, the mean distance to the nearest patches of a reference sample of the cohort, judged at five prevalence scales (0.5 to 10% of the reference set, highest rank), then averaged over the 3 x 3 lattice window. `--scorer mahalanobis` is an alternative.
+3. **Novelty score** (frozen default): appearance rarity, the mean distance to the nearest patches of a reference sample of the cohort, judged at five prevalence scales (0.5 to 10% of the reference set, highest rank), then aggregated over the lattice: `--aggregation mean` (3 x 3 window, the earlier frozen default), `simw` (weights from the similarity of neighbouring embeddings) or `two_channel` (adds the directional local disorder as channel B for anomalies of arrangement and chooses the channel per cohort with a label-free tail index; both maps are written as `channel_A` and `channel_B`). `--scorer mahalanobis` is an alternative.
 4. **Order and entropy (MyUncle).** Local disorder `D = 1 - ||mean of the neighbours' unit embeddings||` is MyUncle's `MC.local_disorder` in any dimension; the von Mises-Fisher entropy of the neighbourhood and `H_chi = S_uniform - S_vmf` generalize MyUncle's order-entropy bridge from d = 2 (tests compare with the unmodified core). State-wise disorder and the rarity of contacts between states are computed as diagnostics and can be added with `--weights`.
 5. **Discovery.** Top-scoring patches form connected regions; regions are clustered across images into candidate states, ranked by novelty, recurrence and reproducibility under two disjoint halves of the reference set.
 6. **Explanations and maps.** Plain-language, number-only explanations per finding; heat maps, masks, per-patch scores.
@@ -95,6 +108,8 @@ A fixed smoothing window can destroy an anomaly signal (scattered and bar-shaped
 
 ## Evaluation (synthetic, reproducible)
 
+The two-channel study (`python -m myuncle_vision.tc_study cache dev|test`, then `dev`, `test`; 15 development and 15 independent test scenarios) and the aggregation study (`og_study.py`) are described in [docs/TWO_CHANNEL.md](docs/TWO_CHANNEL.md) and [docs/AGGREGATION.md](docs/AGGREGATION.md); their results are in `results/two_channel*.json` and `results/og_*.json`. The original cohort benchmark:
+
 `myuncle_vision/bench.py` builds two synthetic cohorts (development: 8 slides; held-out: 16 slides with three anomaly types never used in development, about 1% prevalence, stain and scanner shifts), computes every ablation and baseline for DINOv2 and the handcrafted encoder, and a robustness suite;
 settings were frozen in `results/frozen_settings.json` before the held-out cohort existed. `python docs/build/build_documents.py` turns the results into the manuscript (its asserts stop the build if a sentence stops being true). `python tests/test_all.py` runs the automated checks.
 The original v0.1 checks (`validate-synthetic`, `rarity-sweep`) are kept as development history. A second testbed on lattices simulated with MyUncle (`python -m myuncle_vision.bridge_bench`, results in `results/bridge_bench_*.json`) uses the same frozen settings and baselines; see [docs/BRIDGE.md](docs/BRIDGE.md).
@@ -106,7 +121,7 @@ DINOv2 ViT-S/14 on one CPU core processes roughly 15-30 patches per second; use 
 ## Applications
 
 * [docs/herox/](docs/herox/): the NIDDK/HeroX Kidney AI Discovery Challenge (KPMP kidney whole-slide images): submission pack draft and run guide. That application is one use of this framework, not its scope.
-* Papers: `docs/prl/` (letter for Pattern Recognition Letters, Elsevier: LaTeX source, PDF, highlights, cover letter; submitted, under editorial processing), `docs/MyUncleVision_Manuscript_ChemRxiv.*` (statistical-mechanics framing, prepared for ChemRxiv) and `docs/MyUncleVision_Manuscript_PRL.*` (first, histopathology-framed version, superseded).
+* Papers: `docs/prl/` (letter "Rarity and local order: two complementary label-free channels for anomaly detection on lattices of embeddings", prepared for Pattern Recognition Letters, Elsevier: LaTeX source, PDF, highlights, cover letter; under editorial processing), `docs/MyUncleVision_Manuscript_ChemRxiv.*` (longer statistical-mechanics framing, prepared for ChemRxiv; not yet posted) and `docs/MyUncleVision_Manuscript_PRL.*` (first, histopathology-framed version, superseded).
 
 ## Reproducibility and provenance
 
