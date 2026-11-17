@@ -1,0 +1,5 @@
+G4 stationary texture, shuffled regions, 32x32 max(isolation forest 0.448 [(0.448, 'fusion: max (isolation forest,'), (0.432, 'max(cohort kNN rarity | spatia'), (0.424, 'contextual LOF ([u, neighbor m'), (0.42, 'max(isolation forest (embeddin'), (0.396, 'max(isolation forest (embeddin')]
+G4 stationary texture, rotated patches, 32x32 max(isolation forest 0.12 [(0.12, 'fusion: max (isolation forest,'), (0.119, 'max(cohort kNN rarity | spatia'), (0.113, 'max(isolation forest (embeddin'), (0.106, 'contextual LOF ([u, neighbor m'), (0.101, 'OR(LOF, Shekhar)')]
+G4 stationary texture, shuffled regions, 64x64 max(isolation forest 0.454 [(0.454, 'fusion: max (isolation forest,'), (0.44, 'max(cohort kNN rarity | spatia'), (0.425, 'max(isolation forest (embeddin'), (0.416, 'max(isolation forest (embeddin'), (0.406, 'fusion: max (rarity, B)')]
+G4 stationary texture, shuffled regions, 128x128 max(isolation forest 0.456 [(0.456, 'fusion: max (isolation forest,'), (0.449, 'max(isolation forest (embeddin'), (0.445, 'max(cohort kNN rarity | spatia'), (0.434, 'fusion: max (rarity, B)'), (0.414, 'max(isolation forest (embeddin')]
+saved kbs3_confirm.json
