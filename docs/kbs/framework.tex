@@ -5,31 +5,31 @@
 A lattice of embeddings assigns a unit vector $u_i\in S^{d-1}$ to every site $i$ of an $n\times n$ grid, for example the normalized embedding of an image patch or the local orientation of an ordered medium. A cohort is a set of such lattices that are assumed to be mostly normal. We distinguish two kinds of anomaly. A \emph{feature anomaly} is a site whose embedding is rare in the cohort. An \emph{arrangement anomaly} is a site whose embedding is ordinary but placed where it does not fit its neighbors: in the extreme case the embeddings of a region are permuted among the sites of that region, or exchanged with those of a distant region, so that the multiset of embeddings of the lattice is unchanged.
 
 \subsection{Scores}
-\emph{Rarity.} The raw rarity of site $i$ is the mean cosine distance of $u_i$ to its $k=5$ nearest neighbors in a reference pool of 3000 embeddings drawn from the \emph{other} lattices of the cohort; $r_i$ is its rank in the cohort (a number in $(0,1]$).
+All scores are label-free and are converted to cohort ranks (numbers in $(0,1]$, uniform over the cohort), which makes them comparable without labels \citep{Kriegel2011}.
 
-\emph{Channel A} aggregates the rarity with weights given by the similarity of neighboring embeddings,
+\emph{Marginal scores} depend only on the embedding of a site. The \emph{cohort rarity} is the mean cosine distance of $u_i$ to its $k=5$ nearest neighbors in a reference pool of 3000 embeddings drawn from the \emph{other} lattices of the cohort; $r_i$ denotes its rank. The \emph{within-lattice rarity} uses the $k=20$ nearest neighbors among the other sites of the same lattice. LOF ($k=20$) \citep{Breunig2000} and an isolation forest (100 trees) \citep{Liu2008} are fitted on the embeddings of each lattice. \emph{Channel A}, proposed in the earlier version of this work, aggregates the cohort rarity with similarity weights,
 \begin{equation}
 c_{ij}=\exp\!\bigl(-(1-u_i^{\top}u_j)/\tau\bigr),\qquad A_i=\frac{\sum_{j\in W_i}c_{ij}\,r_j}{\sum_{j\in W_i}c_{ij}},
 \label{eq:simw}
 \end{equation}
-over the $w\times w$ window $W_i$ ($w=3$ unless stated), with $\tau$ the median of $1-u_i^{\top}u_j$ over lattice-adjacent pairs of the cohort. This is an edge-preserving (bilateral-type) filter in embedding space \citep{Tomasi1998}; the fixed mean, $c_{ij}\equiv1$, is the reference it is compared with.
+over the $w\times w$ window $W_i$ ($w=3$ unless stated), with $\tau$ the median of $1-u_i^{\top}u_j$ over lattice-adjacent pairs of the cohort, an edge-preserving filter of the bilateral type \citep{Tomasi1998}; the fixed mean ($c_{ij}\equiv1$) is its reference.
 
-\emph{Channel B} is the directional local disorder. For the four $(h+1)\times(h+1)$ quadrant windows $Q_i^1,\dots,Q_i^4$ that contain $i$ as a corner ($h=(w-1)/2$),
+\emph{Spatial scores} compare a site with its neighbors. The spatial outlier statistic of Shekhar et al.~\citep{Shekhar2003}, here $S_i=\|u_i-\bar u_{N_8(i)}\|$ with $\bar u_{N_8(i)}$ the mean of the eight neighbors; the mean cosine distance of a site to its eight neighbors; the isotropic disorder $D_i=1-\|\bar u_{N_4(i)}\|$ over the four lattice neighbors; and \emph{channel B}, the directional disorder. For the four $(h+1)\times(h+1)$ quadrant windows $Q_i^1,\dots,Q_i^4$ that have $i$ as a corner ($h=(w-1)/2$),
 \begin{equation}
 B_i=\min_{q}\;\Bigl(1-\Bigl\|\tfrac{1}{|Q_i^q|}\sum_{j\in Q_i^q}u_j\Bigr\|\Bigr).
 \label{eq:dir}
 \end{equation}
-The quantity in brackets is one minus the mean resultant length of the vectors of a quadrant, the classical measure of circular and spherical dispersion \citep{Mardia2000}; the minimum over sub-windows that contain the site is the construction of the Kuwahara filter \citep{Kuwahara1976}, applied to the dispersion of unit vectors. The isotropic form $D_i$ uses the four lattice neighbors of $i$ instead of the quadrants.
+The bracket is one minus the mean resultant length, the classical dispersion of unit vectors \citep{Mardia2000}; the minimum over sub-windows that contain the site is the construction of the Kuwahara filter \citep{Kuwahara1976}. A joint baseline, contextual LOF, applies LOF to the concatenation $[u_i,\bar u_{N_8(i)}]$, in the spirit of contextual anomaly detection \citep{Song2007}.
 
-\emph{Calibration and fusion.} Both channels are converted to cohort ranks, $a_i$ and $b_i$, which are uniform on $(0,1]$ over the cohort and therefore comparable without labels. Two simple fusion rules act site by site,
+\emph{Fusion.} With $a_i$ and $b_i$ the cohort ranks of a marginal and a spatial score, the site-wise rules are
 \begin{equation}
 S_i^{\max}=\max(a_i,b_i),\qquad S_i^{\mathrm{OR}}=1-(1-a_i)(1-b_i),
 \label{eq:fusion}
 \end{equation}
-the second being the probability that at least one of two independent uniform variables falls below the observed values. Two locally adaptive rules were also built (Section~\ref{sec:design}), and the cohort-level selection of one channel by a tail index, the fusion used in an earlier version of this work, is kept as a baseline.
+the second being the probability that at least one of two independent uniform variables falls below the observed values. Two locally adaptive rules and the cohort-level selection of one channel by a tail index (the fusion of the earlier version) are defined in Section~\ref{sec:design}.
 
 \subsection{Analytical results}
-The four statements below are elementary, and we present them as tools rather than as deep results: they make explicit, under stated assumptions, why one channel cannot replace the other, when spatial aggregation erases an anomaly, why the directional statistic ignores domain walls, and what fusion can cost. Table~\ref{tab:props} lists the assumptions, and Section~\ref{sec:results} checks each statement numerically.
+The five statements below are elementary, and we present them as tools rather than as deep results: they make explicit, under stated assumptions, why one channel cannot replace the other, when spatial aggregation erases an anomaly, why the directional statistic ignores domain walls, what fusion can cost, and why local statistics cannot see the interior of a rotated patch. Table~\ref{tab:props} lists the assumptions, and Section~\ref{sec:results} checks each statement numerically.
 
 \begin{proposition}[Blindness of marginal detectors to rearrangement]
 \label{prop:perm}
@@ -52,7 +52,7 @@ The share of anomalous sites that survive is therefore the share of anomalous si
 \begin{proof}
 $\bar r_i=|W_i|^{-1}\bigl(|M\cap W_i|\,r_a+(|W_i|-|M\cap W_i|)\,r_n\bigr)$; solve $\bar r_i\ge\theta$ for $p_i$.
 \end{proof}
-For a $3\times3$ window, a single anomalous site has $p_i=1/9$, a site in the interior of a block has $p_i=1$, and a site on the border of a block has $p_i\le 6/9$; with $p^{*}$ near one, only block interiors survive. The similarity weights of Eq.~\eqref{eq:simw} raise the effective occupancy of an anomalous site because its anomalous neighbors carry most of the weight, which is why channel A preserves small anomalies (Section~\ref{sec:results}).
+For a $3\times3$ window, a single anomalous site has $p_i=1/9$, a site in the interior of a block has $p_i=1$, and a site on the border of a block has $p_i\le 6/9$; with $p^{*}$ near one, only block interiors survive. The two-level model is a good description only when the anomalous scores are close to saturation; with weak anomalies the scores of anomalous sites are spread, $\bar r_a$ falls below $\theta$, the model predicts that nothing survives, and the few strongest anomalous sites survive anyway (Section~\ref{sec:results}). The similarity weights of Eq.~\eqref{eq:simw} raise the effective occupancy of an anomalous site because its anomalous neighbors carry most of the weight, which is why channel A preserves small anomalies (Section~\ref{sec:results}).
 
 \begin{proposition}[Directional disorder at a domain wall]
 \label{prop:wall}
@@ -72,6 +72,15 @@ $\max(a_i,b_i)>t$ if and only if $a_i>t$ or $b_i>t$; apply the union bound to th
 \end{proof}
 Max fusion therefore never loses a detection made by either channel at a fixed rank threshold, and its price is at most the added false positives of the other channel, at most a doubling when the channels' false positives are disjoint. In average precision, which integrates over thresholds, this price shows up as a loss relative to the better channel for each anomaly type; Section~\ref{sec:results} measures it.
 
+\begin{proposition}[Rotated patches and rotation-invariant local statistics]
+\label{prop:rot}
+Let a local statistic $t_i=T(u_i;\{u_j\}_{j\in N(i)})$ be invariant under the symmetries of the square neighborhood $N(i)$ (rotations by $90^\circ$ act on $N(i)$ by permuting its sites). If a square patch $P$ is rotated by $90^\circ$, then every site $i$ of $P$ whose neighborhood lies inside $P$ receives exactly the value that the statistic had, before the rotation, at the site of $P$ that was moved to $i$. The multiset of values over the interior of $P$ is therefore unchanged, and only the sites on the border of $P$, whose neighborhoods straddle the patch boundary, can change.
+\end{proposition}
+\begin{proof}
+The rotation maps the interior site $i'$ with its neighborhood onto $i$ with its neighborhood, and the embedding at each neighbor of $i$ is the embedding at the corresponding neighbor of $i'$, with the neighbor positions permuted by the rotation. By invariance, $t_i$ after the rotation equals $t_{i'}$ before it.
+\end{proof}
+All spatial scores above are invariant in this sense (they use the mean or the dispersion of the neighbors), and so are the marginal scores. A rotated patch of an oriented texture is therefore detectable by them only along its border, whatever the threshold: a score that sees the interior must use orientation-dependent, i.e.\ non-invariant, information about the arrangement.
+
 \begin{table}[t]
 \caption{Assumptions and scope of the analytical statements, and where each is checked.}
 \label{tab:props}
@@ -83,7 +92,8 @@ Statement & Assumptions & Numerical check\\
 Prop.~\ref{prop:perm} (blindness) & score depends only on the site's embedding and a position-free reference; for the AUC statement, stationary field, region placed independently & AUC of rarity and LOF on rearranged regions, both generators\\
 Prop.~\ref{prop:surv} (occupancy) & two-level score, fixed window, threshold read from the smoothed scores & predicted vs measured survival for five mask shapes\\
 Prop.~\ref{prop:wall} (walls) & wall straight at the scale of the quadrant; domains wider than the quadrant & share of domain-wall sites among the top 3\% of each disorder statistic\\
-Prop.~\ref{prop:fuse} (fusion) & site-wise maximum of cohort ranks & per-type AP of max fusion vs each channel\\
+Prop.~\ref{prop:fuse} (fusion) & site-wise maximum of cohort ranks & true- and false-positive rates at the top 3\%, per anomaly type\\
+Prop.~\ref{prop:rot} (rotations) & statistic invariant to the symmetries of the neighborhood; patch larger than the neighborhood & AUC on the interior and on the border of rotated patches\\
 \bottomrule
 \end{tabular}
 \end{table}

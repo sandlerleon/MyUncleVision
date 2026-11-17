@@ -70,56 +70,69 @@ def fig_phase():
 
 
 def fig_maps():
-    """one confirmatory-generator lattice (G2): truth, channel A, channel B, max fusion"""
+    """one stage-2 confirmatory lattice (G3, shuffled regions): truth, isolation forest, Shekhar statistic, frozen stage-2 fusion; and one rotated-patch lattice"""
+    from myuncle_vision import kbs_stage2 as S
     from myuncle_vision import kbs_study as K
-    fz = J("kbs_frozen.json")
-    Us, kinds = [], []
-    s0 = fz["seed0"]
-    for i in range(K.N_PER_COHORT):
-        U, kd = K.GENERATORS["G2"](s0 + i, **list(fz["conditions"].values())[0])
-        Us.append(U)
-        kinds.append(kd)
-    sc = K.cohort_scores(Us, with_baselines=False)
-    i = 0
-    rank = lambda f: K.T.cohort_rank(f)[i]
-    fig, axs = plt.subplots(1, 4, figsize=(10, 2.8))
+    fz = J("kbs2_frozen.json")
+    ch = fz["chosen"]
+    rows = []
+    for c, (nm, (g, kw)) in enumerate(list(fz["conditions"].items())[:2]):
+        Us, kinds = [], []
+        for i in range(K.N_PER_COHORT):
+            U, kd = S.GEN[g](fz["seed0"] + 1000 * c + i, **kw)
+            Us.append(U)
+            kinds.append(kd)
+        sc = S.scores2(Us, rng_seed=fz["seed0"] + 1000 * c)
+        rows.append((nm, kinds[0], [K._crank(sc["isolation forest (embeddings)"])[0], K._crank(sc["spatial outlier statistic (Shekhar)"])[0], sc[ch][0]]))
+    fig, axs = plt.subplots(2, 4, figsize=(9.5, 5.0))
     cm = matplotlib.colors.ListedColormap(["#f2f2f2", "#1b4f8a", "#d1495b"])
-    axs[0].imshow(kinds[i], cmap=cm, vmin=0, vmax=2, interpolation="nearest")
-    axs[0].set_title("a  ground truth (blue: feature, red: arrangement)", loc="left", fontsize=8)
-    for ax, (nm, ttl) in zip(axs[1:], ((A, "b  channel A (rank)"), (B, "c  channel B (rank)"), (fz["chosen_fusion"], "d  frozen fusion"))):
-        f = sc[nm][i] if nm == fz["chosen_fusion"] else rank(sc[nm])
-        ax.imshow(f, cmap="magma", vmin=0, vmax=1, interpolation="nearest")
-        ax.contour(kinds[i] > 0, levels=[0.5], colors="c", linewidths=0.6)
-        ax.set_title(ttl, loc="left", fontsize=8)
-    for ax in axs:
+    for r, (nm, kd, maps) in enumerate(rows):
+        axs[r, 0].imshow(kd, cmap=cm, vmin=0, vmax=2, interpolation="nearest")
+        axs[r, 0].set_ylabel(nm.replace("G3 oriented texture, ", "G3, "), fontsize=8)
+        for k, (f, ttl) in enumerate(zip(maps, ("isolation forest (rank)", "Shekhar statistic (rank)", "max fusion (frozen, stage 2)"))):
+            ax = axs[r, k + 1]
+            ax.imshow(f, cmap="magma", vmin=0, vmax=1, interpolation="nearest")
+            ax.contour(kd > 0, levels=[0.5], colors="c", linewidths=0.6)
+            if r == 0:
+                ax.set_title(ttl, fontsize=8)
+        if r == 0:
+            axs[r, 0].set_title("truth (blue feature, red arrangement)", fontsize=8)
+    for k, ax in enumerate(axs.ravel()):
         ax.set_xticks([])
         ax.set_yticks([])
+        ax.text(0.02, 0.98, "abcdefgh"[k], transform=ax.transAxes, va="top", fontweight="bold", fontsize=9, color="k",
+                bbox=dict(boxstyle="square,pad=0.1", fc="w", ec="none", alpha=0.7))
+    fig.tight_layout()
     save(fig, "fig_maps")
 
 
 def fig_confirm():
-    C = J("kbs_confirm.json")
-    ch = C["chosen"]
-    order = ["rarity", "rarity, fixed mean", A, B, "center-to-neighbor distance", "LOF (embeddings)", "isolation forest (embeddings)", "spatial outlier statistic (Shekhar)",
-             "contextual LOF ([u, neighbor mean])", "OR(LOF, Shekhar)", "fusion: cohort selection (tail index)", "fusion: max (A, neighbor distance)", ch]
-    seen, order2 = set(), []
-    for o in order:
-        if o not in seen:
-            order2.append(o)
-            seen.add(o)
-    conds = list(C["conditions"])
-    fig, axs = plt.subplots(1, 3, figsize=(11, 3.6), sharey=True)
-    y = np.arange(len(order2))
-    for ax, cnd in zip(axs, conds):
-        sm = C["conditions"][cnd]["summary"]
-        ax.barh(y - 0.2, [sm[o]["feature"] for o in order2], 0.4, color="#1b4f8a", label="feature anomalies")
-        ax.barh(y + 0.2, [sm[o]["arrangement"] for o in order2], 0.4, color="#d1495b", label="arrangement anomalies")
-        ax.set_title(cnd.replace("G2 mixed, ", ""), loc="left", fontsize=8)
-        ax.set_xlim(0, 1)
+    """per-type AP of key detectors in the two confirmatory stages"""
+    C1, C2 = J("kbs_confirm.json"), J("kbs2_confirm.json")
+    ch1, ch2 = C1["chosen"], C2["chosen"]
+    dets = [("rarity", "cohort kNN rarity"), ("LOF (embeddings)", "LOF"), ("isolation forest (embeddings)", "isolation forest"), (B, "channel B (directional disorder)"),
+            ("spatial outlier statistic (Shekhar)", "Shekhar statistic"), ("contextual LOF ([u, neighbor mean])", "contextual LOF"), ("OR(LOF, Shekhar)", "OR(LOF, Shekhar)"),
+            ("fusion: cohort selection (tail index)", "cohort-level selection"), ("fusion: max (rarity, B)", "max(rarity, B) [frozen, stage 1]"),
+            ("fusion: max (isolation forest, Shekhar)", "max(isolation forest, Shekhar) [frozen, stage 2]")]
+    panels = [(C1["pooled_summary"], "Stage 1: G2, three conditions pooled (n = 90)")]
+    for nm, v in C2["conditions"].items():
+        if nm.startswith("G3"):
+            panels.append((v["summary"], "Stage 2: " + nm.replace("oriented texture, ", "") + " (n = 30)"))
+    fig, axs = plt.subplots(1, 3, figsize=(11.5, 3.9), sharey=True)
+    y = np.arange(len(dets))
+    for ax, (sm, ttl) in zip(axs, panels):
+        get = lambda k, t: sm[k][t]
+        fv = [get(k, "feature") for k, _ in dets]
+        av = [get(k, "arrangement") for k, _ in dets]
+        ax.barh(y - 0.2, fv, 0.4, color="#1b4f8a", label="feature anomalies")
+        ax.barh(y + 0.2, av, 0.4, color="#d1495b", label="arrangement anomalies")
+        ax.set_title(ttl, loc="left", fontsize=8)
+        ax.set_xlim(0, 1.05)
         ax.set_xlabel("average precision")
-    axs[0].set_yticks(y, [o.replace(" (similarity-weighted rarity)", "").replace(" (directional disorder)", "").replace("fusion: ", "") for o in order2], fontsize=7)
+    axs[0].set_yticks(y, [lab for _, lab in dets], fontsize=7.2)
     axs[0].invert_yaxis()
-    axs[0].legend(frameon=False, loc="lower right")
+    axs[0].legend(frameon=False, loc="lower right", fontsize=7)
+    fig.tight_layout()
     save(fig, "fig_confirm")
 
 

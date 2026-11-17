@@ -1,0 +1,5 @@
+G3 background variation vs lattice size (anomaly-free lattices, seeds 77000-77002, mean Shekhar statistic ||u - mean of 8 neighbors||):
+n=32: 0.292 (corner near origin 0.259, far corner 0.196)
+n=64: 0.382 (0.218, 0.401)
+n=128: 0.536 (0.275, 0.734)
+Cause: gen3 computes the stripe phase from absolute coordinates with a spatially varying orientation, so the phase gradient grows with the distance from the origin.

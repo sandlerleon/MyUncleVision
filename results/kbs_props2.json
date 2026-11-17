@@ -1,0 +1,121 @@
+{
+ "P2b": {
+  "block 1": {
+   "r_a": 0.9767022114415321,
+   "r_n": 0.48516841031753527,
+   "threshold": 0.8547833658854168,
+   "p_star": 0.7519624382345184,
+   "predicted_survival": 0.0,
+   "measured_survival_mean": 0.03225806451612903,
+   "measured_survival_unsmoothed": 0.8145161290322581,
+   "measured_survival_similarity_weighted": 0.49838709677419357
+  },
+  "block 3": {
+   "r_a": 0.9767277922453704,
+   "r_n": 0.4871397689161234,
+   "threshold": 0.8732752278645837,
+   "p_star": 0.7886946586697545,
+   "predicted_survival": 0.13148148148148148,
+   "measured_survival_mean": 0.2777777777777778,
+   "measured_survival_unsmoothed": 0.8462962962962963,
+   "measured_survival_similarity_weighted": 0.85
+  },
+  "block 6": {
+   "r_a": 0.9750834147135417,
+   "r_n": 0.48273987557723935,
+   "threshold": 0.8978753255208334,
+   "p_star": 0.8431824873173898,
+   "predicted_survival": 0.46111111111111114,
+   "measured_survival_mean": 0.55,
+   "measured_survival_unsmoothed": 0.8138888888888889,
+   "measured_survival_similarity_weighted": 0.8152777777777778
+  },
+  "blob 6": {
+   "r_a": 0.9762220052083332,
+   "r_n": 0.4856774042693662,
+   "threshold": 0.8630498046875001,
+   "p_star": 0.7692927405495716,
+   "predicted_survival": 0.0,
+   "measured_survival_mean": 0.15,
+   "measured_survival_unsmoothed": 0.8333333333333334,
+   "measured_survival_similarity_weighted": 0.7633333333333333
+  },
+  "blob 12": {
+   "r_a": 0.9698588053385416,
+   "r_n": 0.4829302459593244,
+   "threshold": 0.8722564019097223,
+   "p_star": 0.799554982863909,
+   "predicted_survival": 0.0763888888888889,
+   "measured_survival_mean": 0.22361111111111112,
+   "measured_survival_unsmoothed": 0.775,
+   "measured_survival_similarity_weighted": 0.7458333333333333
+  }
+ },
+ "P4": {
+  "isolation forest": {
+   "TPR_f": 1.0,
+   "TPR_a": 0.015584032581033235,
+   "FPR": 0.011999434263352104
+  },
+  "Shekhar": {
+   "TPR_f": 0.00625,
+   "TPR_a": 0.4288344317212925,
+   "FPR": 0.0058781136634292585
+  },
+  "max fusion": {
+   "TPR_f": 1.0,
+   "TPR_a": 0.4366669414604952,
+   "FPR": 0.017841820881408014
+  }
+ },
+ "P5": {
+  "spatial outlier statistic (Shekhar)": {
+   "interior": {
+    "mean": 0.3855465931613694,
+    "sd": 0.1766484628752486,
+    "n": 30
+   },
+   "border": {
+    "mean": 0.8743417853730876,
+    "sd": 0.09306581314359481,
+    "n": 30
+   }
+  },
+  "channel B (directional disorder)": {
+   "interior": {
+    "mean": 0.40438291821733613,
+    "sd": 0.16269251503975782,
+    "n": 30
+   },
+   "border": {
+    "mean": 0.5057232946200682,
+    "sd": 0.15110767467854672,
+    "n": 30
+   }
+  },
+  "center-to-neighbor distance": {
+   "interior": {
+    "mean": 0.4119024619996862,
+    "sd": 0.1682047366470704,
+    "n": 30
+   },
+   "border": {
+    "mean": 0.8214043397356376,
+    "sd": 0.1237563956217411,
+    "n": 30
+   }
+  },
+  "contextual LOF ([u, neighbor mean])": {
+   "interior": {
+    "mean": 0.402546029929703,
+    "sd": 0.18716256797396477,
+    "n": 30
+   },
+   "border": {
+    "mean": 0.9111190236842481,
+    "sd": 0.06219537873266108,
+    "n": 30
+   }
+  }
+ }
+}

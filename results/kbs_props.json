@@ -1,0 +1,77 @@
+{
+ "P1_G1": {
+  "rarity": {
+   "mean": 0.5185784975258659,
+   "sd": 0.1548253120514698,
+   "n": 30
+  },
+  "LOF": {
+   "mean": 0.524456440245914,
+   "sd": 0.1417080594748415,
+   "n": 30
+  }
+ },
+ "P1_G2": {
+  "rarity": {
+   "mean": 0.5244186428234866,
+   "sd": 0.12567156166807522,
+   "n": 30
+  },
+  "LOF": {
+   "mean": 0.49281127175889927,
+   "sd": 0.042793110792321426,
+   "n": 30
+  }
+ },
+ "P2": {
+  "block 1": {
+   "r_a": 0.8082195060483871,
+   "r_n": 0.49042819266112786,
+   "threshold": 0.8648702799479167,
+   "p_star": 1.17826407303492,
+   "predicted_survival": 0.0,
+   "measured_survival": 0.037096774193548385
+  },
+  "block 3": {
+   "r_a": 0.8359693287037037,
+   "r_n": 0.4909516831745235,
+   "threshold": 0.8815281032986111,
+   "p_star": 1.1320476653448563,
+   "predicted_survival": 0.0,
+   "measured_survival": 0.1425925925925926
+  },
+  "block 6": {
+   "r_a": 0.7559442816840277,
+   "r_n": 0.49072470228681675,
+   "threshold": 0.8880932074652778,
+   "p_star": 1.4982623307132796,
+   "predicted_survival": 0.0,
+   "measured_survival": 0.20833333333333334
+  },
+  "blob 6": {
+   "r_a": 0.7843623046874999,
+   "r_n": 0.49146793849031695,
+   "threshold": 0.8667162543402782,
+   "p_star": 1.281172870349223,
+   "predicted_survival": 0.0,
+   "measured_survival": 0.075
+  },
+  "blob 12": {
+   "r_a": 0.8244122992621528,
+   "r_n": 0.48822991622121714,
+   "threshold": 0.8706014539930556,
+   "p_star": 1.1373931444982306,
+   "predicted_survival": 0.0,
+   "measured_survival": 0.1486111111111111
+  }
+ },
+ "P3": {
+  "wall_fraction": 0.266552734375,
+  "share_of_top3pct_on_walls": {
+   "channel B (directional disorder)": 0.6894657258064517,
+   "isotropic disorder D": 1.0,
+   "center-to-neighbor distance": 1.0,
+   "spatial outlier statistic (Shekhar)": 0.9903225806451614
+  }
+ }
+}
