@@ -114,11 +114,13 @@ def fig_confirm():
             ("spatial outlier statistic (Shekhar)", "Shekhar statistic"), ("contextual LOF ([u, neighbor mean])", "contextual LOF"), ("OR(LOF, Shekhar)", "OR(LOF, Shekhar)"),
             ("fusion: cohort selection (tail index)", "cohort-level selection"), ("fusion: max (rarity, B)", "max(rarity, B) [frozen, stage 1]"),
             ("fusion: max (isolation forest, Shekhar)", "max(isolation forest, Shekhar) [frozen, stage 2]")]
-    panels = [(C1["pooled_summary"], "Stage 1: G2, three conditions pooled (n = 90)")]
+    C3 = J("kbs3_confirm.json")
+    panels = [(C1["pooled_summary"], "Stage 1: G2, 3 conditions (n = 90)")]
     for nm, v in C2["conditions"].items():
         if nm.startswith("G3"):
             panels.append((v["summary"], "Stage 2: " + nm.replace("oriented texture, ", "") + " (n = 30)"))
-    fig, axs = plt.subplots(1, 3, figsize=(11.5, 3.9), sharey=True)
+    panels.append((C3["conditions"]["G4 stationary texture, shuffled regions, 32x32"]["summary"], "Stage 3: G4 shuffled regions (n = 30)"))
+    fig, axs = plt.subplots(1, 4, figsize=(14, 3.9), sharey=True)
     y = np.arange(len(dets))
     for ax, (sm, ttl) in zip(axs, panels):
         get = lambda k, t: sm[k][t]

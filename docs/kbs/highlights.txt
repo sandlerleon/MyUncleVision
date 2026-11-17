@@ -1,5 +1,5 @@
 Rarity and spatial-order scores detect different anomalies on embedding lattices
 Five propositions bound what each score, smoothing and fusion can detect
-Site-wise maximum fusion beat adaptive and cohort-level fusion on mixed lattices
-A pre-registered failure showed rarity needs a reference shared by the cohort
+Max fusion of a feature and a spatial score was competitive on mixed lattices
+A prospectively frozen rule failed: cohort rarity needs a shared normal reference
 Rotated patches of a texture remain undetected by every local statistic tested

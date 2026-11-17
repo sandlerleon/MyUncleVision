@@ -12,17 +12,17 @@
 
 \begin{document}
 \begin{frontmatter}
-\title{Detectability and complementarity of feature and spatial-order anomalies in embedding lattices: analytical bounds and a two-stage pre-registered evaluation}
+\title{Detectability and complementarity of feature and spatial-order anomalies in embedding lattices: analytical bounds and a prospectively frozen evaluation}
 \author[a]{Leon Sandler\corref{cor1}}
 \cortext[cor1]{Corresponding author. E-mail: sandler.leon@gmail.com; ORCID 0009-0007-4584-808X.}
 \address[a]{Independent Researcher, Northbrook, IL, USA}
 
 \begin{abstract}
-Anomaly scores on lattices of embeddings, such as image patch embeddings, usually measure how rare the vector of a site is and cannot see ordinary vectors in the wrong places. We study when feature scores and spatial-order scores are complementary and how to combine them without labels. Five elementary propositions make the limits explicit: position-free scores are blind to rearrangements; a fixed aggregation window keeps an anomalous site only if its local anomaly occupancy exceeds a computable threshold; a directional dispersion statistic ignores straight walls between ordered domains; a site-wise maximum of calibrated ranks keeps every detection of either score at the cost of at most their combined false positives; and rotation-invariant local statistics cannot see the interior of a rotated patch. On synthetic lattices with both kinds of anomaly, every single score had a worst-type average precision of 0.10 or less on an independent generator, where the site-wise maximum of a feature and a spatial score reached 0.53; on the development generator the maximum beat two locally adaptive rules, and choosing one score per cohort could not serve mixed lattices. The evaluation was pre-registered in two stages. The first frozen rule referenced rarity to the whole cohort and failed on its test generator (0.046, against 0.26 for a generic fused baseline), because the lattices did not share one normal distribution. A revised rule, frozen before a third generator was scored, beat every single score and three fused baselines there and tied a contextual LOF baseline. All data are synthetic.
+Anomaly scores on lattices of embeddings, such as image patch embeddings, usually measure how rare the vector of a site is and cannot see ordinary vectors in the wrong places. We study when feature scores and spatial-order scores are complementary and how to combine them without labels. Five elementary propositions make the limits explicit: position-free scores are blind to rearrangements; a fixed aggregation window keeps an anomalous site only if its local anomaly occupancy exceeds a computable threshold; a directional dispersion statistic ignores straight walls between ordered domains; a site-wise maximum of calibrated ranks keeps every detection of either score at the cost of at most their combined false positives; and rotation-invariant local statistics cannot see the interior of a rotated patch. Each fusion rule was frozen and committed to version control before its test generator was scored. A first frozen rule, which referenced rarity to the whole cohort, failed (worst-type average precision 0.046, against 0.26 for a generic fused baseline) because the lattices did not share one normal distribution. A revised rule, the site-wise maximum of an isolation forest and a spatial outlier statistic, was then tested on two further generators: on lattices with both kinds of anomaly it reached 0.53 and 0.45, where every single score stayed at or below 0.10, tied a contextual LOF baseline on one generator and exceeded it on the other, and was stable from 32 to 128 sites per side on a stationary generator. No rule detected rotated patches. All data are synthetic.
 \end{abstract}
 
 \begin{keyword}
-anomaly detection \sep spatial outliers \sep embedding lattices \sep score fusion \sep detectability \sep pre-registration
+anomaly detection \sep spatial outliers \sep embedding lattices \sep score fusion \sep detectability \sep evaluation methodology
 \end{keyword}
 \end{frontmatter}
 
@@ -38,7 +38,24 @@ This paper studies that question on lattices of embeddings with a combination of
 
 The study builds on an earlier version of this work, which proposed a similarity-weighted rarity score (channel A), a directional order statistic (channel B) and a cohort-level choice between them by a tail index, and evaluated them on scenarios of which most had been used during development. That design was criticized, rightly, for the dependence between development and test data, for the lack of independent validation and because a cohort-level choice cannot serve lattices that contain both kinds of anomaly. The present version keeps the earlier results only as motivation and replaces the evaluation.
 
-\textbf{Contributions.} (i) Five analytical statements (Section~\ref{sec:theory}): position-free scores are blind to rearrangements; a fixed aggregation window preserves an anomalous site only if its local anomaly occupancy exceeds a threshold computable from the scores; the directional order statistic is insensitive to straight walls between ordered domains; a site-wise maximum of calibrated scores retains every detection of either channel at the cost of at most their combined false positives; and rotation-invariant local statistics cannot see the interior of a rotated patch. (ii) A detectability map over feature strength, arrangement disruption and background coherence (Experiment A). (iii) A comparison of seven label-free fusion rules on lattices with both kinds of anomaly, including two locally adaptive rules (Experiment B). (iv) A two-stage pre-registered evaluation on generators that were frozen before they were scored (Experiment C): the first frozen rule failed, for a reason that we identify, and a revised rule was then confirmed on a third generator. (v) Robustness and runtime measurements (Experiment D). The results are reported whether or not they favor the methods proposed in the earlier version, and several do not. All data are synthetic; Section~\ref{sec:discussion} states what this does and does not establish.
+\textbf{Contributions.} The paper contributes a detectability analysis and an evaluation design, not a new detector; Table~\ref{tab:contrib} lists what is new. (i) Five analytical statements (Section~\ref{sec:theory}): position-free scores are blind to rearrangements; a fixed aggregation window preserves an anomalous site only if its local anomaly occupancy exceeds a threshold computable from the scores; the directional order statistic is insensitive to straight walls between ordered domains; a site-wise maximum of calibrated scores retains every detection of either channel at the cost of at most their combined false positives; and rotation-invariant local statistics cannot see the interior of a rotated patch. They formalize elementary properties; their value is to make the conditions of detection explicit and testable. (ii) A detectability map over feature strength, arrangement disruption and background coherence (Experiment A). (iii) A comparison of seven label-free fusion rules on lattices with both kinds of anomaly, including two locally adaptive rules (Experiment B). (iv) A prospectively frozen evaluation in three stages, in which each rule was committed to version control before its test generator was scored (Experiment C): the first frozen rule failed, for a reason that we identify, and a revised rule was then tested on two further generators, one of them stationary so that lattice size could be varied. (v) Robustness and runtime measurements (Experiment D). The results are reported whether or not they favor the methods proposed in the earlier version, and several do not. All data are synthetic; Section~\ref{sec:discussion} states what this does and does not establish.
+
+\begin{table}[t]
+\caption{What is new in this study.}
+\label{tab:contrib}
+\centering\small
+\resizebox{\linewidth}{!}{\begin{tabular}{p{3.6cm}p{10.2cm}}
+\toprule
+Contribution & What is new\\
+\midrule
+Detectability analysis & One treatment of the limits of marginal scores, spatial scores, window aggregation, max fusion and rotation-invariant statistics (Props.~\ref{prop:perm}--\ref{prop:rot}), each checked numerically\\
+Contrast-survival condition & An explicit geometric criterion (local anomaly occupancy) for when averaging erases an anomaly, and its regime of validity\\
+Mixed-anomaly evaluation & Lattices with both kinds of anomaly, scored by the worst-type AP, which penalizes failure on either kind\\
+Prospectively frozen testing & Three freezes committed before scoring; a documented failure, its diagnosis, a revision and two further tests\\
+Negative results & Conditions under which the earlier channels, cohort-level selection, adaptive fusion and density-based scores fail\\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \section{Related work}
 \textbf{Feature-space anomaly scores.} Nearest-neighbor distances to a memory bank of normal patch embeddings are the basis of strong industrial inspection methods \citep{Roth2022}; Gaussian models of patch embeddings \citep{Defard2021}, LOF \citep{Breunig2000} and isolation forests \citep{Liu2008} are other marginal scores. All of them assign a score to a vector, not to its placement, which is the property formalized in Proposition~\ref{prop:perm}.
@@ -153,13 +170,15 @@ Prop.~\ref{prop:rot} (rotations) & statistic invariant to the symmetries of the 
 \section{Experimental design}
 \label{sec:design}
 \subsection{Generators}
-Table~\ref{tab:gen} summarizes the three generators. Every lattice has $32\times32$ sites and $d=16$ unless stated, and contains feature anomalies (label 1) and arrangement anomalies (label 2); a cohort is ten lattices of one condition.
+Table~\ref{tab:gen} summarizes the four generators. Every lattice has $32\times32$ sites and $d=16$ unless stated, and contains feature anomalies (label 1) and arrangement anomalies (label 2); a cohort is ten lattices of one condition.
 
 \textbf{G1 (development).} A Gaussian random field with correlation length 3 (default) occupies the first $d/2$ dimensions, with independent noise (standard deviation 0.2) in all $d$; the normal embeddings therefore lie near a common subspace. A feature anomaly is a $3\times3$ block, a single site or a random-walk blob shifted by $s$ along a random unit direction of the complementary dimensions. An arrangement anomaly takes a fraction $\delta$ of the sites of a $6\times6$ block and permutes their embeddings without fixed points. Prevalences are 1.5\% (feature) and 3.5\% (arrangement). The strength levels $s\in\{1,1.5,2,2.5,3\}$ were set by a pilot on development seeds so that the unsmoothed rarity spans average precision (AP) 0.07 to 0.86.
 
 \textbf{G2 (stage-1 confirmation).} Sphere-native: 5--10 Voronoi domains per lattice, each with its own random mean direction, a linear drift of that direction across the domain, and its own von Mises--Fisher concentration (log-uniform between 40 and 400); the lattice therefore has domain walls and heterogeneous coherence. Feature anomalies are random-walk blobs of 1--12 sites drawn around a direction at angle $\phi$ from the local domain mean; arrangement anomalies exchange the embeddings of a fraction $\delta$ of the sites of two distant blobs of 16--32 sites and reshuffle them, so that the multiset of embeddings of the lattice is unchanged. Each lattice draws its own domain directions, so the lattices do \emph{not} share one normal distribution; this property was not recognized as decisive before the test (Section~\ref{sec:stage1}).
 
-\textbf{G3 (stage-2 confirmation).} An oriented texture: a latent vector $[\cos\varphi,\sin\varphi,0.6\cos\psi,0.6\sin\psi]$, with a stripe phase $\varphi$ of wavelength 8 sites and slowly varying orientation and a slowly varying texture code $\psi\in[0,0.6]$, is mapped into $d$ dimensions by a random linear map \emph{shared by all lattices} (a fixed encoder), plus noise, and normalized. Feature anomalies are blobs whose texture code lies 1.2 outside the normal range; arrangement anomalies are either shuffled exchanges between two blobs, as in G2, or $6\times6$ patches rotated by $90^\circ$, in which every embedding and every local neighborhood stays ordinary.
+\textbf{G3 (stage-2 confirmation).} An oriented texture: a latent vector $[\cos\varphi,\sin\varphi,0.6\cos\psi,0.6\sin\psi]$, with a stripe phase $\varphi$ of wavelength 8 sites and slowly varying orientation and a slowly varying texture code $\psi\in[0,0.6]$, is mapped into $d$ dimensions by a random linear map \emph{shared by all lattices} (a fixed encoder), plus noise, and normalized. Feature anomalies are blobs whose texture code lies 1.2 outside the normal range; arrangement anomalies are either shuffled exchanges between two blobs, as in G2, or $6\times6$ patches rotated by $90^\circ$, in which every embedding and every local neighborhood stays ordinary. Experiment D revealed a defect of G3 (Appendix~\ref{app:g3}): its stripe phase is computed from absolute coordinates with a varying orientation, so the texture becomes irregular far from the origin and G3 cannot be used beyond $32\times32$.
+
+\textbf{G4 (stage-3 confirmation).} A corrected, stationary texture: the stripe phase is the argument of a complex Gaussian random field band-pass filtered around wavelength 8 sites (a labyrinth pattern whose statistics do not depend on position or lattice size; the mean neighbor difference of anomaly-free lattices is 0.35 at 32, 64 and 128 sites per side), mapped into $d$ dimensions by a fixed encoder different from G3's. Anomalies are constructed as in G3.
 
 \begin{table}[t]
 \caption{The generators and their role.}
@@ -171,7 +190,8 @@ Table~\ref{tab:gen} summarizes the three generators. Every lattice has $32\times
 \midrule
 G1 & Gaussian field in a $d/2$-dim.\ subspace; shared across lattices & shift out of the subspace (blocks, sites, blobs) & permutation inside $6\times6$ blocks & development\\
 G2 & Voronoi domains, von Mises--Fisher, drift; own directions per lattice & blob drawn at angle $\phi$ from the local mean & exchange between two distant blobs & stage-1 test\\
-G3 & oriented texture through a shared encoder & blob with an out-of-range texture code & exchange between blobs, or $90^\circ$ rotated patch & stage-2 test\\
+G3 & oriented texture through a shared encoder (not stationary) & blob with an out-of-range texture code & exchange between blobs, or $90^\circ$ rotated patch & stage-2 test\\
+G4 & stationary band-pass texture through another shared encoder & as G3 & as G3 & stage-3 test, lattice size\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -183,11 +203,15 @@ Besides the maximum and the OR of Eq.~\eqref{eq:fusion}, five rules were compare
 For each lattice, the AP of a score is computed separately for feature anomalies against normal sites and for arrangement anomalies against normal sites (the other anomaly type excluded), and for all anomalies together \citep{Davis2006}. The per-type APs are averaged over the lattices of a condition, and the \emph{worst-type AP} is the smaller of the two averages; it is the primary endpoint, because a detector for mixed lattices must find both kinds. Uncertainty is a paired bootstrap over lattices (2000 resamples) of the difference between two detectors.
 
 \subsection{Protocol}
+We call a test \emph{prospectively frozen} when the rule to be tested, the conditions, seeds, endpoint and comparators, and the SHA-256 hash of the code were committed to version control before any lattice of the test generator was scored, and the test script refuses to run if the code differs from the frozen hash. This is weaker than registration with an external registry: the freeze commits are time-stamped by the repository and published with it, but they are not held by a third party. Development steps that preceded each freeze, including changes to the candidate set, are reported.
+
 \emph{Stage 1.} On G1 only: a pilot (strength levels), Experiment A (detectability map; 20 lattices per cell, $5\times5$ cells and a coherence axis), and Experiment B (four mixed conditions, 30 lattices each). The rule for choosing the fusion was declared in the code before Experiment B: the better of max$(A,B)$ and OR$(A,B)$ by the mean worst-type AP over the four conditions, replaced by an adaptive rule only if that rule was better and its paired 95\% interval excluded zero. A first run of Experiment B showed the unsmoothed rarity above channel A, so max(rarity, $B$) was added as a candidate and the generic pair max(isolation forest, Shekhar) as a comparator, and Experiment B was run again; both runs are archived. The selected rule, the G2 conditions, seeds, endpoint and comparators, and the SHA-256 of the study code were then written to a freeze file and committed to version control (2026-11-17 02:01:17 UTC, tag \texttt{kbs-freeze}) before any G2 lattice was scored; the confirmation script refuses to run if the code differs from the frozen hash. Experiment C ran the frozen rule on three G2 conditions with 30 lattices each.
 
 \emph{Stage 2.} After the stage-1 result, a post-hoc exploration on fresh seeds of the four G1 and the three G2 conditions (20 lattices each) compared all 24 pairs of a marginal score (cohort rarity, within-lattice rarity, LOF, isolation forest), a spatial score (channel B, Shekhar statistic, neighbor distance) and a fusion (max, OR); the selection criterion, the highest mean worst-type AP over the seven conditions, was committed before the exploration was run. The selected rule was frozen a second time (tag \texttt{kbs-freeze-2}, 2026-11-17 02:07:07 UTC) together with generator G3, which had been written but never scored, and evaluated on two G3 conditions and on fresh seeds of one G2 and one G1 condition, 30 lattices each.
 
-\emph{Experiment D} (descriptive, after both freezes) varies one factor at a time on G3 or G2 (dimension, lattice size, feature prevalence, window, background coherence, noise; 10 lattices per setting) and records the runtime per lattice on a desktop computer (8 cores).
+\emph{Stage 3.} After Experiment D had revealed the G3 defect, generator G4 was written and the stage-2 rule and its comparators were frozen a third time, unchanged (tag \texttt{kbs-freeze-3}, 2026-11-17 02:27:04 UTC), before any G4 lattice was scored (a smoke test generated anomaly-free lattices only to check stationarity). The test used two $32\times32$ conditions with 30 lattices each (primary endpoint: worst-type AP pooled over both) and the shuffled-region condition at $64\times64$ and $128\times128$ with 20 lattices each.
+
+\emph{Experiment D} (descriptive, after the second freeze) varies one factor at a time on G3 or G2 (dimension, feature prevalence, window, background coherence, noise and, in Appendix~\ref{app:g3}, lattice size; 10 lattices per setting) and records the runtime per lattice on a desktop computer (8 cores).
 
 
 
@@ -283,7 +307,7 @@ Channel B & 0.06 & 0.35 & 0.06 & $-$0.02 [$-$0.02, $-$0.01] \\
 Shekhar statistic & 0.06 & 0.40 & 0.06 & $-$0.02 [$-$0.03, $-$0.01] \\
 Contextual LOF & 0.56 & 0.16 & 0.16 & $-$0.12 [$-$0.13, $-$0.10] \\
 OR(LOF, Shekhar) & 0.48 & 0.26 & 0.26 & $-$0.21 [$-$0.24, $-$0.18] \\
-Cohort-level selection & 0.06 & 0.31 & 0.06 & $-$0.01 [$-$0.02, 0.00] \\
+Cohort-level selection & 0.06 & 0.31 & 0.06 & $-$0.01 [$-$0.02, $-$0.004] \\
 max(isolation forest, Shekhar) & 0.22 & 0.30 & 0.22 & $-$0.18 [$-$0.22, $-$0.13] \\
 max(rarity, $B$) [frozen] & 0.05 & 0.25 & 0.05 &  \\
 \bottomrule
@@ -330,15 +354,44 @@ max(isolation forest, Shekhar) [frozen] & 0.96 & 0.53 & 0.71 & 0.16 & 0.35 &  \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_confirm.png}
-\caption{Per-type AP in the two confirmatory stages. Left: G2 (stage 1, 90 lattices); the stage-2 rule is shown for reference only, since it was chosen after this test. Middle and right: G3 (stage 2, 30 lattices each).}
+\caption{Per-type AP in the two confirmatory stages. Left: G2 (stage 1, 90 lattices); the stage-2 rule is shown for reference only, since it was chosen after this test. Second and third: G3 (stage 2, 30 lattices each). Right: G4 with shuffled regions (stage 3, 30 lattices).}
 \label{fig:confirm}
 \end{figure*}
 
-\subsection{Experiment D: robustness and cost}
-Table~\ref{tab:robust} varies one factor at a time. On G3 with $32\times32$ lattices and $d\ge16$, the frozen rule reached a worst-type AP of 0.55--0.63 and was the best or within 0.01 of the best of the four fused rules in 12 of 13 settings (dimension, feature prevalence, window and noise); contextual LOF was better at noise 0.16 (0.59 against 0.52). At $d=2$ every method failed, because two dimensions cannot hold the texture manifold and its anomalies apart. Larger G3 lattices lowered every method (worst-type AP of the frozen rule 0.56, 0.41 and 0.11 for 32, 64 and 128 sites per side). This is a property of G3 rather than of the methods: its stripe phase is computed from absolute coordinates with a slowly varying orientation, so the background varies faster far from the origin (mean Shekhar statistic of anomaly-free lattices 0.29, 0.38 and 0.54); a scaling study needs a generator without this defect. On G2, every fused rule weakened as the background became less coherent, and OR(LOF, Shekhar) was above the frozen rule at every coherence level, because LOF finds G2's within-lattice anomalies better than the isolation forest. Computing all scores of this study took 0.4 s per $32\times32$ lattice at $d=16$, 0.6 s at $d=384$ and 4.1 s at $128\times128$ on a desktop computer; the isolation forest and LOF dominate the cost, and the spatial statistics are linear in the number of sites.
+\subsection{Stage 3: a stationary generator and lattice size}
+\label{sec:stage3}
+Table~\ref{tab:stage3} gives the third frozen test. On the two $32\times32$ G4 conditions the stage-2 rule reached a pooled worst-type AP of 0.28, above every single score (paired differences between +0.22 and +0.25), above contextual LOF (+0.02 [+0.004, +0.04]), OR(LOF, Shekhar) (+0.05 [+0.03, +0.06]), the stage-1 rule (+0.06 [+0.05, +0.07]) and cohort-level selection (+0.22 [+0.18, +0.27]); all intervals exclude zero. With shuffled regions its worst-type AP was 0.45 at $32\times32$, 0.45 at $64\times64$ and 0.46 at $128\times128$. LOF did not scale in the same way: its feature-anomaly AP fell to 0.03 at $128\times128$ (isolation forest 1.00), and with it OR(LOF, Shekhar) and contextual LOF (worst-type 0.03 and 0.04). With $k=20$ neighbors, LOF treats the out-of-range texture codes as a dense cluster once a lattice contains several hundred of them, a known masking effect of density-based scores. Rotated patches were again not detected (best arrangement AP 0.13).
 
 \begin{table}[t]
-\caption{Experiment D: worst-type AP of four fused rules under one-at-a-time variation (10 lattices per setting; G3 with shuffled regions unless stated) and the time to compute all scores of the study per lattice.}
+\caption{Stage 3 (G4, stationary texture): per-type and worst-type AP for the two $32\times32$ conditions (30 lattices each), the paired difference in pooled worst-type AP of the frozen rule minus each score with 95\% bootstrap interval, and the worst-type AP with shuffled regions at three lattice sizes (20 lattices at 64 and 128).}
+\label{tab:stage3}
+\centering\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{2}{c}{Shuffled, 32} & \multicolumn{2}{c}{Rotated, 32} & Frozen minus score & \multicolumn{3}{c}{Shuffled, worst type}\\
+Score or rule & Feature & Arr. & Feature & Arr. & (pooled, 32) & 32 & 64 & 128\\
+\midrule
+Cohort kNN rarity & 0.86 & 0.07 & 0.83 & 0.05 & +0.23 [+0.18, +0.27] & 0.07 & 0.05 & 0.04 \\
+Within-lattice kNN rarity & 1.00 & 0.07 & 1.00 & 0.04 & +0.23 [+0.19, +0.27] & 0.07 & 0.05 & 0.04 \\
+LOF & 1.00 & 0.06 & 1.00 & 0.04 & +0.23 [+0.19, +0.27] & 0.06 & 0.05 & 0.03 \\
+Isolation forest & 1.00 & 0.07 & 1.00 & 0.04 & +0.23 [+0.19, +0.27] & 0.07 & 0.05 & 0.04 \\
+Channel B & 0.06 & 0.49 & 0.06 & 0.07 & +0.22 [+0.18, +0.27] & 0.06 & 0.04 & 0.04 \\
+Shekhar statistic & 0.04 & 0.53 & 0.04 & 0.13 & +0.24 [+0.20, +0.29] & 0.04 & 0.03 & 0.03 \\
+Neighbor distance & 0.04 & 0.49 & 0.04 & 0.12 & +0.25 [+0.20, +0.29] & 0.04 & 0.03 & 0.02 \\
+Contextual LOF & 0.95 & 0.42 & 0.92 & 0.11 & +0.02 [+0.004, +0.04] & 0.42 & 0.38 & 0.04 \\
+OR(LOF, Shekhar) & 0.78 & 0.37 & 0.62 & 0.10 & +0.05 [+0.03, +0.06] & 0.37 & 0.37 & 0.03 \\
+Cohort-level selection & 0.06 & 0.49 & 0.06 & 0.07 & +0.22 [+0.18, +0.27] & 0.06 & 0.04 & 0.04 \\
+max(rarity, $B$) [stage-1 rule] & 0.64 & 0.38 & 0.50 & 0.07 & +0.06 [+0.05, +0.07] & 0.38 & 0.41 & 0.43 \\
+max(isolation forest, Shekhar) [frozen] & 0.88 & 0.45 & 0.62 & 0.12 &  & 0.45 & 0.45 & 0.46 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Experiment D: robustness and cost}
+Table~\ref{tab:robust} varies one factor at a time on G3 ($32\times32$) and G2. For $d\ge16$ the frozen stage-2 rule reached a worst-type AP of 0.55--0.63 and was the best or within 0.01 of the best of the four fused rules in 12 of 13 settings (dimension, feature prevalence, window and noise); contextual LOF was better at noise 0.16 (0.59 against 0.52). At $d=2$ every method failed, because two dimensions cannot hold the texture manifold and its anomalies apart. On G2, every fused rule weakened as the background became less coherent, and OR(LOF, Shekhar) was above the frozen rule at every coherence level, because LOF finds G2's within-lattice anomalies better than the isolation forest. Lattice size is not reported here: on G3 it is confounded with a defect of the generator (Appendix~\ref{app:g3}), and the size dependence is taken from the stationary G4 instead (Section~\ref{sec:stage3}). Computing all scores of this study took 0.4 s per $32\times32$ lattice at $d=16$, 0.6 s at $d=384$ and 4.1 s at $128\times128$ on a desktop computer; the isolation forest and LOF dominate the cost, and the spatial statistics are linear in the number of sites.
+
+\begin{table}[t]
+\caption{Experiment D: worst-type AP of four fused rules under one-at-a-time variation (10 lattices per setting; G3 with shuffled regions and $32\times32$ sites unless stated) and the time to compute all scores of the study per lattice. Lattice size: Appendix~\ref{app:g3} and Table~\ref{tab:stage3}.}
 \label{tab:robust}
 \centering\footnotesize
 \resizebox{\linewidth}{!}{\begin{tabular}{llccccc}
@@ -349,10 +402,6 @@ dimension & 2 & 0.02 & 0.03 & 0.02 & 0.07 & 0.37 \\
  & 16 & 0.55 & 0.40 & 0.52 & 0.55 & 0.35 \\
  & 64 & 0.62 & 0.48 & 0.54 & 0.54 & 0.56 \\
  & 384 & 0.63 & 0.44 & 0.59 & 0.60 & 0.65 \\
-\addlinespace
-lattice size & 32 & 0.56 & 0.39 & 0.46 & 0.55 & 0.34 \\
- & 64 & 0.41 & 0.21 & 0.36 & 0.27 & 0.91 \\
- & 128 & 0.11 & 0.05 & 0.02 & 0.05 & 4.15 \\
 \addlinespace
 feature prevalence & 0.01 & 0.54 & 0.41 & 0.42 & 0.55 & 0.34 \\
  & 0.03 & 0.60 & 0.35 & 0.55 & 0.46 & 0.34 \\
@@ -380,19 +429,21 @@ noise (G3) & 0.04 & 0.57 & 0.45 & 0.55 & 0.49 & 0.34 \\
 \section{Discussion}
 \label{sec:discussion}
 \subsection{What the study establishes}
-Within the stated assumptions and on controlled synthetic lattices, four findings hold across generators. (i) Feature scores and spatial-order scores detect different anomalies, and each is near chance on the other kind; Proposition~\ref{prop:perm} gives the reason for one direction, and the dispersion statistics' blindness to coherent unusual regions the other. (ii) When both kinds occur in the same lattice, choosing one score per cohort cannot work, and a site-wise maximum of cohort ranks is a strong, simple fusion: it beat OR, $z$-score maxima and two locally adaptive rules on the development generator, and its frozen form beat every single score and three fused baselines on a generator it had never seen. (iii) Whether a fixed aggregation window erases an anomaly is a geometric question that Proposition~\ref{prop:surv} answers in the strong-anomaly regime. (iv) No local, rotation-invariant statistic can see the interior of a rotated patch (Proposition~\ref{prop:rot}); such anomalies require orientation-aware or non-local models of the kind developed for logical anomalies in images \citep{Bergmann2022,Batzner2024}.
+Within the stated assumptions and on controlled synthetic lattices, four findings hold across generators. (i) Feature scores and spatial-order scores detect different anomalies, and each is near chance on the other kind; Proposition~\ref{prop:perm} gives the reason for one direction, and the dispersion statistics' blindness to coherent unusual regions the other. (ii) When both kinds occur in the same lattice, choosing one score per cohort cannot work, and a site-wise maximum of cohort ranks is a competitive, simple fusion: it beat OR, $z$-score maxima and two locally adaptive rules on the development generator, and in its frozen stage-2 form it beat every single score on two generators it had never seen, tied contextual LOF on one and exceeded it on the other. Its performance depended on the choice of the component scores and on the background distribution (on G2, OR(LOF, Shekhar) was better), and no universally superior fusion rule was established. (iii) Whether a fixed aggregation window erases an anomaly is a geometric question that Proposition~\ref{prop:surv} answers qualitatively, and conservatively, in the strong-anomaly regime. (iv) No local, rotation-invariant statistic can see the interior of a rotated patch (Proposition~\ref{prop:rot}); such anomalies require orientation-aware or non-local models of the kind developed for logical anomalies in images \citep{Bergmann2022,Batzner2024}.
 
 \subsection{Failure modes and limits of complementarity}
-\emph{The reference of a feature score.} The stage-1 failure shows that a rarity score is only as good as its reference set: referencing it to the cohort assumes that all lattices share one normal distribution. When normality is defined per lattice (per image, per specimen), a within-lattice score such as LOF or an isolation forest is needed, and when the lattices do share a normal distribution, as with a fixed encoder in G3, both kinds of reference work. Which situation applies is a property of the data that should be checked before a detector is chosen, for example by comparing within-lattice and cross-lattice nearest-neighbor distances.
+\emph{The reference of a feature score.} The stage-1 failure shows that a rarity score is only as good as its reference set: referencing it to the cohort assumes that all lattices share one normal distribution. When normality is defined per lattice (per image, per specimen), a within-lattice score is needed, and when the lattices do share a normal distribution, as with a fixed encoder in G3 and G4, both kinds of reference work. Which situation applies is a property of the data that should be checked before a detector is chosen, for example by comparing within-lattice and cross-lattice nearest-neighbor distances.
 
-\emph{The spatial score.} The directional statistic of the earlier version did what Proposition~\ref{prop:wall} says (fewer responses at walls), but it was less sensitive than the plain Shekhar statistic to the arrangement anomalies of all three generators, and the selection preferred the latter. Its wall property would matter where walls are frequent and anomalies rare; in the present generators sensitivity mattered more.
+\emph{Masking.} Density-based scores with a fixed neighborhood size lose anomalies that are numerous and similar to each other: LOF with $k=20$ failed on large G4 lattices, where the isolation forest did not. The choice of the feature score is therefore not independent of the expected number of anomalies per lattice.
 
-\emph{The cost of fusion.} Proposition~\ref{prop:fuse} and the measured rates show the price: the false positives of the two channels add up, so the per-type AP of the maximum is below that of the better channel for each type (Table~\ref{tab:dev}). The maximum is the right choice when both kinds of anomaly matter; when only one does, the matching single channel is better. A fused score also does not say which kind of anomaly it found; keeping the two rank maps, as in Fig.~\ref{fig:maps}, does.
+\emph{The spatial score.} The directional statistic of the earlier version did what Proposition~\ref{prop:wall} says (fewer responses at walls), but it was less sensitive than the plain Shekhar statistic to the arrangement anomalies of all four generators. Its wall property would matter where walls are frequent and anomalies rare; in the present generators sensitivity mattered more.
+
+\emph{The cost of fusion.} Proposition~\ref{prop:fuse} and the measured rates show the price: the false positives of the two channels add up, so the per-type AP of the maximum is below that of the better channel for each type. The maximum is the right choice when both kinds of anomaly matter; when only one does, the matching single channel is better. A fused score also does not say which kind of anomaly it found; keeping the two rank maps, as in Fig.~\ref{fig:maps}, does.
 
 \emph{Background coherence.} A shuffle among nearly identical vectors is nearly invisible, so arrangement anomalies become harder, not easier, in very smooth backgrounds (Fig.~\ref{fig:phase}d); detectability depends on the variation of the background at the scale of the anomaly.
 
-\subsection{What is not established}
-All data are synthetic and were generated by the author of the analysis; G2 and G3 were written before their tests and frozen, but they are not independent of the author's assumptions. Nothing here shows performance on natural images, medical slides or industrial data, and the generators contain neither texture statistics nor encoder artefacts of real embeddings. The stage-2 rule was selected after the stage-1 failure on data that included G2, and its G2 replication is therefore not confirmatory. The comparison is limited to classical detectors; deep models trained on normal data were not included. Statistical uncertainty is over lattices of one generator; conclusions that should hold across generators rest on three generators only. G3 has a defect that limits it to small lattices: its texture becomes irregular far from the origin, so its results for lattices larger than $32\times32$ are not informative about scaling. What would refute the main conclusions: a generator with mixed anomalies on which a single score or a cohort-level choice matches the site-wise maximum, or a real data set on which the maximum of a feature and a spatial score does not improve the worst-type detection.
+\subsection{Positioning and what is not established}
+The contribution is a detectability analysis and an evaluation design for mixed anomalies, not a new detector: the recommended combination uses established scores \citep{Liu2008,Shekhar2003}, and the propositions formalize elementary properties whose value lies in making the conditions of detection explicit and testable. All data are synthetic and were generated by the author of the analysis; G2, G3 and G4 were written before their tests and frozen, but they are not independent of the author's assumptions, and the freezes are commits in the study's own repository, not entries in an external registry. Nothing here shows performance on natural images, medical slides or industrial data, and the generators contain neither the texture statistics nor the encoder artefacts of real embeddings. The stage-2 rule was selected after the stage-1 failure on data that included G2, so its G2 replication is not confirmatory; its confirmatory evidence comes from G3 and G4. The comparison is limited to classical detectors; deep models trained on normal data were not included. What would refute the main conclusions: a generator or real data set with mixed anomalies on which a single score or a cohort-level choice matches the site-wise maximum of a feature and a spatial score.
 
 \subsection{Relation to the earlier version}
 The earlier version reported that a cohort-level choice between channel A and channel B raised a lower-tail AP across fifteen test scenarios, most of which had been used during development. The present study replaces that design. Its results do not support the earlier recommendation: cohort-level selection fails on mixed lattices, and the two channels proposed earlier were outperformed by generic scores (an isolation forest and the Shekhar statistic) in the role they were designed for. What survives is the decomposition into a feature channel and a spatial channel, the occupancy explanation of aggregation loss, and the wall property of the directional statistic.
@@ -400,7 +451,7 @@ The earlier version reported that a cohort-level choice between channel A and ch
 
 
 \section{Conclusions}
-Feature rarity and spatial order are complementary sources of evidence on lattices of embeddings, and five elementary propositions bound what each, spatial aggregation and their fusion can detect. In controlled experiments with both kinds of anomaly in the same lattice, a site-wise maximum of the calibrated ranks of a within-lattice feature score and a neighbor-difference score was the most reliable label-free combination, and it survived a pre-registered test on a generator it had never seen. A first pre-registered rule failed because its feature score was referenced to a cohort that did not share one normal distribution; that failure, and the undetected rotated patches, mark the limits of local, marginal-plus-spatial detection. Testing these conclusions on real embedding lattices is the next step.
+Feature rarity and spatial order are complementary sources of evidence on lattices of embeddings, and five elementary propositions bound what each, spatial aggregation and their fusion can detect. Across the controlled synthetic conditions investigated, the site-wise maximum of calibrated feature and spatial scores was a competitive way to combine the two kinds of evidence; its performance depended on the choice of component scores and on the background distribution, and no universally superior fusion rule was established. A first prospectively frozen rule failed because its feature score was referenced to a cohort that did not share one normal distribution; that failure, the masking of a density-based score at large lattice sizes and the undetected rotated patches mark the limits of local, marginal-plus-spatial detection. Testing these conclusions on real embedding lattices is the next step.
 
 
 
@@ -414,10 +465,30 @@ The author declares that he has no known competing financial interests or person
 This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
 
 \section*{Data availability}
-All data are synthetic and are regenerated by the code from the recorded seeds. Code, frozen protocols, result files and the version-control history with the freeze commits are openly available at \url{https://github.com/sandlerleon/MyUncleVision} (MIT license; modules \texttt{kbs\_study}, \texttt{kbs\_stage2}, \texttt{kbs\_robust}, \texttt{kbs\_props2}) and archived on Zenodo (\url{https://doi.org/10.5281/zenodo.24066260}).
+All data are synthetic and are regenerated by the code from the recorded seeds. The code, the three freeze files, all result files and the version-control history, including the freeze commits (tags \texttt{kbs-freeze}, \texttt{kbs-freeze-2} and \texttt{kbs-freeze-3}) and release \texttt{v1.1.0}, are available at \url{https://github.com/sandlerleon/MyUncleVision} (MIT license; modules \texttt{kbs\_study}, \texttt{kbs\_stage2}, \texttt{kbs\_stage3}, \texttt{kbs\_robust} and \texttt{kbs\_props2}).
 
 \section*{Declaration of generative AI and AI-assisted technologies in the writing process}
 During the preparation of this work the author used Claude (Anthropic) to assist with writing and testing the analysis code to the author's specification, with the figures and with language editing. The author reviewed and edited the content and takes full responsibility for the content of the published article.
+
+\appendix
+\section{Generator limitation and excluded scaling inference}
+\label{app:g3}
+Experiment D varied the lattice size on G3 (shuffled regions, 10 lattices per size). All fused rules degraded with size (Table~\ref{tab:g3size}). The cause is a defect of the generator, not of the methods: G3 computes the stripe phase as $2\pi(x\cos\alpha+y\sin\alpha)/\lambda$ from absolute coordinates with a spatially varying orientation $\alpha$, so the phase gradient, and with it the local variation of the background, grows with the distance from the origin. On anomaly-free lattices the mean Shekhar statistic was 0.29, 0.38 and 0.54 at $32\times32$, $64\times64$ and $128\times128$ (0.28 versus 0.73 between the corners nearest to and farthest from the origin at $128\times128$). These results are reported for transparency and are not used to infer how the methods scale; the stationary generator G4 (Section~\ref{sec:stage3}) replaces them.
+
+\begin{table}[h]
+\caption{G3 lattice-size runs (excluded from inference): worst-type AP of four fused rules and time per lattice.}
+\label{tab:g3size}
+\centering\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{lccccc}
+\toprule
+Size & max(IF, Shekhar) & max(rarity, $B$) & OR(LOF, Shekhar) & Contextual LOF & s/lattice\\
+\midrule
+32 & 0.56 & 0.39 & 0.46 & 0.55 & 0.34 \\
+64 & 0.41 & 0.21 & 0.36 & 0.27 & 0.91 \\
+128 & 0.11 & 0.05 & 0.02 & 0.05 & 4.15 \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \begin{thebibliography}{99}
 \bibitem{Aggarwal2015} C.C. Aggarwal, S. Sathe, Theoretical foundations and algorithms for outlier ensembles, ACM SIGKDD Explor. Newsl. 17 (2015) 24--47. \url{https://doi.org/10.1145/2830544.2830549}.

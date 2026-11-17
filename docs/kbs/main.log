@@ -1,0 +1,488 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.31)  16 NOV 2026 20:32
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**./main.tex
+(main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/elsarticle\elsarticle.cl
+s
+Document Class: elsarticle 2026/01/09, 3.5: Elsevier Ltd
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+Package: expl3 2025-12-24 L3 programming layer (loader) 
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdft
+ex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count275
+))
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xparse
+.sty
+Package: xparse 2025-10-09 L3 Experimental document command parser
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count276
+)
+\@bls=\dimen148
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo
+File: size12.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count277
+\c@section=\count278
+\c@subsection=\count279
+\c@subsubsection=\count280
+\c@paragraph=\count281
+\c@subparagraph=\count282
+\c@figure=\count283
+\c@table=\count284
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen149
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cf
+g
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen150
+\Gin@req@width=\dimen151
+)
+\c@tnote=\count285
+\c@fnote=\count286
+\c@cnote=\count287
+\c@ead=\count288
+\c@elsarticle@author=\count289
+\@eadauthor=\toks18
+\c@affn=\count290
+\absbox=\box53
+\elsarticlehighlightsbox=\box54
+\elsarticlegrabsbox=\box55
+\keybox=\box56
+\Columnwidth=\dimen152
+\space@left=\dimen153
+\els@boxa=\box57
+\els@boxb=\box58
+\leftMargin=\dimen154
+\@enLab=\toks19
+\@sep=\skip51
+\@@sep=\skip52
+ (main.spl)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip53
+\bibsep=\skip54
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count291
+)
+\splwrite=\write3
+\openout3 = `main.spl'.
+
+\appnamewidth=\dimen155
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip55
+
+For additional information on amsmath, use the `?' option.
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks20
+\ex@=\dimen156
+))
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen157
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count292
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count293
+\leftroot@=\count294
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count295
+\DOTSCASE@=\count296
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box59
+\strutbox@=\box60
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen158
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count297
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count298
+\dotsspace@=\muskip17
+\c@parentequation=\count299
+\dspbrk@lvl=\count300
+\tag@help=\toks21
+\row@=\count301
+\column@=\count302
+\maxfields@=\count303
+\andhelp@=\toks22
+\eqnshift@=\dimen159
+\alignsep@=\dimen160
+\tagshift@=\dimen161
+\tagwidth@=\dimen162
+\totwidth@=\dimen163
+\lineht@=\dimen164
+\@envbody=\toks23
+\multlinegap=\skip56
+\multlinetaggap=\skip57
+\mathdisplay@stack=\toks24
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amscls\amsthm.sty
+Package: amsthm 2020/05/29 v2.20.6
+\thm@style=\toks25
+\thm@bodyfont=\toks26
+\thm@headfont=\toks27
+\thm@notefont=\toks28
+\thm@headpunct=\toks29
+\thm@preskip=\skip58
+\thm@postskip=\skip59
+\thm@headsep=\skip60
+\dth@everypar=\toks30
+LaTeX Info: Redefining \qed on input line 273.
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen165
+\lightrulewidth=\dimen166
+\cmidrulewidth=\dimen167
+\belowrulesep=\dimen168
+\belowbottomsep=\dimen169
+\aboverulesep=\dimen170
+\abovetopsep=\dimen171
+\cmidrulesep=\dimen172
+\cmidrulekern=\dimen173
+\defaultaddspace=\dimen174
+\@cmidla=\count304
+\@cmidlb=\count305
+\@aboverulesep=\dimen175
+\@belowrulesep=\dimen176
+\@thisruleclass=\count306
+\@lastruleclass=\count307
+\@thisrulewidth=\dimen177
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/lineno\lineno.sty
+Package: lineno 2026/03/08 line numbers on paragraphs v5.9
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+))
+\linenopenalty=\count308
+\output=\toks31
+\linenoprevgraf=\count309
+\linenumbersep=\dimen178
+\linenumberwidth=\dimen179
+\c@linenumber=\count310
+\c@pagewiselinenumber=\count311
+\c@LN@truepage=\count312
+\c@internallinenumber=\count313
+\c@internallinenumbers=\count314
+\quotelinenumbersep=\dimen180
+\bframerule=\dimen181
+\bframesep=\dimen182
+\bframebox=\box61
+\@LN@amsmath@ams@eqpen=\count315
+)
+\c@proposition=\count316
+ (main.aux)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mki
+i
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count317
+\scratchdimen=\dimen183
+\scratchbox=\box62
+\nofMPsegments=\count318
+\nofMParguments=\count319
+\everyMPshowfont=\toks32
+\MPscratchCnt=\count320
+\MPscratchDim=\dimen184
+\MPnumerator=\count321
+\makeMPintoPDFobject=\count322
+\everyMPtoPDFconversion=\toks33
+)
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-ba
+se.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cf
+g
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+LaTeX Font Info:    Trying to load font information for U+msa on input line 27.
+
+ (C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 27.
+
+
+(C:\Users\Leon\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Overfull \vbox (41.35803pt too high) has occurred while \output is active []
+
+
+Overfull \vbox (41.35803pt too high) has occurred while \output is active []
+
+
+[1
+
+
+{C:/Users/Leon/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2]
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 57--57
+[]\T1/cmr/m/n/10.95 Contrast-survival
+ []
+
+
+Underfull \hbox (badness 4254) in paragraph at lines 57--57
+[]\T1/cmr/m/n/10.95 Prospectively frozen
+ []
+
+[4] [5] [6] [7]
+Overfull \hbox (24.16472pt too wide) in paragraph at lines 106--107
+[]\T1/cmr/m/n/12 A per-mu-ta-tion $\OML/cmm/m/it/12 ^^Y$ \T1/cmr/m/n/12 of $\OM
+L/cmm/m/it/12 M$ \T1/cmr/m/n/12 maps the mul-ti-set $\OMS/cmsy/m/n/12 f\OML/cmm
+/m/it/12 u[]\OMS/cmsy/m/n/12 g$ \T1/cmr/m/n/12 onto it-self, so $\OMS/cmsy/m/n/
+12 f\OML/cmm/m/it/12 g\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 u[]\OT1/cmr/m/n/12 ; \O
+MS/cmsy/m/n/12 R\OT1/cmr/m/n/12 )\OMS/cmsy/m/n/12 g \OT1/cmr/m/n/12 =
+ []
+
+[8] [9] [10] [11]
+Underfull \hbox (badness 1024) in paragraph at lines 165--165
+\T1/cmr/m/n/10.95 on re-ar-ranged re-gions,
+ []
+
+
+Underfull \hbox (badness 1087) in paragraph at lines 165--165
+\T1/cmr/m/n/10.95 sur-vival for five mask
+ []
+
+
+Underfull \hbox (badness 7273) in paragraph at lines 165--165
+[]\T1/cmr/m/n/10.95 share of domain-wall
+ []
+
+
+Underfull \hbox (badness 1024) in paragraph at lines 165--165
+[]\T1/cmr/m/n/10.95 Prop. 5[] (ro-ta-
+ []
+
+[12] [13] [14]
+Underfull \hbox (badness 1163) in paragraph at lines 196--196
+[]\T1/cmr/m/n/10 shift out of the sub-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+\T1/cmr/m/n/10 space (blocks, sites,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+\T1/cmr/m/n/10 Mises--Fisher, drift;
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+\T1/cmr/m/n/10 own di-rec-tions per
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+[]\T1/cmr/m/n/10 oriented tex-ture
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+\T1/cmr/m/n/10 through a shared
+ []
+
+
+Underfull \hbox (badness 3058) in paragraph at lines 196--196
+\T1/cmr/m/n/10 en-coder (not sta-tion-
+ []
+
+
+Underfull \hbox (badness 2384) in paragraph at lines 196--196
+[]\T1/cmr/m/n/10 blob with an out-of-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+[]\T1/cmr/m/n/10 exchange be-tween
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+[]\T1/cmr/m/n/10 stationary band-pass
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+\T1/cmr/m/n/10 tex-ture through an-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
+[]\T1/cmr/m/n/10 stage-3 test,
+ []
+
+[15] [16] [17] [18] [19]
+<fig_phase.png, id=86, 759.3168pt x 231.264pt>
+File: fig_phase.png Graphic file (type png)
+<use fig_phase.png>
+Package pdftex.def Info: fig_phase.png  used on input line 253.
+(pdftex.def)             Requested size: 390.0pt x 118.77939pt.
+ [20] [21 <./fig_phase.png>] [22] [23]
+<fig_maps.png, id=101, 681.9879pt x 350.5095pt>
+File: fig_maps.png Graphic file (type png)
+<use fig_maps.png>
+Package pdftex.def Info: fig_maps.png  used on input line 349.
+(pdftex.def)             Requested size: 390.0pt x 200.44499pt.
+<fig_confirm.png, id=102, 1010.3346pt x 277.2759pt>
+File: fig_confirm.png Graphic file (type png)
+<use fig_confirm.png>
+Package pdftex.def Info: fig_confirm.png  used on input line 356.
+(pdftex.def)             Requested size: 390.0pt x 107.0329pt.
+ [24] [25 <./fig_maps.png>] [26 <./fig_confirm.png>] [27] [28] [29] [30] [31]
+Overfull \hbox (8.7323pt too wide) in paragraph at lines 468--469
+\T1/cmtt/m/n/12 sandlerleon / MyUncleVision$ \T1/cmr/m/n/12 (MIT li-cense; mod-
+ules \T1/cmtt/m/n/12 kbs_study\T1/cmr/m/n/12 , \T1/cmtt/m/n/12 kbs_stage2\T1/cm
+r/m/n/12 ,
+ []
+
+[32] [33] [34] [35] [36] (main.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+ ***********
+ ) 
+Here is how much of TeX's memory you used:
+ 4948 strings out of 467870
+ 73005 string characters out of 5418838
+ 495518 words of memory out of 5000000
+ 33764 multiletter control sequences out of 15000+600000
+ 644880 words of font info for 85 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 72i,12n,79p,1745b,376s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\Leon\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1
+200.pk> <C:\Users\Leon\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\
+ecrm1095.pk> <C:\Users\Leon\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
+i600\ecti1200.pk> <C:\Users\Leon\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/
+ec/dpi600\ecrm1000.pk> <C:\Users\Leon\AppData\Local\MiKTeX\fonts/pk/ljfour/jkna
+ppen/ec/dpi600\ecbx1200.pk> <C:\Users\Leon\AppData\Local\MiKTeX\fonts/pk/ljfour
+/jknappen/ec/dpi600\ecti1000.pk> <C:\Users\Leon\AppData\Local\MiKTeX\fonts/pk/l
+jfour/jknappen/ec/dpi600\ecti0700.pk> <C:\Users\Leon\AppData\Local\MiKTeX\fonts
+/pk/ljfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\Leon\AppData\Local\MiKTeX\
+fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Leon\AppData\Local\Mi
+KTeX\fonts/pk/ljfour/jknappen/ec/dpi450\ecss0800.pk> <C:\Users\Leon\AppData\Loc
+al\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk><C:/Users/Leon/AppData
+/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Leon
+/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Us
+ers/Leon/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pf
+b><C:/Users/Leon/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/c
+mmi6.pfb><C:/Users/Leon/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
+ts/cm/cmmi8.pfb><C:/Users/Leon/AppData/Local/Programs/MiKTeX/fonts/type1/public
+/amsfonts/cm/cmr10.pfb><C:/Users/Leon/AppData/Local/Programs/MiKTeX/fonts/type1
+/public/amsfonts/cm/cmr12.pfb><C:/Users/Leon/AppData/Local/Programs/MiKTeX/font
+s/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/Leon/AppData/Local/Programs/MiKTe
+X/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Leon/AppData/Local/Programs
+/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Leon/AppData/Local/
+Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Leon/AppData
+/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Leon/
+AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+Output written on main.pdf (36 pages, 947112 bytes).
+PDF statistics:
+ 662 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+
