@@ -1,0 +1,479 @@
+{
+ "10.1145/342009.335388": {
+  "doi": "10.1145/342009.335388",
+  "title": "LOF",
+  "journal": "Proceedings of the 2000 ACM SIGMOD international conference on Management of data",
+  "year": 2000,
+  "vol": null,
+  "issue": null,
+  "page": "93-104",
+  "authors": [
+   [
+    "Breunig",
+    "Markus M."
+   ],
+   [
+    "Kriegel",
+    "Hans-Peter"
+   ],
+   [
+    "Ng",
+    "Raymond T."
+   ],
+   [
+    "Sander",
+    "Jörg"
+   ]
+  ]
+ },
+ "10.1109/ICDM.2008.17": {
+  "doi": "10.1109/ICDM.2008.17",
+  "title": "Isolation Forest",
+  "journal": "2008 Eighth IEEE International Conference on Data Mining",
+  "year": 2008,
+  "vol": null,
+  "issue": null,
+  "page": "413-422",
+  "authors": [
+   [
+    "Liu",
+    "Fei Tony"
+   ],
+   [
+    "Ting",
+    "Kai Ming"
+   ],
+   [
+    "Zhou",
+    "Zhi-Hua"
+   ]
+  ]
+ },
+ "10.1023/A:1023455925009": {
+  "doi": "10.1023/A:1023455925009",
+  "title": "A Unified Approach to Detecting Spatial Outliers",
+  "journal": "GeoInformatica",
+  "year": 2003,
+  "vol": "7",
+  "issue": "2",
+  "page": "139-166",
+  "authors": [
+   [
+    "Shekhar",
+    "Shashi"
+   ],
+   [
+    "Lu",
+    "Chang-Tien"
+   ],
+   [
+    "Zhang",
+    "Pusheng"
+   ]
+  ]
+ },
+ "10.1109/TKDE.2007.1009": {
+  "doi": "10.1109/TKDE.2007.1009",
+  "title": "Conditional Anomaly Detection",
+  "journal": "IEEE Transactions on Knowledge and Data Engineering",
+  "year": 2007,
+  "vol": "19",
+  "issue": "5",
+  "page": "631-645",
+  "authors": [
+   [
+    "Song",
+    "Xiuyao"
+   ],
+   [
+    "Wu",
+    "Mingxi"
+   ],
+   [
+    "Jermaine",
+    "Christopher"
+   ],
+   [
+    "Ranka",
+    "Sanjay"
+   ]
+  ]
+ },
+ "10.1109/ICCV.1998.710815": {
+  "doi": "10.1109/ICCV.1998.710815",
+  "title": "Bilateral filtering for gray and color images",
+  "journal": "Sixth International Conference on Computer Vision (IEEE Cat. No.98CH36271)",
+  "year": null,
+  "vol": null,
+  "issue": null,
+  "page": "839-846",
+  "authors": [
+   [
+    "Tomasi",
+    "C."
+   ],
+   [
+    "Manduchi",
+    "R."
+   ]
+  ]
+ },
+ "10.1109/JPROC.2021.3052449": {
+  "doi": "10.1109/JPROC.2021.3052449",
+  "title": "A Unifying Review of Deep and Shallow Anomaly Detection",
+  "journal": "Proceedings of the IEEE",
+  "year": 2021,
+  "vol": "109",
+  "issue": "5",
+  "page": "756-795",
+  "authors": [
+   [
+    "Ruff",
+    "Lukas"
+   ],
+   [
+    "Kauffmann",
+    "Jacob R."
+   ],
+   [
+    "Vandermeulen",
+    "Robert A."
+   ],
+   [
+    "Montavon",
+    "Gregoire"
+   ],
+   [
+    "Samek",
+    "Wojciech"
+   ],
+   [
+    "Kloft",
+    "Marius"
+   ],
+   [
+    "Dietterich",
+    "Thomas G."
+   ],
+   [
+    "Muller",
+    "Klaus-Robert"
+   ]
+  ]
+ },
+ "10.1145/3439950": {
+  "doi": "10.1145/3439950",
+  "title": "Deep Learning for Anomaly Detection",
+  "journal": "ACM Computing Surveys",
+  "year": 2022,
+  "vol": "54",
+  "issue": "2",
+  "page": "1-38",
+  "authors": [
+   [
+    "Pang",
+    "Guansong"
+   ],
+   [
+    "Shen",
+    "Chunhua"
+   ],
+   [
+    "Cao",
+    "Longbing"
+   ],
+   [
+    "Hengel",
+    "Anton Van Den"
+   ]
+  ]
+ },
+ "10.1007/978-3-319-47578-3": {
+  "doi": "10.1007/978-3-319-47578-3",
+  "title": "Outlier Analysis",
+  "journal": "",
+  "year": 2017,
+  "vol": null,
+  "issue": null,
+  "page": null,
+  "authors": [
+   [
+    "Aggarwal",
+    "Charu C."
+   ]
+  ]
+ },
+ "10.1145/2830544.2830549": {
+  "doi": "10.1145/2830544.2830549",
+  "title": "Theoretical Foundations and Algorithms for Outlier Ensembles",
+  "journal": "ACM SIGKDD Explorations Newsletter",
+  "year": 2015,
+  "vol": "17",
+  "issue": "1",
+  "page": "24-47",
+  "authors": [
+   [
+    "Aggarwal",
+    "Charu C."
+   ],
+   [
+    "Sathe",
+    "Saket"
+   ]
+  ]
+ },
+ "10.1137/1.9781611972818.2": {
+  "doi": "10.1137/1.9781611972818.2",
+  "title": "Interpreting and Unifying Outlier Scores",
+  "journal": "Proceedings of the 2011 SIAM International Conference on Data Mining",
+  "year": 2011,
+  "vol": null,
+  "issue": null,
+  "page": "13-24",
+  "authors": [
+   [
+    "Kriegel",
+    "Hans-Peter"
+   ],
+   [
+    "Kroger",
+    "Peer"
+   ],
+   [
+    "Schubert",
+    "Erich"
+   ],
+   [
+    "Zimek",
+    "Arthur"
+   ]
+  ]
+ },
+ "10.1007/978-3-030-68799-1_35": {
+  "doi": "10.1007/978-3-030-68799-1_35",
+  "title": "PaDiM: A Patch Distribution Modeling Framework for Anomaly Detection and Localization",
+  "journal": "Lecture Notes in Computer Science",
+  "year": 2021,
+  "vol": null,
+  "issue": null,
+  "page": "475-489",
+  "authors": [
+   [
+    "Defard",
+    "Thomas"
+   ],
+   [
+    "Setkov",
+    "Aleksandr"
+   ],
+   [
+    "Loesch",
+    "Angelique"
+   ],
+   [
+    "Audigier",
+    "Romaric"
+   ]
+  ]
+ },
+ "10.1007/s10618-012-0300-z": {
+  "doi": "10.1007/s10618-012-0300-z",
+  "title": "Local outlier detection reconsidered: a generalized view on locality with applications to spatial, video, and network outlier detection",
+  "journal": "Data Mining and Knowledge Discovery",
+  "year": 2014,
+  "vol": "28",
+  "issue": "1",
+  "page": "190-237",
+  "authors": [
+   [
+    "Schubert",
+    "Erich"
+   ],
+   [
+    "Zimek",
+    "Arthur"
+   ],
+   [
+    "Kriegel",
+    "Hans-Peter"
+   ]
+  ]
+ },
+ "10.1145/1143844.1143874": {
+  "doi": "10.1145/1143844.1143874",
+  "title": "The relationship between Precision-Recall and ROC curves",
+  "journal": "Proceedings of the 23rd international conference on Machine learning  - ICML '06",
+  "year": 2006,
+  "vol": null,
+  "issue": null,
+  "page": "233-240",
+  "authors": [
+   [
+    "Davis",
+    "Jesse"
+   ],
+   [
+    "Goadrich",
+    "Mark"
+   ]
+  ]
+ },
+ "10.1145/1541880.1541882": {
+  "doi": "10.1145/1541880.1541882",
+  "title": "Anomaly detection",
+  "journal": "ACM Computing Surveys",
+  "year": 2009,
+  "vol": "41",
+  "issue": "3",
+  "page": "1-58",
+  "authors": [
+   [
+    "Chandola",
+    "Varun"
+   ],
+   [
+    "Banerjee",
+    "Arindam"
+   ],
+   [
+    "Kumar",
+    "Vipin"
+   ]
+  ]
+ },
+ "10.1109/CVPR52688.2022.01392": {
+  "doi": "10.1109/CVPR52688.2022.01392",
+  "title": "Towards Total Recall in Industrial Anomaly Detection",
+  "journal": "2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+  "year": 2022,
+  "vol": null,
+  "issue": null,
+  "page": "14298-14308",
+  "authors": [
+   [
+    "Roth",
+    "Karsten"
+   ],
+   [
+    "Pemula",
+    "Latha"
+   ],
+   [
+    "Zepeda",
+    "Joaquin"
+   ],
+   [
+    "Scholkopf",
+    "Bernhard"
+   ],
+   [
+    "Brox",
+    "Thomas"
+   ],
+   [
+    "Gehler",
+    "Peter"
+   ]
+  ]
+ },
+ "10.1007/s11263-022-01578-9": {
+  "doi": "10.1007/s11263-022-01578-9",
+  "title": "Beyond Dents and Scratches: Logical Constraints in Unsupervised Anomaly Detection and Localization",
+  "journal": "International Journal of Computer Vision",
+  "year": 2022,
+  "vol": "130",
+  "issue": "4",
+  "page": "947-969",
+  "authors": [
+   [
+    "Bergmann",
+    "Paul"
+   ],
+   [
+    "Batzner",
+    "Kilian"
+   ],
+   [
+    "Fauser",
+    "Michael"
+   ],
+   [
+    "Sattlegger",
+    "David"
+   ],
+   [
+    "Steger",
+    "Carsten"
+   ]
+  ]
+ },
+ "10.1080/01621459.1993.10476408": {
+  "doi": "10.1080/01621459.1993.10476408",
+  "title": "Alternatives to the Median Absolute Deviation",
+  "journal": "Journal of the American Statistical Association",
+  "year": 1993,
+  "vol": "88",
+  "issue": "424",
+  "page": "1273-1283",
+  "authors": [
+   [
+    "Rousseeuw",
+    "Peter J."
+   ],
+   [
+    "Croux",
+    "Christophe"
+   ]
+  ]
+ },
+ "10.1007/978-1-4684-0769-3_13": {
+  "doi": "10.1007/978-1-4684-0769-3_13",
+  "title": "Processing of RI-Angiocardiographic Images",
+  "journal": "Digital Processing of Biomedical Images",
+  "year": 1976,
+  "vol": null,
+  "issue": null,
+  "page": "187-202",
+  "authors": [
+   [
+    "Kuwahara",
+    "M."
+   ],
+   [
+    "Hachimura",
+    "K."
+   ],
+   [
+    "Eiho",
+    "S."
+   ],
+   [
+    "Kinoshita",
+    "M."
+   ]
+  ]
+ },
+ "10.1109/WACV57701.2024.00020": {
+  "doi": "10.1109/WACV57701.2024.00020",
+  "title": "EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies",
+  "journal": "2024 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)",
+  "year": 2024,
+  "vol": null,
+  "issue": null,
+  "page": "127-137",
+  "authors": [
+   [
+    "Batzner",
+    "Kilian"
+   ],
+   [
+    "Heckler",
+    "Lars"
+   ],
+   [
+    "König",
+    "Rebecca"
+   ]
+  ]
+ }
+}

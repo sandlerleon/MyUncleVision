@@ -1,0 +1,30 @@
+phase 1.0 0.2 {'rarity': 0.042, 'channel A (s': 0.051, 'channel B (d': 0.027, 'center-to-ne': 0.023, 'fusion: max': 0.071, 'fusion: OR': 0.064, 'fusion: coho': 0.027}
+phase 1.0 0.4 {'rarity': 0.035, 'channel A (s': 0.045, 'channel B (d': 0.039, 'center-to-ne': 0.036, 'fusion: max': 0.092, 'fusion: OR': 0.1, 'fusion: coho': 0.039}
+phase 1.0 0.6 {'rarity': 0.053, 'channel A (s': 0.067, 'channel B (d': 0.026, 'center-to-ne': 0.025, 'fusion: max': 0.054, 'fusion: OR': 0.053, 'fusion: coho': 0.026}
+phase 1.0 0.8 {'rarity': 0.041, 'channel A (s': 0.053, 'channel B (d': 0.031, 'center-to-ne': 0.032, 'fusion: max': 0.072, 'fusion: OR': 0.073, 'fusion: coho': 0.031}
+phase 1.0 1.0 {'rarity': 0.04, 'channel A (s': 0.044, 'channel B (d': 0.03, 'center-to-ne': 0.028, 'fusion: max': 0.098, 'fusion: OR': 0.087, 'fusion: coho': 0.03}
+phase 1.5 0.2 {'rarity': 0.04, 'channel A (s': 0.053, 'channel B (d': 0.033, 'center-to-ne': 0.039, 'fusion: max': 0.228, 'fusion: OR': 0.208, 'fusion: coho': 0.033}
+phase 1.5 0.4 {'rarity': 0.041, 'channel A (s': 0.042, 'channel B (d': 0.031, 'center-to-ne': 0.031, 'fusion: max': 0.145, 'fusion: OR': 0.141, 'fusion: coho': 0.031}
+phase 1.5 0.6 {'rarity': 0.048, 'channel A (s': 0.065, 'channel B (d': 0.028, 'center-to-ne': 0.031, 'fusion: max': 0.194, 'fusion: OR': 0.174, 'fusion: coho': 0.028}
+phase 1.5 0.8 {'rarity': 0.034, 'channel A (s': 0.038, 'channel B (d': 0.023, 'center-to-ne': 0.025, 'fusion: max': 0.194, 'fusion: OR': 0.147, 'fusion: coho': 0.023}
+phase 1.5 1.0 {'rarity': 0.07, 'channel A (s': 0.097, 'channel B (d': 0.037, 'center-to-ne': 0.044, 'fusion: max': 0.304, 'fusion: OR': 0.237, 'fusion: coho': 0.037}
+phase 2.0 0.2 {'rarity': 0.038, 'channel A (s': 0.051, 'channel B (d': 0.021, 'center-to-ne': 0.039, 'fusion: max': 0.28, 'fusion: OR': 0.215, 'fusion: coho': 0.021}
+phase 2.0 0.4 {'rarity': 0.039, 'channel A (s': 0.052, 'channel B (d': 0.019, 'center-to-ne': 0.029, 'fusion: max': 0.31, 'fusion: OR': 0.188, 'fusion: coho': 0.019}
+phase 2.0 0.6 {'rarity': 0.058, 'channel A (s': 0.07, 'channel B (d': 0.021, 'center-to-ne': 0.037, 'fusion: max': 0.366, 'fusion: OR': 0.289, 'fusion: coho': 0.021}
+phase 2.0 0.8 {'rarity': 0.038, 'channel A (s': 0.052, 'channel B (d': 0.02, 'center-to-ne': 0.036, 'fusion: max': 0.317, 'fusion: OR': 0.212, 'fusion: coho': 0.02}
+phase 2.0 1.0 {'rarity': 0.048, 'channel A (s': 0.054, 'channel B (d': 0.037, 'center-to-ne': 0.065, 'fusion: max': 0.377, 'fusion: OR': 0.282, 'fusion: coho': 0.037}
+phase 2.5 0.2 {'rarity': 0.04, 'channel A (s': 0.045, 'channel B (d': 0.019, 'center-to-ne': 0.044, 'fusion: max': 0.285, 'fusion: OR': 0.204, 'fusion: coho': 0.019}
+phase 2.5 0.4 {'rarity': 0.037, 'channel A (s': 0.043, 'channel B (d': 0.02, 'center-to-ne': 0.061, 'fusion: max': 0.398, 'fusion: OR': 0.279, 'fusion: coho': 0.02}
+phase 2.5 0.6 {'rarity': 0.05, 'channel A (s': 0.058, 'channel B (d': 0.02, 'center-to-ne': 0.048, 'fusion: max': 0.395, 'fusion: OR': 0.307, 'fusion: coho': 0.02}
+phase 2.5 0.8 {'rarity': 0.036, 'channel A (s': 0.044, 'channel B (d': 0.02, 'center-to-ne': 0.055, 'fusion: max': 0.467, 'fusion: OR': 0.308, 'fusion: coho': 0.02}
+phase 2.5 1.0 {'rarity': 0.039, 'channel A (s': 0.049, 'channel B (d': 0.02, 'center-to-ne': 0.061, 'fusion: max': 0.523, 'fusion: OR': 0.354, 'fusion: coho': 0.02}
+phase 3.0 0.2 {'rarity': 0.045, 'channel A (s': 0.063, 'channel B (d': 0.015, 'center-to-ne': 0.062, 'fusion: max': 0.316, 'fusion: OR': 0.238, 'fusion: coho': 0.015}
+phase 3.0 0.4 {'rarity': 0.04, 'channel A (s': 0.047, 'channel B (d': 0.015, 'center-to-ne': 0.048, 'fusion: max': 0.394, 'fusion: OR': 0.276, 'fusion: coho': 0.015}
+phase 3.0 0.6 {'rarity': 0.051, 'channel A (s': 0.057, 'channel B (d': 0.017, 'center-to-ne': 0.073, 'fusion: max': 0.44, 'fusion: OR': 0.324, 'fusion: coho': 0.017}
+phase 3.0 0.8 {'rarity': 0.04, 'channel A (s': 0.051, 'channel B (d': 0.014, 'center-to-ne': 0.056, 'fusion: max': 0.491, 'fusion: OR': 0.336, 'fusion: coho': 0.014}
+phase 3.0 1.0 {'rarity': 0.059, 'channel A (s': 0.073, 'channel B (d': 0.016, 'center-to-ne': 0.067, 'fusion: max': 0.529, 'fusion: OR': 0.357, 'fusion: coho': 0.016}
+coherence 1.0 {'rarity': 0.039, 'channel A (s': 0.061, 'channel B (d': 0.022, 'center-to-ne': 0.019, 'fusion: max': 0.62, 'fusion: OR': 0.34, 'fusion: coho': 0.022}
+coherence 1.5 {'rarity': 0.047, 'channel A (s': 0.071, 'channel B (d': 0.027, 'center-to-ne': 0.026, 'fusion: max': 0.559, 'fusion: OR': 0.318, 'fusion: coho': 0.027}
+coherence 3.0 {'rarity': 0.042, 'channel A (s': 0.05, 'channel B (d': 0.03, 'center-to-ne': 0.051, 'fusion: max': 0.463, 'fusion: OR': 0.322, 'fusion: coho': 0.03}
+coherence 6.0 {'rarity': 0.051, 'channel A (s': 0.055, 'channel B (d': 0.02, 'center-to-ne': 0.075, 'fusion: max': 0.239, 'fusion: OR': 0.178, 'fusion: coho': 0.02}
+saved kbs_phase.json

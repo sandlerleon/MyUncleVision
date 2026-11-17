@@ -1,0 +1,42 @@
+{
+ "frozen_at_utc": "2026-11-17T02:01:17Z",
+ "code_sha256": "4b6c63528307bc7090eaf41a4cc9f1cfbf125d9b4f8d5b5c58fc3de60f827273",
+ "chosen_fusion": "fusion: max (rarity, B)",
+ "window": 3,
+ "k_nn": 5,
+ "pool": 3000,
+ "generator": "G2 (gen2, written before this freeze, never run before it)",
+ "conditions": {
+  "G2 mixed, phi=40, delta=1": {
+   "phi": 40.0,
+   "delta": 1.0
+  },
+  "G2 mixed, phi=60, delta=0.6": {
+   "phi": 60.0,
+   "delta": 0.6
+  },
+  "G2 mixed, low coherence (kappa x0.25), phi=40, delta=1": {
+   "phi": 40.0,
+   "delta": 1.0,
+   "kappa_scale": 0.25
+  }
+ },
+ "lattices_per_condition": 30,
+ "seed0": 500000,
+ "primary_endpoint": "worst-type AP = min(mean feature-anomaly AP, mean arrangement-anomaly AP) per condition and pooled over the three conditions; paired bootstrap (2000 resamples of lattices) of the frozen fusion minus each comparator",
+ "comparators": [
+  "channel A (similarity-weighted rarity)",
+  "channel B (directional disorder)",
+  "fusion: cohort selection (tail index)",
+  "OR(LOF, Shekhar)",
+  "contextual LOF ([u, neighbor mean])",
+  "fusion: max (A, neighbor distance)",
+  "fusion: max (isolation forest, Shekhar)",
+  "isolation forest (embeddings)",
+  "spatial outlier statistic (Shekhar)",
+  "fusion: max",
+  "fusion: max (rarity, B)"
+ ],
+ "secondary": "per-type AP, all-anomaly AP, all other detectors, runtime",
+ "development_history": "development run 1 (kbs_dev_run1.json) -> candidates max(rarity, B) and comparator max(isolation forest, Shekhar) added -> development run 2 (kbs_dev.json) selected the rule; G2 smoke test before the freeze: one lattice (seed 1) generated to check that the code runs; no score computed"
+}

@@ -1,0 +1,89 @@
+\section{Setting, scores and analytical results}
+\label{sec:theory}
+
+\subsection{Embedding lattices and the two kinds of anomaly}
+A lattice of embeddings assigns a unit vector $u_i\in S^{d-1}$ to every site $i$ of an $n\times n$ grid, for example the normalized embedding of an image patch or the local orientation of an ordered medium. A cohort is a set of such lattices that are assumed to be mostly normal. We distinguish two kinds of anomaly. A \emph{feature anomaly} is a site whose embedding is rare in the cohort. An \emph{arrangement anomaly} is a site whose embedding is ordinary but placed where it does not fit its neighbors: in the extreme case the embeddings of a region are permuted among the sites of that region, or exchanged with those of a distant region, so that the multiset of embeddings of the lattice is unchanged.
+
+\subsection{Scores}
+\emph{Rarity.} The raw rarity of site $i$ is the mean cosine distance of $u_i$ to its $k=5$ nearest neighbors in a reference pool of 3000 embeddings drawn from the \emph{other} lattices of the cohort; $r_i$ is its rank in the cohort (a number in $(0,1]$).
+
+\emph{Channel A} aggregates the rarity with weights given by the similarity of neighboring embeddings,
+\begin{equation}
+c_{ij}=\exp\!\bigl(-(1-u_i^{\top}u_j)/\tau\bigr),\qquad A_i=\frac{\sum_{j\in W_i}c_{ij}\,r_j}{\sum_{j\in W_i}c_{ij}},
+\label{eq:simw}
+\end{equation}
+over the $w\times w$ window $W_i$ ($w=3$ unless stated), with $\tau$ the median of $1-u_i^{\top}u_j$ over lattice-adjacent pairs of the cohort. This is an edge-preserving (bilateral-type) filter in embedding space \citep{Tomasi1998}; the fixed mean, $c_{ij}\equiv1$, is the reference it is compared with.
+
+\emph{Channel B} is the directional local disorder. For the four $(h+1)\times(h+1)$ quadrant windows $Q_i^1,\dots,Q_i^4$ that contain $i$ as a corner ($h=(w-1)/2$),
+\begin{equation}
+B_i=\min_{q}\;\Bigl(1-\Bigl\|\tfrac{1}{|Q_i^q|}\sum_{j\in Q_i^q}u_j\Bigr\|\Bigr).
+\label{eq:dir}
+\end{equation}
+The quantity in brackets is one minus the mean resultant length of the vectors of a quadrant, the classical measure of circular and spherical dispersion \citep{Mardia2000}; the minimum over sub-windows that contain the site is the construction of the Kuwahara filter \citep{Kuwahara1976}, applied to the dispersion of unit vectors. The isotropic form $D_i$ uses the four lattice neighbors of $i$ instead of the quadrants.
+
+\emph{Calibration and fusion.} Both channels are converted to cohort ranks, $a_i$ and $b_i$, which are uniform on $(0,1]$ over the cohort and therefore comparable without labels. Two simple fusion rules act site by site,
+\begin{equation}
+S_i^{\max}=\max(a_i,b_i),\qquad S_i^{\mathrm{OR}}=1-(1-a_i)(1-b_i),
+\label{eq:fusion}
+\end{equation}
+the second being the probability that at least one of two independent uniform variables falls below the observed values. Two locally adaptive rules were also built (Section~\ref{sec:design}), and the cohort-level selection of one channel by a tail index, the fusion used in an earlier version of this work, is kept as a baseline.
+
+\subsection{Analytical results}
+The four statements below are elementary, and we present them as tools rather than as deep results: they make explicit, under stated assumptions, why one channel cannot replace the other, when spatial aggregation erases an anomaly, why the directional statistic ignores domain walls, and what fusion can cost. Table~\ref{tab:props} lists the assumptions, and Section~\ref{sec:results} checks each statement numerically.
+
+\begin{proposition}[Blindness of marginal detectors to rearrangement]
+\label{prop:perm}
+Let a score be a function $s_i=g(u_i;\mathcal{R})$ of the embedding of site $i$ and of a reference set $\mathcal{R}$ that does not depend on the positions of the sites of the lattice under test. If the embeddings of a set of sites $M$ are permuted among the sites of $M$, the multiset $\{s_i\}$ of scores of the lattice is unchanged. If, in addition, $M$ is placed independently of the embedding field and the field is stationary, the scores of the sites of $M$ have the same distribution as those of the other sites, and the expected area under the ROC curve for separating $M$ from the rest is $1/2$.
+\end{proposition}
+\begin{proof}
+A permutation $\pi$ of $M$ maps the multiset $\{u_i\}$ onto itself, so $\{g(u_{\pi(i)};\mathcal{R})\}=\{g(u_i;\mathcal{R})\}$. Under stationarity and independent placement, the embedding at a site of $M$ after the permutation is again a draw from the stationary marginal distribution, so a randomly chosen anomalous site and a randomly chosen normal site have exchangeable scores, and $P(s_{\mathrm{anom}}>s_{\mathrm{norm}})+\tfrac12P(s_{\mathrm{anom}}=s_{\mathrm{norm}})=\tfrac12$.
+\end{proof}
+The proposition concerns the collection of scores and their distribution; the score at an individual location changes after the permutation. It covers every per-site score that ignores the lattice positions, including the $k$-nearest-neighbor rarity, LOF \citep{Breunig2000} and isolation forests \citep{Liu2008} on the embeddings. Spatial aggregation of such a score (channel A) is not covered, but it inherits the blindness when the aggregated score is itself unchanged in distribution; Section~\ref{sec:results} measures it.
+
+\begin{proposition}[Occupancy condition for survival under a fixed window]
+\label{prop:surv}
+Assume a two-level score: $r_i=r_a$ on anomalous sites and $r_i=r_n<r_a$ on normal sites. For any binary anomaly mask $M$ and window $W_i$, the fixed-window mean is $\bar r_i=r_n+p_i\,(r_a-r_n)$ with the occupancy $p_i=|M\cap W_i|/|W_i|$, and an anomalous site stays above a threshold $\theta$ (for example the cohort's top-3\% quantile of $\bar r$) if and only if
+\begin{equation}
+p_i\;\ge\;p^{*}=\frac{\theta-r_n}{r_a-r_n}.
+\label{eq:pstar}
+\end{equation}
+The share of anomalous sites that survive is therefore the share of anomalous sites whose occupancy reaches $p^{*}$, a purely geometric property of the mask.
+\end{proposition}
+\begin{proof}
+$\bar r_i=|W_i|^{-1}\bigl(|M\cap W_i|\,r_a+(|W_i|-|M\cap W_i|)\,r_n\bigr)$; solve $\bar r_i\ge\theta$ for $p_i$.
+\end{proof}
+For a $3\times3$ window, a single anomalous site has $p_i=1/9$, a site in the interior of a block has $p_i=1$, and a site on the border of a block has $p_i\le 6/9$; with $p^{*}$ near one, only block interiors survive. The similarity weights of Eq.~\eqref{eq:simw} raise the effective occupancy of an anomalous site because its anomalous neighbors carry most of the weight, which is why channel A preserves small anomalies (Section~\ref{sec:results}).
+
+\begin{proposition}[Directional disorder at a domain wall]
+\label{prop:wall}
+Let site $i$ belong to a domain $\Omega$ and let the wall of $\Omega$ near $i$ be straight at the scale of the window, i.e.\ $\Omega$ contains the closed half-plane $\{x:\nu^{\top}(x-x_i)\ge0\}$ intersected with the window, for some unit normal $\nu$. Then at least one quadrant window $Q_i^q$ lies entirely in $\Omega$, namely the one whose two axis directions $(\sigma_y,\sigma_x)$ satisfy $\sigma_y\nu_y\ge0$ and $\sigma_x\nu_x\ge0$. Consequently $B_i\le\max_{Q\subset\Omega}\bigl(1-\|\bar u_Q\|\bigr)$, the dispersion of one quadrant of the domain itself, and $B_i=0$ if the domain is perfectly ordered, whereas the isotropic disorder $D_i$ includes neighbors from both sides of the wall.
+\end{proposition}
+\begin{proof}
+Every offset $\delta=(\sigma_y a,\sigma_x b)$ with $a,b\in\{0,\dots,h\}$ of the chosen quadrant satisfies $\nu^{\top}\delta=a\,|\nu_y|+b\,|\nu_x|\ge0$, so every site of that quadrant lies in the half-plane and hence in $\Omega$. The minimum in Eq.~\eqref{eq:dir} is at most the value of that quadrant.
+\end{proof}
+The condition fails at sites where the domain is narrower than the quadrant, for example at the tip of a one-site-wide protrusion or at a corner where three domains meet; there channel B can respond to a wall. Inside a region whose embeddings have been shuffled, every quadrant contains unrelated vectors and $B_i$ is the dispersion of a random sample of $(h+1)^2$ of them, so the statistic separates disorganized regions from walls between organized ones. A coherent region of unusual embeddings has $B_i\approx0$: channel B is blind to it, and that is channel A's task.
+
+\begin{proposition}[Cost and benefit of max fusion]
+\label{prop:fuse}
+Let $a_i,b_i$ be the cohort ranks of the two channels and flag a site when its score exceeds $t$. For max fusion, the flagged set is the union of the sets flagged by the two channels at the same $t$. Hence, for every anomaly type, the true-positive rate of max fusion is at least the larger of the two channels' rates, and its false-positive rate is at most the sum of theirs.
+\end{proposition}
+\begin{proof}
+$\max(a_i,b_i)>t$ if and only if $a_i>t$ or $b_i>t$; apply the union bound to the normal sites.
+\end{proof}
+Max fusion therefore never loses a detection made by either channel at a fixed rank threshold, and its price is at most the added false positives of the other channel, at most a doubling when the channels' false positives are disjoint. In average precision, which integrates over thresholds, this price shows up as a loss relative to the better channel for each anomaly type; Section~\ref{sec:results} measures it.
+
+\begin{table}[t]
+\caption{Assumptions and scope of the analytical statements, and where each is checked.}
+\label{tab:props}
+\centering\small
+\begin{tabular}{p{2.6cm}p{6.2cm}p{4.0cm}}
+\toprule
+Statement & Assumptions & Numerical check\\
+\midrule
+Prop.~\ref{prop:perm} (blindness) & score depends only on the site's embedding and a position-free reference; for the AUC statement, stationary field, region placed independently & AUC of rarity and LOF on rearranged regions, both generators\\
+Prop.~\ref{prop:surv} (occupancy) & two-level score, fixed window, threshold read from the smoothed scores & predicted vs measured survival for five mask shapes\\
+Prop.~\ref{prop:wall} (walls) & wall straight at the scale of the quadrant; domains wider than the quadrant & share of domain-wall sites among the top 3\% of each disorder statistic\\
+Prop.~\ref{prop:fuse} (fusion) & site-wise maximum of cohort ranks & per-type AP of max fusion vs each channel\\
+\bottomrule
+\end{tabular}
+\end{table}

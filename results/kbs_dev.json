@@ -1,0 +1,634 @@
+{
+ "conditions": {
+  "G1 mixed, blocks 3x3, s=2": {
+   "summary": {
+    "rarity": {
+     "feature": 0.43578292684629477,
+     "arrangement": 0.0484124976122524,
+     "all": 0.21654822220549338,
+     "worst": 0.0484124976122524
+    },
+    "rarity, fixed mean": {
+     "feature": 0.17714019077145055,
+     "arrangement": 0.04183852423587072,
+     "all": 0.11642826642065358,
+     "worst": 0.04183852423587072
+    },
+    "channel A (similarity-weighted rarity)": {
+     "feature": 0.4065822393617877,
+     "arrangement": 0.06301017330104372,
+     "all": 0.22133062665525263,
+     "worst": 0.06301017330104372
+    },
+    "channel B (directional disorder)": {
+     "feature": 0.021476830583888093,
+     "arrangement": 0.6298406066277192,
+     "all": 0.45528679246199516,
+     "worst": 0.021476830583888093
+    },
+    "mean quadrant disorder": {
+     "feature": 0.03464363877742329,
+     "arrangement": 0.7245099953738443,
+     "all": 0.5408964333737233,
+     "worst": 0.03464363877742329
+    },
+    "isotropic disorder D": {
+     "feature": 0.03612775242333358,
+     "arrangement": 0.432154330015192,
+     "all": 0.3459461388286848,
+     "worst": 0.03612775242333358
+    },
+    "center-to-neighbor distance": {
+     "feature": 0.04170388315373634,
+     "arrangement": 0.7144969325325857,
+     "all": 0.5405909190172941,
+     "worst": 0.04170388315373634
+    },
+    "spatial outlier statistic (Shekhar)": {
+     "feature": 0.047749731160252246,
+     "arrangement": 0.7897681977216057,
+     "all": 0.6022667382841606,
+     "worst": 0.047749731160252246
+    },
+    "LOF (embeddings)": {
+     "feature": 0.0844868682293143,
+     "arrangement": 0.0470863662153822,
+     "all": 0.09036648843042473,
+     "worst": 0.0470863662153822
+    },
+    "isolation forest (embeddings)": {
+     "feature": 0.8032921814694866,
+     "arrangement": 0.04935702084855713,
+     "all": 0.3477703622895119,
+     "worst": 0.04935702084855713
+    },
+    "contextual LOF ([u, neighbor mean])": {
+     "feature": 0.05269650139119718,
+     "arrangement": 0.05871817103227979,
+     "all": 0.08522645793471141,
+     "worst": 0.05269650139119718
+    },
+    "OR(LOF, Shekhar)": {
+     "feature": 0.07614387623245812,
+     "arrangement": 0.2798442744370317,
+     "all": 0.27445591011999176,
+     "worst": 0.07614387623245812
+    },
+    "fusion: cohort selection (tail index)": {
+     "feature": 0.021476830583888093,
+     "arrangement": 0.6298406066277192,
+     "all": 0.45528679246199516,
+     "worst": 0.021476830583888093
+    },
+    "fusion: max": {
+     "feature": 0.34559296734407047,
+     "arrangement": 0.457032773970443,
+     "all": 0.5088629442242033,
+     "worst": 0.34559296734407047
+    },
+    "fusion: OR": {
+     "feature": 0.22641838196762823,
+     "arrangement": 0.3443370549861562,
+     "all": 0.3873882016868477,
+     "worst": 0.22641838196762823
+    },
+    "fusion: zmax": {
+     "feature": 0.11420252938158004,
+     "arrangement": 0.6221902876406186,
+     "all": 0.5324055285433739,
+     "worst": 0.11420252938158004
+    },
+    "fusion: max (A, neighbor distance)": {
+     "feature": 0.3638223436396742,
+     "arrangement": 0.5024579806558012,
+     "all": 0.5464220239503382,
+     "worst": 0.3638223436396742
+    },
+    "fusion: OR (A, neighbor distance)": {
+     "feature": 0.299926456816643,
+     "arrangement": 0.3757369459285986,
+     "all": 0.4427175134939478,
+     "worst": 0.299926456816643
+    },
+    "fusion: max (rarity, B)": {
+     "feature": 0.38000997299229955,
+     "arrangement": 0.4532558284841713,
+     "all": 0.5175707871566133,
+     "worst": 0.38000997299229955
+    },
+    "fusion: max (isolation forest, Shekhar)": {
+     "feature": 0.7825270131324906,
+     "arrangement": 0.6587055744751769,
+     "all": 0.7791555809005378,
+     "worst": 0.6587055744751769
+    },
+    "fusion: lcOR (locally calibrated B)": {
+     "feature": 0.2249247613513875,
+     "arrangement": 0.31073836096327917,
+     "all": 0.3598073128956381,
+     "worst": 0.2249247613513875
+    },
+    "fusion: relmax (reliability-weighted B)": {
+     "feature": 0.4055983931054612,
+     "arrangement": 0.06447611426431253,
+     "all": 0.2224408670752223,
+     "worst": 0.06447611426431253
+    }
+   },
+   "timing": {
+    "rarity": 0.02759710666723549,
+    "channelA": 0.0030907100008334965,
+    "channelB": 0.0018595166679006069,
+    "total": 0.4756875433357588
+   }
+  },
+  "G1 mixed, scattered, s=2.5": {
+   "summary": {
+    "rarity": {
+     "feature": 0.7029515978714705,
+     "arrangement": 0.057476306005086325,
+     "all": 0.291114424217086,
+     "worst": 0.057476306005086325
+    },
+    "rarity, fixed mean": {
+     "feature": 0.026150088207692424,
+     "arrangement": 0.06154772647064852,
+     "all": 0.07181555184374458,
+     "worst": 0.026150088207692424
+    },
+    "channel A (similarity-weighted rarity)": {
+     "feature": 0.35036915114840894,
+     "arrangement": 0.08471554237934309,
+     "all": 0.2053093874647497,
+     "worst": 0.08471554237934309
+    },
+    "channel B (directional disorder)": {
+     "feature": 0.14141229750390025,
+     "arrangement": 0.5914656630169364,
+     "all": 0.5437199503981868,
+     "worst": 0.14141229750390025
+    },
+    "mean quadrant disorder": {
+     "feature": 0.07208704791001172,
+     "arrangement": 0.6224463935420691,
+     "all": 0.5302446584807542,
+     "worst": 0.07208704791001172
+    },
+    "isotropic disorder D": {
+     "feature": 0.019691509874264806,
+     "arrangement": 0.3542503350363992,
+     "all": 0.28555335804743354,
+     "worst": 0.019691509874264806
+    },
+    "center-to-neighbor distance": {
+     "feature": 0.20433513911719223,
+     "arrangement": 0.6194339664670905,
+     "all": 0.593333173407736,
+     "worst": 0.20433513911719223
+    },
+    "spatial outlier statistic (Shekhar)": {
+     "feature": 0.6805341719149632,
+     "arrangement": 0.7272427026292397,
+     "all": 0.7880549295078781,
+     "worst": 0.6805341719149632
+    },
+    "LOF (embeddings)": {
+     "feature": 0.3267021584354198,
+     "arrangement": 0.04763132558501881,
+     "all": 0.16673919376115673,
+     "worst": 0.04763132558501881
+    },
+    "isolation forest (embeddings)": {
+     "feature": 0.9121098571527654,
+     "arrangement": 0.051018958205312374,
+     "all": 0.3440105905610826,
+     "worst": 0.051018958205312374
+    },
+    "contextual LOF ([u, neighbor mean])": {
+     "feature": 0.11698090506057343,
+     "arrangement": 0.055394475116705255,
+     "all": 0.10631209331736931,
+     "worst": 0.055394475116705255
+    },
+    "OR(LOF, Shekhar)": {
+     "feature": 0.5241524215537857,
+     "arrangement": 0.2878803366803135,
+     "all": 0.4555925504140864,
+     "worst": 0.2878803366803135
+    },
+    "fusion: cohort selection (tail index)": {
+     "feature": 0.14141229750390025,
+     "arrangement": 0.5914656630169364,
+     "all": 0.5437199503981868,
+     "worst": 0.14141229750390025
+    },
+    "fusion: max": {
+     "feature": 0.31017464641858755,
+     "arrangement": 0.45690549451204865,
+     "all": 0.4901722204885141,
+     "worst": 0.31017464641858755
+    },
+    "fusion: OR": {
+     "feature": 0.3889779920246696,
+     "arrangement": 0.3518554572417676,
+     "all": 0.4512287806693164,
+     "worst": 0.3518554572417676
+    },
+    "fusion: zmax": {
+     "feature": 0.23055356140495836,
+     "arrangement": 0.5850562137364899,
+     "all": 0.5787419181679045,
+     "worst": 0.23055356140495836
+    },
+    "fusion: max (A, neighbor distance)": {
+     "feature": 0.320890557850185,
+     "arrangement": 0.4660885712817278,
+     "all": 0.5044777265838307,
+     "worst": 0.320890557850185
+    },
+    "fusion: OR (A, neighbor distance)": {
+     "feature": 0.42889531846227347,
+     "arrangement": 0.371312009438954,
+     "all": 0.47837645920941846,
+     "worst": 0.371312009438954
+    },
+    "fusion: max (rarity, B)": {
+     "feature": 0.6421098933796334,
+     "arrangement": 0.4754924660597402,
+     "all": 0.6036893424395705,
+     "worst": 0.4754924660597402
+    },
+    "fusion: max (isolation forest, Shekhar)": {
+     "feature": 0.9010014054048233,
+     "arrangement": 0.5840196756356287,
+     "all": 0.7407649321307732,
+     "worst": 0.5840196756356287
+    },
+    "fusion: lcOR (locally calibrated B)": {
+     "feature": 0.3997565668439696,
+     "arrangement": 0.3048108989610704,
+     "all": 0.4192850844277643,
+     "worst": 0.3048108989610704
+    },
+    "fusion: relmax (reliability-weighted B)": {
+     "feature": 0.3499063641779298,
+     "arrangement": 0.08657155897619004,
+     "all": 0.20745262694176683,
+     "worst": 0.08657155897619004
+    }
+   },
+   "timing": {
+    "rarity": 0.02952766000137975,
+    "channelA": 0.0030786499982544528,
+    "channelB": 0.0018289066676516086,
+    "total": 0.42590050333334756
+   }
+  },
+  "G1 mixed, blobs 6, s=2, delta=0.6": {
+   "summary": {
+    "rarity": {
+     "feature": 0.4816751075282377,
+     "arrangement": 0.05263042150508131,
+     "all": 0.21947473526637287,
+     "worst": 0.05263042150508131
+    },
+    "rarity, fixed mean": {
+     "feature": 0.1032312985672563,
+     "arrangement": 0.04436050651442702,
+     "all": 0.09040697823498266,
+     "worst": 0.04436050651442702
+    },
+    "channel A (similarity-weighted rarity)": {
+     "feature": 0.3859781530004922,
+     "arrangement": 0.06655023628141105,
+     "all": 0.20454449607838723,
+     "worst": 0.06655023628141105
+    },
+    "channel B (directional disorder)": {
+     "feature": 0.04570075950858838,
+     "arrangement": 0.5289789001531021,
+     "all": 0.4448266120458312,
+     "worst": 0.04570075950858838
+    },
+    "mean quadrant disorder": {
+     "feature": 0.03941942629389975,
+     "arrangement": 0.5457841758527215,
+     "all": 0.45221390090505204,
+     "worst": 0.03941942629389975
+    },
+    "isotropic disorder D": {
+     "feature": 0.03574247543253669,
+     "arrangement": 0.23418669900335087,
+     "all": 0.2214798651111212,
+     "worst": 0.03574247543253669
+    },
+    "center-to-neighbor distance": {
+     "feature": 0.05007968908475018,
+     "arrangement": 0.6652329314150072,
+     "all": 0.5468400738715474,
+     "worst": 0.05007968908475018
+    },
+    "spatial outlier statistic (Shekhar)": {
+     "feature": 0.0848838695982088,
+     "arrangement": 0.7981622816496103,
+     "all": 0.6685772738715384,
+     "worst": 0.0848838695982088
+    },
+    "LOF (embeddings)": {
+     "feature": 0.12470980372208598,
+     "arrangement": 0.05285531649652538,
+     "all": 0.10909620566637393,
+     "worst": 0.05285531649652538
+    },
+    "isolation forest (embeddings)": {
+     "feature": 0.8200082366361894,
+     "arrangement": 0.04915461776087406,
+     "all": 0.31569563632328973,
+     "worst": 0.04915461776087406
+    },
+    "contextual LOF ([u, neighbor mean])": {
+     "feature": 0.0723988647088982,
+     "arrangement": 0.09691958355996909,
+     "all": 0.1282641657038963,
+     "worst": 0.0723988647088982
+    },
+    "OR(LOF, Shekhar)": {
+     "feature": 0.13322732657947156,
+     "arrangement": 0.30444803285950994,
+     "all": 0.3354672788397808,
+     "worst": 0.13322732657947156
+    },
+    "fusion: cohort selection (tail index)": {
+     "feature": 0.04570075950858838,
+     "arrangement": 0.5289789001531021,
+     "all": 0.4448266120458312,
+     "worst": 0.04570075950858838
+    },
+    "fusion: max": {
+     "feature": 0.3221925537196403,
+     "arrangement": 0.3818193848725419,
+     "all": 0.4538533394212283,
+     "worst": 0.3221925537196403
+    },
+    "fusion: OR": {
+     "feature": 0.2981581115875249,
+     "arrangement": 0.3023773624345998,
+     "all": 0.3914310797565032,
+     "worst": 0.2981581115875249
+    },
+    "fusion: zmax": {
+     "feature": 0.10610114297183994,
+     "arrangement": 0.520176033556958,
+     "all": 0.48769366485075366,
+     "worst": 0.10610114297183994
+    },
+    "fusion: max (A, neighbor distance)": {
+     "feature": 0.3535019405964292,
+     "arrangement": 0.47509481280163335,
+     "all": 0.5252481314506295,
+     "worst": 0.3535019405964292
+    },
+    "fusion: OR (A, neighbor distance)": {
+     "feature": 0.33472821482847104,
+     "arrangement": 0.36548196316551224,
+     "all": 0.4486361957778475,
+     "worst": 0.33472821482847104
+    },
+    "fusion: max (rarity, B)": {
+     "feature": 0.4150204891412773,
+     "arrangement": 0.3811584220635304,
+     "all": 0.48312606416312825,
+     "worst": 0.3811584220635304
+    },
+    "fusion: max (isolation forest, Shekhar)": {
+     "feature": 0.806448736045063,
+     "arrangement": 0.6478799717999948,
+     "all": 0.7661128656973911,
+     "worst": 0.6478799717999948
+    },
+    "fusion: lcOR (locally calibrated B)": {
+     "feature": 0.3036695025340964,
+     "arrangement": 0.2834491542486621,
+     "all": 0.3793283846802443,
+     "worst": 0.2834491542486621
+    },
+    "fusion: relmax (reliability-weighted B)": {
+     "feature": 0.38537692711837174,
+     "arrangement": 0.07154562351416999,
+     "all": 0.21046494017248837,
+     "worst": 0.07154562351416999
+    }
+   },
+   "timing": {
+    "rarity": 0.02830946999796045,
+    "channelA": 0.003220203334543233,
+    "channelB": 0.0019569566686792918,
+    "total": 0.5954367499992562
+   }
+  },
+  "G1 mixed, short correlation (corr 1.5), s=2": {
+   "summary": {
+    "rarity": {
+     "feature": 0.7214749771221521,
+     "arrangement": 0.04461150511655644,
+     "all": 0.31462321386958975,
+     "worst": 0.04461150511655644
+    },
+    "rarity, fixed mean": {
+     "feature": 0.39431185850571304,
+     "arrangement": 0.043515468790888516,
+     "all": 0.19387152144772826,
+     "worst": 0.043515468790888516
+    },
+    "channel A (similarity-weighted rarity)": {
+     "feature": 0.6030877121695947,
+     "arrangement": 0.07004686935133987,
+     "all": 0.3037127488080966,
+     "worst": 0.07004686935133987
+    },
+    "channel B (directional disorder)": {
+     "feature": 0.02530669977210376,
+     "arrangement": 0.7514891678550365,
+     "all": 0.5456683669410151,
+     "worst": 0.02530669977210376
+    },
+    "mean quadrant disorder": {
+     "feature": 0.022738447210130356,
+     "arrangement": 0.7763639470916422,
+     "all": 0.5612323020290493,
+     "worst": 0.022738447210130356
+    },
+    "isotropic disorder D": {
+     "feature": 0.02343525893415439,
+     "arrangement": 0.3622130710213015,
+     "all": 0.2837646965451003,
+     "worst": 0.02343525893415439
+    },
+    "center-to-neighbor distance": {
+     "feature": 0.02400096034890432,
+     "arrangement": 0.7312432245098932,
+     "all": 0.5334443217487598,
+     "worst": 0.02400096034890432
+    },
+    "spatial outlier statistic (Shekhar)": {
+     "feature": 0.0241252681017159,
+     "arrangement": 0.8263997294944994,
+     "all": 0.5983051607112382,
+     "worst": 0.0241252681017159
+    },
+    "LOF (embeddings)": {
+     "feature": 0.2183679684579945,
+     "arrangement": 0.0435206530312763,
+     "all": 0.13614979956576556,
+     "worst": 0.0435206530312763
+    },
+    "isolation forest (embeddings)": {
+     "feature": 0.8040119064029648,
+     "arrangement": 0.04124039714003157,
+     "all": 0.33593399724725226,
+     "worst": 0.04124039714003157
+    },
+    "contextual LOF ([u, neighbor mean])": {
+     "feature": 0.16632688952840605,
+     "arrangement": 0.15490395065751558,
+     "all": 0.20856330117083483,
+     "worst": 0.15490395065751558
+    },
+    "OR(LOF, Shekhar)": {
+     "feature": 0.14108168568896426,
+     "arrangement": 0.3340725367679439,
+     "all": 0.34458567371826715,
+     "worst": 0.14108168568896426
+    },
+    "fusion: cohort selection (tail index)": {
+     "feature": 0.02530669977210376,
+     "arrangement": 0.7514891678550365,
+     "all": 0.5456683669410151,
+     "worst": 0.02530669977210376
+    },
+    "fusion: max": {
+     "feature": 0.5632636128177981,
+     "arrangement": 0.5952850876325477,
+     "all": 0.6773713241461947,
+     "worst": 0.5632636128177981
+    },
+    "fusion: OR": {
+     "feature": 0.314857568693264,
+     "arrangement": 0.4036891204522765,
+     "all": 0.48602390130731193,
+     "worst": 0.314857568693264
+    },
+    "fusion: zmax": {
+     "feature": 0.3250439914285263,
+     "arrangement": 0.7436750734455054,
+     "all": 0.7096862268220078,
+     "worst": 0.3250439914285263
+    },
+    "fusion: max (A, neighbor distance)": {
+     "feature": 0.564037307311546,
+     "arrangement": 0.5867208485284089,
+     "all": 0.670262069090427,
+     "worst": 0.564037307311546
+    },
+    "fusion: OR (A, neighbor distance)": {
+     "feature": 0.3187994654545561,
+     "arrangement": 0.3949260898322631,
+     "all": 0.4807994478909979,
+     "worst": 0.3187994654545561
+    },
+    "fusion: max (rarity, B)": {
+     "feature": 0.6785071319803022,
+     "arrangement": 0.6092563393527896,
+     "all": 0.7123041410358922,
+     "worst": 0.6092563393527896
+    },
+    "fusion: max (isolation forest, Shekhar)": {
+     "feature": 0.7847858439368962,
+     "arrangement": 0.6850344798681149,
+     "all": 0.7950720494603132,
+     "worst": 0.6850344798681149
+    },
+    "fusion: lcOR (locally calibrated B)": {
+     "feature": 0.3063004913567241,
+     "arrangement": 0.33793145249711515,
+     "all": 0.4345023099931471,
+     "worst": 0.3063004913567241
+    },
+    "fusion: relmax (reliability-weighted B)": {
+     "feature": 0.6022848929440018,
+     "arrangement": 0.07044358921458477,
+     "all": 0.303602357346304,
+     "worst": 0.07044358921458477
+    }
+   },
+   "timing": {
+    "rarity": 0.03579500999961358,
+    "channelA": 0.0031983333348762247,
+    "channelB": 0.002278269998108347,
+    "total": 0.5179573700006584
+   }
+  }
+ },
+ "criterion_mean_worst_type_AP": {
+  "fusion: cohort selection (tail index)": 0.058474146842120114,
+  "fusion: max": 0.38530594507502414,
+  "fusion: OR": 0.2978223798725462,
+  "fusion: zmax": 0.19397530629672616,
+  "fusion: lcOR (locally calibrated B)": 0.279871326479461,
+  "fusion: relmax (reliability-weighted B)": 0.07325922149231433,
+  "fusion: max (rarity, B)": 0.46147930011708993
+ },
+ "best_simple": "fusion: max (rarity, B)",
+ "tests_vs_best_simple": {
+  "fusion: lcOR (locally calibrated B)": {
+   "mean": -0.17864846040491805,
+   "ci": [
+    -0.2158862260464469,
+    -0.14811517771124644
+   ],
+   "share_positive": 0.0
+  },
+  "fusion: relmax (reliability-weighted B)": {
+   "mean": -0.40568777529855177,
+   "ci": [
+    -0.443552607249448,
+    -0.3662551182717888
+   ],
+   "share_positive": 0.0
+  },
+  "fusion: cohort selection (tail index)": {
+   "mean": -0.4204824266923353,
+   "ci": [
+    -0.4603621726660063,
+    -0.3802395648696432
+   ],
+   "share_positive": 0.0
+  },
+  "fusion: max": {
+   "mean": -0.09379117605686414,
+   "ci": [
+    -0.13890133601328386,
+    -0.04581948348414729
+   ],
+   "share_positive": 0.0
+  },
+  "fusion: OR": {
+   "mean": -0.17196555475794623,
+   "ci": [
+    -0.2172196286832324,
+    -0.1244419757332981
+   ],
+   "share_positive": 0.0
+  },
+  "fusion: zmax": {
+   "mean": -0.284883972427113,
+   "ci": [
+    -0.32350652496595916,
+    -0.24302338518793634
+   ],
+   "share_positive": 0.0
+  }
+ },
+ "chosen": "fusion: max (rarity, B)",
+ "rule": "choose the better of max and OR by the mean over conditions of the worst-type AP; replace it by an adaptive rule only if that rule is better AND its paired bootstrap 95% interval of the gain (lattices pooled over conditions) excludes zero"
+}
