@@ -1,0 +1,56 @@
+{
+ "frozen_at_utc": "2026-11-17T02:07:07Z",
+ "code_sha256": "7e8f2907f772786d497c647d4abd108adc35afdf935a22a3f73047f01356af8d",
+ "stage1_code_sha256": "4b6c63528307bc7090eaf41a4cc9f1cfbf125d9b4f8d5b5c58fc3de60f827273",
+ "chosen": "max(isolation forest (embeddings) | spatial outlier statistic (Shekhar))",
+ "conditions": {
+  "G3 oriented texture, shuffled regions": [
+   "G3",
+   {
+    "arr": "shuffle"
+   }
+  ],
+  "G3 oriented texture, rotated patches": [
+   "G3",
+   {
+    "arr": "rotate"
+   }
+  ],
+  "G2 replication (fresh seeds), phi=40, delta=1": [
+   "G2",
+   {
+    "phi": 40.0,
+    "delta": 1.0
+   }
+  ],
+  "G1 replication (fresh seeds), blocks 3x3, s=2": [
+   "G1",
+   {
+    "s": 2.0,
+    "f_shape": "block",
+    "f_block": 3
+   }
+  ]
+ },
+ "lattices_per_condition": 30,
+ "seed0": 900000,
+ "primary_endpoint": "worst-type AP of the chosen fusion, per condition and pooled over the two G3 conditions; paired bootstrap against each comparator",
+ "comparators": [
+  "fusion: max (rarity, B)",
+  "OR(LOF, Shekhar)",
+  "contextual LOF ([u, neighbor mean])",
+  "fusion: max (isolation forest, Shekhar)",
+  "fusion: cohort selection (tail index)",
+  "max(isolation forest (embeddings) | center-to-neighbor distance)",
+  "max(isolation forest (embeddings) | channel B (directional disorder))",
+  "max(cohort kNN rarity | spatial outlier statistic (Shekhar))",
+  "cohort kNN rarity",
+  "within-lattice kNN rarity",
+  "LOF (embeddings)",
+  "isolation forest (embeddings)",
+  "channel B (directional disorder)",
+  "spatial outlier statistic (Shekhar)",
+  "center-to-neighbor distance"
+ ],
+ "g3_note": "gen3 written before this freeze; a smoke test generated one lattice (seed 1) of each arrangement type to check that the code runs, no score computed"
+}
