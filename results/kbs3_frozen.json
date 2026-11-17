@@ -1,0 +1,55 @@
+{
+ "frozen_at_utc": "2026-11-17T02:27:04Z",
+ "code_sha256": "1f0d128ca1d58aa26fec1b2dd204f598b18ee0f8e8bc6ea02f82262b5bc27932",
+ "stage2_code_sha256": "7e8f2907f772786d497c647d4abd108adc35afdf935a22a3f73047f01356af8d",
+ "stage1_code_sha256": "4b6c63528307bc7090eaf41a4cc9f1cfbf125d9b4f8d5b5c58fc3de60f827273",
+ "rule": "max(isolation forest (embeddings) | spatial outlier statistic (Shekhar))",
+ "comparators": [
+  "fusion: max (rarity, B)",
+  "OR(LOF, Shekhar)",
+  "contextual LOF ([u, neighbor mean])",
+  "fusion: max (isolation forest, Shekhar)",
+  "fusion: cohort selection (tail index)",
+  "max(isolation forest (embeddings) | center-to-neighbor distance)",
+  "max(isolation forest (embeddings) | channel B (directional disorder))",
+  "max(cohort kNN rarity | spatial outlier statistic (Shekhar))",
+  "cohort kNN rarity",
+  "within-lattice kNN rarity",
+  "LOF (embeddings)",
+  "isolation forest (embeddings)",
+  "channel B (directional disorder)",
+  "spatial outlier statistic (Shekhar)",
+  "center-to-neighbor distance"
+ ],
+ "conditions": {
+  "G4 stationary texture, shuffled regions, 32x32": [
+   {
+    "arr": "shuffle"
+   },
+   30
+  ],
+  "G4 stationary texture, rotated patches, 32x32": [
+   {
+    "arr": "rotate"
+   },
+   30
+  ],
+  "G4 stationary texture, shuffled regions, 64x64": [
+   {
+    "arr": "shuffle",
+    "n": 64
+   },
+   20
+  ],
+  "G4 stationary texture, shuffled regions, 128x128": [
+   {
+    "arr": "shuffle",
+    "n": 128
+   },
+   20
+  ]
+ },
+ "seed0": 2000000,
+ "primary_endpoint": "worst-type AP of the stage-2 rule pooled over the two 32x32 G4 conditions; paired bootstrap against each comparator. Secondary: per-condition results, and the change of worst-type AP with lattice size (shuffled regions, 32 -> 64 -> 128)",
+ "note": "gen4 written before this freeze; a smoke test generated lattices with seeds 1-3 (anomaly-free, n = 32, 64, 128) and seed 1 (each arrangement type and size) and printed only the label counts and the mean neighbor difference of anomaly-free lattices (stationarity check); no detector score was computed"
+}
